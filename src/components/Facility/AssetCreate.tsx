@@ -1,5 +1,6 @@
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
 import { navigate } from "raviger";
+import { useRef } from "react";
 import {
   LegacyRef,
   MutableRefObject,
@@ -109,6 +110,45 @@ const AssetCreate = (props: AssetProps) => {
 
   let assetClassInitial: AssetClass;
 
+  const [initialValues, setInitialValues] = useState<{
+    name: string;
+    description: string;
+    location: string;
+    asset_class: AssetClass | undefined;
+    is_working: string | undefined;
+    not_working_reason: string;
+    serial_number: string;
+    vendor_name: string;
+    support_name: string;
+    support_email: string;
+    support_phone: string;
+    qr_code_id: string;
+    manufacturer: string;
+    warranty_amc_end_of_validity: any;
+    last_serviced_on: any;
+    notes: string;
+  }>({
+    name: "",
+    description: "",
+    location: "",
+    asset_class: undefined,
+    is_working: undefined,
+    not_working_reason: "",
+    serial_number: "",
+    vendor_name: "",
+    support_name: "",
+    support_email: "",
+    support_phone: "",
+    qr_code_id: "",
+    manufacturer: "",
+    warranty_amc_end_of_validity: null,
+    last_serviced_on: null,
+    notes: "",
+  });
+
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const isInitialLoad = useRef(true);
+
   const [state, dispatch] = useReducer(asset_create_reducer, initialState);
   const [name, setName] = useState("");
   const [asset_class, setAssetClass] = useState<AssetClass>();
@@ -182,26 +222,95 @@ const AssetCreate = (props: AssetProps) => {
     onResponse: ({ data: asset }) => {
       if (!asset) return;
 
-      setName(asset.name);
-      setDescription(asset.description);
-      setLocation(asset.location_object.id!);
-      setAssetClass(asset.asset_class);
-      setIsWorking(String(asset.is_working));
-      setNotWorkingReason(asset.not_working_reason);
-      setSerialNumber(asset.serial_number);
-      setVendorName(asset.vendor_name);
-      setSupportName(asset.support_name);
-      setSupportEmail(asset.support_email);
-      setSupportPhone(asset.support_phone);
-      setQrCodeId(asset.qr_code_id);
-      setManufacturer(asset.manufacturer);
-      asset.warranty_amc_end_of_validity &&
-        setWarrantyAmcEndOfValidity(asset.warranty_amc_end_of_validity);
-      asset.last_service?.serviced_on &&
-        setLastServicedOn(asset.last_service?.serviced_on);
-      asset.last_service?.note && setNotes(asset.last_service?.note);
+      const fetchedValues = {
+        name: asset.name || "",
+        description: asset.description || "",
+        location: asset.location_object.id! || "",
+        asset_class: asset.asset_class,
+        is_working: String(asset.is_working),
+        not_working_reason: asset.not_working_reason || "",
+        serial_number: asset.serial_number || "",
+        vendor_name: asset.vendor_name || "",
+        support_name: asset.support_name || "",
+        support_email: asset.support_email || "",
+        support_phone: asset.support_phone || "",
+        qr_code_id: asset.qr_code_id || "",
+        manufacturer: asset.manufacturer || "",
+        warranty_amc_end_of_validity: asset.warranty_amc_end_of_validity,
+        last_serviced_on: asset.last_service?.serviced_on || null,
+        notes: asset.last_service?.note || "",
+      };
+
+      setInitialValues(fetchedValues);
+
+      setName(fetchedValues.name);
+      setDescription(fetchedValues.description);
+      setLocation(fetchedValues.location);
+      setAssetClass(fetchedValues.asset_class);
+      setIsWorking(fetchedValues.is_working);
+      setNotWorkingReason(fetchedValues.not_working_reason);
+      setSerialNumber(fetchedValues.serial_number);
+      setVendorName(fetchedValues.vendor_name);
+      setSupportName(fetchedValues.support_name);
+      setSupportEmail(fetchedValues.support_email);
+      setSupportPhone(fetchedValues.support_phone);
+      setQrCodeId(fetchedValues.qr_code_id);
+      setManufacturer(fetchedValues.manufacturer);
+      setWarrantyAmcEndOfValidity(fetchedValues.warranty_amc_end_of_validity);
+      setLastServicedOn(fetchedValues.last_serviced_on);
+      setNotes(fetchedValues.notes);
+
+      isInitialLoad.current = false;
     },
   });
+
+  useEffect(() => {
+    if (isInitialLoad.current) return;
+
+    const currentValues = {
+      name,
+      description,
+      location,
+      asset_class,
+      is_working,
+      not_working_reason,
+      serial_number,
+      vendor_name,
+      support_name,
+      support_email,
+      support_phone,
+      qr_code_id: qrCodeId,
+      manufacturer,
+      warranty_amc_end_of_validity,
+      last_serviced_on,
+      notes,
+    };
+    console.log("Initial Values " + currentValues);
+
+    const isChanged = (
+      Object.keys(currentValues) as Array<keyof typeof currentValues>
+    ).some((key) => currentValues[key] !== initialValues[key]);
+
+    setIsButtonEnabled(isChanged);
+  }, [
+    name,
+    description,
+    location,
+    asset_class,
+    is_working,
+    not_working_reason,
+    serial_number,
+    vendor_name,
+    support_name,
+    support_email,
+    support_phone,
+    qrCodeId,
+    manufacturer,
+    warranty_amc_end_of_validity,
+    last_serviced_on,
+    notes,
+    initialValues,
+  ]);
 
   const validateForm = () => {
     const errors = { ...initError };
@@ -893,12 +1002,14 @@ const AssetCreate = (props: AssetProps) => {
                     <Submit
                       onClick={(e) => handleSubmit(e, false)}
                       label={assetId ? t("update") : t("create_asset")}
+                      disabled={!isButtonEnabled}
                     />
                     {!assetId && (
                       <Submit
                         data-testid="create-asset-add-more-button"
                         onClick={(e) => handleSubmit(e, true)}
                         label={t("create_add_more")}
+                        disabled={!isButtonEnabled}
                       />
                     )}
                   </div>
