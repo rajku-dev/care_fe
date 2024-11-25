@@ -1,13 +1,11 @@
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
 import { navigate } from "raviger";
-import { useRef } from "react";
 import {
   LegacyRef,
   MutableRefObject,
   RefObject,
   createRef,
   useEffect,
-  useReducer,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,7 +13,6 @@ import { useTranslation } from "react-i18next";
 import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
 
 import { AssetClass, AssetType } from "@/components/Assets/AssetTypes";
-import { Cancel, Submit } from "@/components/Common/ButtonV2";
 import Loading from "@/components/Common/Loading";
 import { LocationSelect } from "@/components/Common/LocationSelect";
 import Page from "@/components/Common/Page";
@@ -43,6 +40,10 @@ import request from "@/Utils/request/request";
 import useQuery from "@/Utils/request/useQuery";
 import { dateQueryString, parsePhoneNumber } from "@/Utils/utils";
 
+import { FieldError, RequiredFieldValidator } from "../Form/FieldValidators";
+import Form from "../Form/Form";
+import { FormErrors } from "../Form/Utils";
+
 const formErrorKeys = [
   "name",
   "asset_class",
@@ -56,17 +57,35 @@ const formErrorKeys = [
   "support_email",
   "manufacturer",
   "warranty_amc_end_of_validity",
-  "last_serviced_on",
+  "last_serviced",
   "notes",
 ];
 
-const initError = formErrorKeys.reduce(
-  (acc: { [key: string]: string }, key) => {
-    acc[key] = "";
-    return acc;
-  },
-  {},
-);
+interface AssetT {
+  id?: string;
+  name?: string;
+  location?: string;
+  description?: string;
+  is_working?: boolean;
+  not_working_reason?: string;
+  created_date?: string;
+  modified_date?: string;
+  serial_number?: string;
+  asset_type?: AssetType;
+  asset_class?: AssetClass;
+  status?: "ACTIVE" | "TRANSFER_IN_PROGRESS";
+  vendor_name?: string;
+  support_name?: string;
+  support_email?: string;
+  support_phone?: string;
+  qr_code_id?: string;
+  manufacturer?: string;
+  warranty_amc_end_of_validity?: string;
+  serviced_on?: string;
+  latest_status?: string;
+  last_service?: any;
+  notes: string;
+}
 
 const fieldRef = formErrorKeys.reduce(
   (acc: { [key: string]: RefObject<any> }, key) => {
@@ -76,27 +95,27 @@ const fieldRef = formErrorKeys.reduce(
   {},
 );
 
-const initialState = {
-  errors: { ...initError },
-};
+// const initialState = {
+//   errors: { ...initError },
+// };
 
 interface AssetProps {
   facilityId: string;
   assetId?: string;
 }
 
-const asset_create_reducer = (state = initialState, action: any) => {
-  switch (action.type) {
-    case "set_error": {
-      return {
-        ...state,
-        errors: action.errors,
-      };
-    }
-    default:
-      return state;
-  }
-};
+// const asset_create_reducer = (state = initialState, action: any) => {
+//   switch (action.type) {
+//     case "set_error": {
+//       return {
+//         ...state,
+//         errors: action.errors,
+//       };
+//     }
+//     default:
+//       return state;
+//   }
+// };
 
 type AssetFormSection =
   | "General Details"
@@ -108,66 +127,55 @@ const AssetCreate = (props: AssetProps) => {
   const { t } = useTranslation();
   const { facilityId, assetId } = props;
 
-  let assetClassInitial: AssetClass;
-
-  const [initialValues, setInitialValues] = useState<{
-    name: string;
-    description: string;
-    location: string;
-    asset_class: AssetClass | undefined;
-    is_working: string | undefined;
-    not_working_reason: string;
-    serial_number: string;
-    vendor_name: string;
-    support_name: string;
-    support_email: string;
-    support_phone: string;
-    qr_code_id: string;
-    manufacturer: string;
-    warranty_amc_end_of_validity: any;
-    last_serviced_on: any;
-    notes: string;
-  }>({
+  const initialAssetData: AssetT = {
+    id: "",
     name: "",
-    description: "",
     location: "",
-    asset_class: undefined,
-    is_working: undefined,
+    description: "",
+    is_working: false,
     not_working_reason: "",
+    created_date: "",
+    modified_date: "",
     serial_number: "",
+    asset_type: undefined,
+    asset_class: undefined,
+    status: "ACTIVE",
     vendor_name: "",
     support_name: "",
     support_email: "",
     support_phone: "",
     qr_code_id: "",
     manufacturer: "",
-    warranty_amc_end_of_validity: null,
-    last_serviced_on: null,
+    warranty_amc_end_of_validity: "",
+    latest_status: "",
+    last_service: null,
+    serviced_on: "",
     notes: "",
-  });
+  };
 
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
-  const isInitialLoad = useRef(true);
+  // State to store asset data
+  const [initAssetData, setinitialAssetData] =
+    useState<AssetT>(initialAssetData);
 
-  const [state, dispatch] = useReducer(asset_create_reducer, initialState);
-  const [name, setName] = useState("");
-  const [asset_class, setAssetClass] = useState<AssetClass>();
-  const [not_working_reason, setNotWorkingReason] = useState("");
-  const [description, setDescription] = useState("");
-  const [is_working, setIsWorking] = useState<string | undefined>(undefined);
-  const [serial_number, setSerialNumber] = useState("");
-  const [vendor_name, setVendorName] = useState("");
-  const [support_name, setSupportName] = useState("");
-  const [support_phone, setSupportPhone] = useState("");
-  const [support_email, setSupportEmail] = useState("");
-  const [location, setLocation] = useState("");
+  // const [state, dispatch] = useReducer(asset_create_reducer, initialState);
+  // const [name, setName] = useState("");
+  // const [asset_class, setAssetClass] = useState<AssetClass>();
+  // const [not_working_reason, setNotWorkingReason] = useState("");
+  // const [description, setDescription] = useState("");
+  // const [is_working, setIsWorking] = useState<string | undefined>(undefined);
+  // const [serial_number, setSerialNumber] = useState("");
+  // const [vendor_name, setVendorName] = useState("");
+  // const [support_name, setSupportName] = useState("");
+  // const [support_phone, setSupportPhone] = useState("");
+  // const [support_email, setSupportEmail] = useState("");
+  // const [location, setLocation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [qrCodeId, setQrCodeId] = useState("");
-  const [manufacturer, setManufacturer] = useState("");
-  const [warranty_amc_end_of_validity, setWarrantyAmcEndOfValidity] =
-    useState<any>(null);
-  const [last_serviced_on, setLastServicedOn] = useState<any>(null);
-  const [notes, setNotes] = useState("");
+  // const [qrCodeId, setQrCodeId] = useState("");
+  // const [manufacturer, setManufacturer] = useState("");
+  // const [warranty_amc_end_of_validity, setWarrantyAmcEndOfValidity] =
+  //   useState<any>(null);
+  // const [last_serviced_on, setLastServicedOn] = useState<any>(null);
+  // const [notes, setNotes] = useState("");
   const [isScannerActive, setIsScannerActive] = useState<boolean>(false);
 
   const [currentSection, setCurrentSection] =
@@ -216,255 +224,327 @@ const AssetCreate = (props: AssetProps) => {
     query: { limit: 1 },
   });
 
+  // const assetQuery = useQuery(routes.getAsset, {
+  //   pathParams: { external_id: assetId! },
+  //   prefetch: !!assetId,
+  //   onResponse: ({ data: asset }) => {
+  //     if (!asset) return;
+
+  //     setName(asset.name);
+  //     setDescription(asset.description);
+  //     setLocation(asset.location_object.id!);
+  //     setAssetClass(asset.asset_class);
+  //     setIsWorking(String(asset.is_working));
+  //     setNotWorkingReason(asset.not_working_reason);
+  //     setSerialNumber(asset.serial_number);
+  //     setVendorName(asset.vendor_name);
+  //     setSupportName(asset.support_name);
+  //     setSupportEmail(asset.support_email);
+  //     setSupportPhone(asset.support_phone);
+  //     setQrCodeId(asset.qr_code_id);
+  //     setManufacturer(asset.manufacturer);
+  //     asset.warranty_amc_end_of_validity &&
+  //       setWarrantyAmcEndOfValidity(asset.warranty_amc_end_of_validity);
+  //     asset.last_service?.serviced_on &&
+  //       setLastServicedOn(asset.last_service?.serviced_on);
+  //     asset.last_service?.note && setNotes(asset.last_service?.note);
+  //   },
+  // });
+
   const assetQuery = useQuery(routes.getAsset, {
     pathParams: { external_id: assetId! },
     prefetch: !!assetId,
     onResponse: ({ data: asset }) => {
       if (!asset) return;
 
-      const fetchedValues = {
-        name: asset.name || "",
-        description: asset.description || "",
-        location: asset.location_object.id! || "",
+      // Update the state with the fetched data
+      setinitialAssetData({
+        id: asset.id,
+        name: asset.name,
+        location: asset.location_object?.id,
+        description: asset.description,
+        is_working: asset.is_working,
+        not_working_reason: asset.not_working_reason,
+        created_date: asset.created_date,
+        modified_date: asset.modified_date,
+        serial_number: asset.serial_number,
+        asset_type: asset.asset_type,
         asset_class: asset.asset_class,
-        is_working: String(asset.is_working),
-        not_working_reason: asset.not_working_reason || "",
-        serial_number: asset.serial_number || "",
-        vendor_name: asset.vendor_name || "",
-        support_name: asset.support_name || "",
-        support_email: asset.support_email || "",
-        support_phone: asset.support_phone || "",
-        qr_code_id: asset.qr_code_id || "",
-        manufacturer: asset.manufacturer || "",
+        status: asset.status,
+        vendor_name: asset.vendor_name,
+        support_name: asset.support_name,
+        support_email: asset.support_email,
+        support_phone: asset.support_phone,
+        qr_code_id: asset.qr_code_id,
+        manufacturer: asset.manufacturer,
         warranty_amc_end_of_validity: asset.warranty_amc_end_of_validity,
-        last_serviced_on: asset.last_service?.serviced_on || null,
-        notes: asset.last_service?.note || "",
-      };
-
-      setInitialValues(fetchedValues);
-
-      setName(fetchedValues.name);
-      setDescription(fetchedValues.description);
-      setLocation(fetchedValues.location);
-      setAssetClass(fetchedValues.asset_class);
-      setIsWorking(fetchedValues.is_working);
-      setNotWorkingReason(fetchedValues.not_working_reason);
-      setSerialNumber(fetchedValues.serial_number);
-      setVendorName(fetchedValues.vendor_name);
-      setSupportName(fetchedValues.support_name);
-      setSupportEmail(fetchedValues.support_email);
-      setSupportPhone(fetchedValues.support_phone);
-      setQrCodeId(fetchedValues.qr_code_id);
-      setManufacturer(fetchedValues.manufacturer);
-      setWarrantyAmcEndOfValidity(fetchedValues.warranty_amc_end_of_validity);
-      setLastServicedOn(fetchedValues.last_serviced_on);
-      setNotes(fetchedValues.notes);
-
-      isInitialLoad.current = false;
+        latest_status: asset.latest_status,
+        last_service: asset.last_service,
+        serviced_on: asset.last_service?.serviced_on,
+        notes: asset.last_service?.note,
+      });
     },
   });
 
-  useEffect(() => {
-    if (isInitialLoad.current) return;
+  const AssetFormValidator = (form: AssetT): FormErrors<AssetT> => {
+    const errors: Partial<Record<keyof AssetT, FieldError>> = {}; // Initialize error object
 
-    const currentValues = {
-      name,
-      description,
-      location,
-      asset_class,
-      is_working,
-      not_working_reason,
-      serial_number,
-      vendor_name,
-      support_name,
-      support_email,
-      support_phone,
-      qr_code_id: qrCodeId,
-      manufacturer,
-      warranty_amc_end_of_validity,
-      last_serviced_on,
-      notes,
-    };
-    console.log("Initial Values " + currentValues);
+    errors.name = RequiredFieldValidator()(form.name);
 
-    const isChanged = (
-      Object.keys(currentValues) as Array<keyof typeof currentValues>
-    ).some((key) => currentValues[key] !== initialValues[key]);
-
-    setIsButtonEnabled(isChanged);
-  }, [
-    name,
-    description,
-    location,
-    asset_class,
-    is_working,
-    not_working_reason,
-    serial_number,
-    vendor_name,
-    support_name,
-    support_email,
-    support_phone,
-    qrCodeId,
-    manufacturer,
-    warranty_amc_end_of_validity,
-    last_serviced_on,
-    notes,
-    initialValues,
-  ]);
-
-  const validateForm = () => {
-    const errors = { ...initError };
-    let invalidForm = false;
-    Object.keys(state.errors).forEach((field) => {
-      switch (field) {
-        case "name":
-          if (!name) {
-            errors[field] = "Asset name can't be empty";
-            invalidForm = true;
-          }
-          return;
-        case "is_working":
-          if (is_working === undefined) {
-            errors[field] = t("field_required");
-            invalidForm = true;
-          }
-          return;
-        case "location":
-          if (!location || location === "0" || location === "") {
-            errors[field] = "Select a location";
-            invalidForm = true;
-          }
-          return;
-        case "support_phone": {
-          if (!support_phone) {
-            errors[field] = t("field_required");
-            invalidForm = true;
-          }
-          // eslint-disable-next-line no-case-declarations
-          const checkTollFree = support_phone.startsWith("1800");
-          const supportPhoneSimple = support_phone
-            .replace(/[^0-9]/g, "")
-            .slice(2);
-          if (supportPhoneSimple.length != 10 && !checkTollFree) {
-            errors[field] = "Please enter valid phone number";
-            invalidForm = true;
-          } else if (
-            (support_phone.length < 10 || support_phone.length > 11) &&
-            checkTollFree
-          ) {
-            errors[field] = "Please enter valid phone number";
-            invalidForm = true;
-          }
-          return;
-        }
-        case "support_email":
-          if (support_email && !validateEmailAddress(support_email)) {
-            errors[field] = "Please enter valid email id";
-            invalidForm = true;
-          }
-          return;
-        case "last_serviced_on":
-          if (notes && !last_serviced_on) {
-            errors[field] = "Last serviced on date is require with notes";
-            invalidForm = true;
-          }
-          return;
-        default:
-          return;
-      }
-    });
-    if (invalidForm) {
-      dispatch({ type: "set_error", errors });
-      const firstError = Object.keys(errors).find((key) => errors[key]);
-      if (firstError) {
-        fieldRef[firstError].current?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }
-      return false;
+    if (form.is_working === undefined) {
+      errors.is_working = t("field_required");
     }
-    dispatch({ type: "set_error", errors });
-    return true;
-  };
 
-  const resetFilters = () => {
-    setName("");
-    setDescription("");
-    setLocation("");
-    setAssetClass(assetClassInitial);
-    setIsWorking(undefined);
-    setNotWorkingReason("");
-    setSerialNumber("");
-    setVendorName("");
-    setSupportName("");
-    setSupportEmail("");
-    setSupportPhone("");
-    setQrCodeId("");
-    setManufacturer("");
-    setWarrantyAmcEndOfValidity("");
-    setLastServicedOn("");
-    setNotes("");
-    setWarrantyAmcEndOfValidity(null);
-    setLastServicedOn(null);
-  };
+    if (!form.location || form.location === "0" || form.location === "") {
+      errors.location = "Select a location";
+    }
 
-  const handleSubmit = async (e: React.SyntheticEvent, addMore: boolean) => {
-    e.preventDefault();
-    const validated = validateForm();
-    if (validated) {
-      setIsLoading(true);
-      const data: any = {
-        name: name,
-        asset_type: AssetType.INTERNAL,
-        asset_class: asset_class || "",
-        description: description,
-        is_working: is_working,
-        not_working_reason: is_working === "true" ? "" : not_working_reason,
-        serial_number: serial_number,
-        location: location,
-        vendor_name: vendor_name,
-        support_name: support_name,
-        support_email: support_email,
-        support_phone: support_phone.startsWith("1800")
-          ? support_phone
-          : parsePhoneNumber(support_phone),
-        qr_code_id: qrCodeId !== "" ? qrCodeId : null,
-        manufacturer: manufacturer,
-        warranty_amc_end_of_validity: warranty_amc_end_of_validity
-          ? dateQueryString(warranty_amc_end_of_validity)
-          : null,
-      };
-
-      if (last_serviced_on) {
-        data["last_serviced_on"] = dateQueryString(last_serviced_on);
-        data["note"] = notes ?? "";
+    if (!form.support_phone) {
+      errors.support_phone = t("field_required");
+    } else {
+      const checkTollFree = form.support_phone.startsWith("1800");
+      const supportPhoneSimple = form.support_phone
+        .replace(/[^0-9]/g, "")
+        .slice(2);
+      if (supportPhoneSimple.length !== 10 && !checkTollFree) {
+        errors.support_phone = "Please enter valid phone number";
+      } else if (
+        (form.support_phone.length < 10 || form.support_phone.length > 11) &&
+        checkTollFree
+      ) {
+        errors.support_phone = "Please enter valid phone number";
       }
+    }
 
-      if (!assetId) {
+    if (form.support_email && !validateEmailAddress(form.support_email)) {
+      errors.support_email = "Please enter valid email id";
+    }
+
+    if (form.notes && !form.last_service) {
+      errors.serviced_on = "Last serviced on date is required with notes";
+    }
+
+    return errors;
+  };
+
+  // const validateForm = () => {
+  //   const errors = { ...initError };
+  //   let invalidForm = false;
+  //   Object.keys(state.errors).forEach((field) => {
+  //     switch (field) {
+  //       case "name":
+  //         if (!name) {
+  //           errors[field] = "Asset name can't be empty";
+  //           invalidForm = true;
+  //         }
+  //         return;
+  //       case "is_working":
+  //         if (is_working === undefined) {
+  //           errors[field] = t("field_required");
+  //           invalidForm = true;
+  //         }
+  //         return;
+  //       case "location":
+  //         if (!location || location === "0" || location === "") {
+  //           errors[field] = "Select a location";
+  //           invalidForm = true;
+  //         }
+  //         return;
+  //       case "support_phone": {
+  //         if (!support_phone) {
+  //           errors[field] = t("field_required");
+  //           invalidForm = true;
+  //         }
+  //         // eslint-disable-next-line no-case-declarations
+  //         const checkTollFree = support_phone.startsWith("1800");
+  //         const supportPhoneSimple = support_phone
+  //           .replace(/[^0-9]/g, "")
+  //           .slice(2);
+  //         if (supportPhoneSimple.length != 10 && !checkTollFree) {
+  //           errors[field] = "Please enter valid phone number";
+  //           invalidForm = true;
+  //         } else if (
+  //           (support_phone.length < 10 || support_phone.length > 11) &&
+  //           checkTollFree
+  //         ) {
+  //           errors[field] = "Please enter valid phone number";
+  //           invalidForm = true;
+  //         }
+  //         return;
+  //       }
+  //       case "support_email":
+  //         if (support_email && !validateEmailAddress(support_email)) {
+  //           errors[field] = "Please enter valid email id";
+  //           invalidForm = true;
+  //         }
+  //         return;
+  //       case "last_serviced_on":
+  //         if (notes && !last_serviced_on) {
+  //           errors[field] = "Last serviced on date is require with notes";
+  //           invalidForm = true;
+  //         }
+  //         return;
+  //       default:
+  //         return;
+  //     }
+  //   });
+  //   if (invalidForm) {
+  //     dispatch({ type: "set_error", errors });
+  //     const firstError = Object.keys(errors).find((key) => errors[key]);
+  //     if (firstError) {
+  //       fieldRef[firstError].current?.scrollIntoView({
+  //         behavior: "smooth",
+  //         block: "center",
+  //       });
+  //     }
+  //     return false;
+  //   }
+  //   dispatch({ type: "set_error", errors });
+  //   return true;
+  // };
+
+  // const resetFilters = () => {
+  //   setName("");
+  //   setDescription("");
+  //   setLocation("");
+  //   setAssetClass(assetClassInitial);
+  //   setIsWorking(undefined);
+  //   setNotWorkingReason("");
+  //   setSerialNumber("");
+  //   setVendorName("");
+  //   setSupportName("");
+  //   setSupportEmail("");
+  //   setSupportPhone("");
+  //   setQrCodeId("");
+  //   setManufacturer("");
+  //   setWarrantyAmcEndOfValidity("");
+  //   setLastServicedOn("");
+  //   setNotes("");
+  //   setWarrantyAmcEndOfValidity(null);
+  //   setLastServicedOn(null);
+  // };
+
+  // const handleSubmit = async (e: React.SyntheticEvent, addMore: boolean) => {
+  //   e.preventDefault();
+  //   const validated = validateForm();
+  //   if (validated) {
+  //     setIsLoading(true);
+  //     const data: any = {
+  //       name: name,
+  //       asset_type: AssetType.INTERNAL,
+  //       asset_class: asset_class || "",
+  //       description: description,
+  //       is_working: is_working,
+  //       not_working_reason: is_working === "true" ? "" : not_working_reason,
+  //       serial_number: serial_number,
+  //       location: location,
+  //       vendor_name: vendor_name,
+  //       support_name: support_name,
+  //       support_email: support_email,
+  //       support_phone: support_phone.startsWith("1800")
+  //         ? support_phone
+  //         : parsePhoneNumber(support_phone),
+  //       qr_code_id: qrCodeId !== "" ? qrCodeId : null,
+  //       manufacturer: manufacturer,
+  //       warranty_amc_end_of_validity: warranty_amc_end_of_validity
+  //         ? dateQueryString(warranty_amc_end_of_validity)
+  //         : null,
+  //     };
+
+  //     if (last_serviced_on) {
+  //       data["last_serviced_on"] = dateQueryString(last_serviced_on);
+  //       data["note"] = notes ?? "";
+  //     }
+
+  //     if (!assetId) {
+  //       const { res } = await request(routes.createAsset, { body: data });
+  //       if (res?.ok) {
+  //         Notification.Success({ msg: "Asset created successfully" });
+  //         if (addMore) {
+  //           resetFilters();
+  //           const pageContainer = window.document.getElementById("pages");
+  //           pageContainer?.scroll(0, 0);
+  //         } else {
+  //           goBack();
+  //         }
+  //       }
+  //       setIsLoading(false);
+  //     } else {
+  //       const { res } = await request(routes.updateAsset, {
+  //         pathParams: { external_id: assetId },
+  //         body: data,
+  //       });
+  //       if (res?.ok) {
+  //         Notification.Success({ msg: "Asset updated successfully" });
+  //         goBack();
+  //       }
+  //       setIsLoading(false);
+  //     }
+  //   }
+  // };
+
+  const handleSubmitAsync = async (form: AssetT, addMore: boolean) => {
+    setIsLoading(true);
+
+    const data: any = {
+      name: form.name,
+      asset_type: AssetType.INTERNAL,
+      asset_class: form.asset_class || "",
+      description: form.description,
+      is_working: form.is_working,
+      not_working_reason:
+        form.is_working === true ? "" : form.not_working_reason,
+      serial_number: form.serial_number,
+      location: form.location,
+      vendor_name: form.vendor_name,
+      support_name: form.support_name,
+      support_email: form.support_email,
+      support_phone: form.support_phone?.startsWith("1800")
+        ? form.support_phone
+        : parsePhoneNumber(String(form.support_phone)),
+      qr_code_id: form.qr_code_id !== "" ? form.qr_code_id : null,
+      manufacturer: form.manufacturer,
+      warranty_amc_end_of_validity: form.warranty_amc_end_of_validity
+        ? dateQueryString(form.warranty_amc_end_of_validity)
+        : null,
+    };
+
+    if (form.serviced_on) {
+      data["last_serviced_on"] = dateQueryString(form.serviced_on);
+      data["note"] = form.notes ?? "";
+    }
+
+    try {
+      if (!form.id) {
         const { res } = await request(routes.createAsset, { body: data });
         if (res?.ok) {
           Notification.Success({ msg: "Asset created successfully" });
+          // Handle "Add More" logic if necessary
           if (addMore) {
-            resetFilters();
+            // resetFilters();
             const pageContainer = window.document.getElementById("pages");
             pageContainer?.scroll(0, 0);
           } else {
             goBack();
           }
         }
-        setIsLoading(false);
       } else {
         const { res } = await request(routes.updateAsset, {
-          pathParams: { external_id: assetId },
+          pathParams: { external_id: form.id },
           body: data,
         });
         if (res?.ok) {
           Notification.Success({ msg: "Asset updated successfully" });
           goBack();
         }
-        setIsLoading(false);
       }
+    } catch (error) {
+      // Handle error (optional)
+      Notification.Error({
+        msg: "An error occurred while processing the asset",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -474,7 +554,7 @@ const AssetCreate = (props: AssetProps) => {
       // QR Maybe searchParams "asset" or "assetQR"
       const assetId = params.asset || params.assetQR;
       if (assetId) {
-        setQrCodeId(assetId);
+        // setQrCodeId(assetId);
         setIsScannerActive(false);
         return;
       }
@@ -489,6 +569,9 @@ const AssetCreate = (props: AssetProps) => {
   if (isLoading || locationsQuery.loading || assetQuery.loading) {
     return <Loading />;
   }
+
+  const name: string | undefined =
+    locationsQuery.data?.results[0].facility?.name || undefined;
 
   if (locationsQuery.data?.count === 0) {
     return (
@@ -520,6 +603,10 @@ const AssetCreate = (props: AssetProps) => {
       </Page>
     );
   }
+
+  const handleOnCancel: () => void = () => {
+    navigate(`/facility/${facilityId}/location/add`);
+  };
 
   if (isScannerActive)
     return (
@@ -582,10 +669,10 @@ const AssetCreate = (props: AssetProps) => {
         className="grow-0 pl-6"
         crumbsReplacements={{
           [facilityId]: {
-            name: locationsQuery.data?.results[0].facility?.name,
+            name,
           },
           assets: { style: "text-secondary-200 pointer-events-none" },
-          [assetId || "????"]: { name },
+          [assetId || "????"]: { name: name || undefined },
         }}
         backUrl={
           assetId
@@ -619,402 +706,386 @@ const AssetCreate = (props: AssetProps) => {
           </div>
           <div className="flex h-full w-full overflow-auto xl:ml-72">
             <div className="w-full max-w-3xl 2xl:max-w-4xl">
-              <form
-                onSubmit={(e) => handleSubmit(e, false)}
+              <Form<AssetT>
+                disabled={isLoading}
+                defaults={initAssetData}
+                onCancel={handleOnCancel}
+                onSubmit={async (obj) => {
+                  await handleSubmitAsync(obj, Boolean(assetId));
+                }}
                 className="rounded bg-white p-6 transition-all sm:rounded-xl sm:p-12"
+                noPadding
+                validate={AssetFormValidator}
+                submitLabel={assetId ? t("update") : t("create_asset")}
               >
-                <div className="grid grid-cols-1 items-start gap-x-12">
-                  <div className="grid grid-cols-6 gap-x-6">
-                    {/* General Details Section */}
-                    {sectionTitle("General Details")}
-                    {/* Asset Name */}
-                    <div
-                      className="col-span-6"
-                      ref={fieldRef["name"]}
-                      data-testid="asset-name-input"
-                    >
-                      <TextFormField
-                        name="name"
-                        label={t("asset_name")}
-                        required
-                        value={name}
-                        onChange={({ value }) => setName(value)}
-                        error={state.errors.name}
-                      />
-                    </div>
+                {(field) => (
+                  <>
+                    <div className="grid grid-cols-1 items-start gap-x-12">
+                      <div className="grid grid-cols-6 gap-x-6">
+                        {/* General Details Section */}
+                        {sectionTitle("General Details")}
+                        {/* Asset Name */}
+                        <div
+                          className="col-span-6"
+                          ref={fieldRef["name"]}
+                          data-testid="asset-name-input"
+                        >
+                          <TextFormField
+                            {...field("name", RequiredFieldValidator())}
+                            label={t("asset_name")}
+                            required
+                          />
+                        </div>
 
-                    {/* Location */}
-                    <FieldLabel className="w-max text-sm" required>
-                      {t("asset_location")}
-                    </FieldLabel>
-                    <div
-                      ref={fieldRef["location"]}
-                      className="col-span-6"
-                      data-testid="asset-location-input"
-                    >
-                      <LocationSelect
-                        name="Facilities"
-                        setSelected={(selectedId) =>
-                          setLocation((selectedId as string) || "")
-                        }
-                        selected={location}
-                        showAll={false}
-                        multiple={false}
-                        facilityId={facilityId}
-                        errors={state.errors.location}
-                      />
-                    </div>
+                        {/* Location */}
+                        <FieldLabel className="w-max text-sm" required>
+                          {t("asset_location")}
+                        </FieldLabel>
+                        <div
+                          ref={fieldRef["location"]}
+                          className="col-span-6"
+                          data-testid="asset-location-input"
+                        >
+                          <LocationSelect
+                            name={field("location").name}
+                            disabled={false}
+                            selected={field("location").value}
+                            setSelected={(selected) => {
+                              field("location").onChange({
+                                name: "location",
+                                value: selected,
+                              });
+                            }}
+                            errors={field("location").error}
+                            facilityId={facilityId}
+                            multiple={false}
+                            showAll={false}
+                          />
+                        </div>
 
-                    {/* Asset Class */}
-                    <div
-                      ref={fieldRef["asset_class"]}
-                      className="col-span-6"
-                      data-testid="asset-class-input"
-                    >
-                      <SelectFormField
-                        disabled={!!(props.assetId && asset_class)}
-                        name="asset_class"
-                        label={t("asset_class")}
-                        value={asset_class}
-                        options={[
-                          { title: "ONVIF Camera", value: AssetClass.ONVIF },
-                          {
-                            title: "HL7 Vitals Monitor",
-                            value: AssetClass.HL7MONITOR,
-                          },
-                          {
-                            title: "Ventilator",
-                            value: AssetClass.VENTILATOR,
-                          },
-                        ]}
-                        optionLabel={({ title }) => title}
-                        optionValue={({ value }) => value}
-                        onChange={({ value }) => setAssetClass(value)}
-                        error={state.errors.asset_class}
-                      />
-                    </div>
-                    {/* Description */}
-                    <div
-                      className="col-span-6"
-                      data-testid="asset-description-input"
-                    >
-                      <TextAreaFormField
-                        name="asset_description"
-                        label={t("description")}
-                        placeholder={t("details_about_the_equipment")}
-                        value={description}
-                        onChange={({ value }) => setDescription(value)}
-                        error={state.errors.description}
-                      />
-                    </div>
-                    {/* Divider */}
-                    <div
-                      className="col-span-6"
-                      data-testid="asset-divider-input"
-                    >
-                      <hr
-                        className={
-                          "transition-all " +
-                          (is_working === "true"
-                            ? "my-0 opacity-0"
-                            : "my-4 opacity-100")
-                        }
-                      />
-                    </div>
-                    {/* Working Status */}
-                    <div
-                      ref={fieldRef["is_working"]}
-                      className="col-span-6"
-                      data-testid="asset-working-status-input"
-                    >
-                      <SwitchV2
-                        className="col-span-6"
-                        required
-                        name="is_working"
-                        label={t("working_status")}
-                        options={["true", "false"]}
-                        optionLabel={(option) => {
-                          return (
-                            {
-                              true: "Working",
-                              false: "Not Working",
-                            }[option] || "undefined"
-                          );
-                        }}
-                        optionClassName={(option) =>
-                          option === "false" &&
-                          "bg-danger-500 text-white border-danger-500 focus:ring-danger-500"
-                        }
-                        value={is_working}
-                        onChange={setIsWorking}
-                        error={state.errors.is_working}
-                      />
-                    </div>
-                    {/* Not Working Reason */}
-                    <div
-                      className={
-                        "col-span-6" +
-                        ((is_working !== "false" && " hidden") || "")
-                      }
-                    >
-                      <TextAreaFormField
-                        name="not_working_reason"
-                        label={t("why_the_asset_is_not_working")}
-                        placeholder={t("describe_why_the_asset_is_not_working")}
-                        value={not_working_reason}
-                        onChange={(e) => setNotWorkingReason(e.value)}
-                        error={state.errors.not_working_reason}
-                      />
-                    </div>
-                    {/* Divider */}
-                    <div className="col-span-6">
-                      <hr
-                        className={
-                          "transition-all " +
-                          (is_working === "true"
-                            ? "my-0 opacity-0"
-                            : "mb-7 opacity-100")
-                        }
-                      />
-                    </div>
-                    {/* Asset QR ID */}
-                    <div className="col-span-6 flex flex-row items-center gap-3">
-                      <div className="w-full" data-testid="asset-qr-id-input">
-                        <TextFormField
-                          id="qr_code_id"
-                          name="qr_code_id"
-                          placeholder=""
-                          label={t("asset_qr_id")}
-                          value={qrCodeId}
-                          onChange={(e) => setQrCodeId(e.value)}
-                          error={state.errors.qr_code_id}
-                        />
-                      </div>
-                      <div
-                        className="ml-1 mt-1 flex h-10 cursor-pointer items-center justify-self-end rounded border border-secondary-400 px-4 hover:bg-secondary-200"
-                        onClick={() => setIsScannerActive(true)}
-                      >
-                        <CareIcon
-                          icon="l-focus"
-                          className="cursor-pointer text-lg"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-6 gap-x-6">
-                    {sectionTitle("Warranty Details")}
-
-                    {/* Manufacturer */}
-                    <div
-                      className="col-span-6 sm:col-span-3"
-                      ref={fieldRef["manufacturer"]}
-                      data-testid="asset-manufacturer-input"
-                    >
-                      <TextFormField
-                        id="manufacturer"
-                        name="manufacturer"
-                        label={t("manufacturer")}
-                        value={manufacturer}
-                        placeholder={t("eg_xyz")}
-                        onChange={(e) => setManufacturer(e.value)}
-                        error={state.errors.manufacturer}
-                      />
-                    </div>
-
-                    {/* Warranty / AMC Expiry */}
-                    <div
-                      className="col-span-6 sm:col-span-3"
-                      ref={fieldRef["warranty_amc_end_of_validity"]}
-                      data-testid="asset-warranty-input"
-                    >
-                      <TextFormField
-                        name="WarrantyAMCExpiry"
-                        value={warranty_amc_end_of_validity}
-                        label={t("warranty_amc_expiry")}
-                        error={state.errors.warranty_amc_end_of_validity}
-                        onChange={(event) => {
-                          const value = dayjs(event.value);
-                          const date = new Date(value.toDate().toDateString());
-                          const today = new Date(new Date().toDateString());
-                          if (date < today) {
-                            Notification.Error({
-                              msg: "Warranty / AMC Expiry date can't be in past",
-                            });
-                          } else {
-                            setWarrantyAmcEndOfValidity(dateQueryString(value));
+                        {/* Asset Class */}
+                        <div
+                          ref={fieldRef["asset_class"]}
+                          className="col-span-6"
+                          data-testid="asset-class-input"
+                        >
+                          <SelectFormField
+                            disabled={
+                              !!(props.assetId && !!field("asset_class").value)
+                            }
+                            {...field("asset_class")}
+                            options={[
+                              {
+                                title: "ONVIF Camera",
+                                value: AssetClass.ONVIF,
+                              },
+                              {
+                                title: "HL7 Vitals Monitor",
+                                value: AssetClass.HL7MONITOR,
+                              },
+                              {
+                                title: "Ventilator",
+                                value: AssetClass.VENTILATOR,
+                              },
+                            ]}
+                            optionLabel={({ title }) => title}
+                            optionValue={({ value }) => value}
+                          />
+                        </div>
+                        {/* Description */}
+                        <div
+                          className="col-span-6"
+                          data-testid="asset-description-input"
+                        >
+                          <TextAreaFormField
+                            {...field("description")}
+                            label={t("description")}
+                            placeholder={t("details_about_the_equipment")}
+                          />
+                        </div>
+                        {/* Divider */}
+                        <div
+                          className="col-span-6"
+                          data-testid="asset-divider-input"
+                        >
+                          <hr
+                            className={
+                              "transition-all " +
+                              (field("is_working").value === true
+                                ? "my-0 opacity-0"
+                                : "my-4 opacity-100")
+                            }
+                          />
+                        </div>
+                        {/* Working Status */}
+                        <div
+                          ref={fieldRef["is_working"]}
+                          className="col-span-6"
+                          data-testid="asset-working-status-input"
+                        >
+                          <SwitchV2
+                            className="col-span-6"
+                            required
+                            {...field("is_working")}
+                            label={t("working_status")}
+                            options={["true", "false"]}
+                            value={
+                              String(field("is_working").value) as
+                                | "true"
+                                | "false"
+                            } // Convert to string
+                            onChange={(option: "true" | "false") =>
+                              field("is_working").onChange({
+                                name: "is_working",
+                                value: option === "true", // Convert back to boolean
+                              })
+                            }
+                            optionLabel={(option: "true" | "false") => {
+                              return (
+                                {
+                                  true: "Working",
+                                  false: "Not Working",
+                                }[option] || "undefined"
+                              );
+                            }}
+                            optionClassName={(option) =>
+                              option === "false" &&
+                              "bg-danger-500 text-white border-danger-500 focus:ring-danger-500"
+                            }
+                          />
+                        </div>
+                        {/* Not Working Reason */}
+                        <div
+                          className={
+                            "col-span-6" +
+                            ((field("is_working").value !== false &&
+                              " hidden") ||
+                              "")
                           }
-                        }}
-                        type="date"
-                        min={dayjs().format("YYYY-MM-DD")}
-                      />
+                        >
+                          <TextAreaFormField
+                            label={t("why_the_asset_is_not_working")}
+                            placeholder={t(
+                              "describe_why_the_asset_is_not_working",
+                            )}
+                            {...field("not_working_reason")}
+                          />
+                        </div>
+                        {/* Divider */}
+                        <div className="col-span-6">
+                          <hr
+                            className={
+                              "transition-all " +
+                              (field("is_working").value === true
+                                ? "my-0 opacity-0"
+                                : "mb-7 opacity-100")
+                            }
+                          />
+                        </div>
+                        {/* Asset QR ID */}
+                        <div className="col-span-6 flex flex-row items-center gap-3">
+                          <div
+                            className="w-full"
+                            data-testid="asset-qr-id-input"
+                          >
+                            <TextFormField
+                              placeholder=""
+                              label={t("asset_qr_id")}
+                              {...field("qr_code_id")}
+                            />
+                          </div>
+                          <div
+                            className="ml-1 mt-1 flex h-10 cursor-pointer items-center justify-self-end rounded border border-secondary-400 px-4 hover:bg-secondary-200"
+                            onClick={() => setIsScannerActive(true)}
+                          >
+                            <CareIcon
+                              icon="l-focus"
+                              className="cursor-pointer text-lg"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-6 gap-x-6">
+                        {sectionTitle("Warranty Details")}
+
+                        {/* Manufacturer */}
+                        <div
+                          className="col-span-6 sm:col-span-3"
+                          ref={fieldRef["manufacturer"]}
+                          data-testid="asset-manufacturer-input"
+                        >
+                          <TextFormField
+                            label={t("manufacturer")}
+                            placeholder={t("eg_xyz")}
+                            {...field("manufacturer")}
+                          />
+                        </div>
+
+                        {/* Warranty / AMC Expiry */}
+                        <div
+                          className="col-span-6 sm:col-span-3"
+                          ref={fieldRef["warranty_amc_end_of_validity"]}
+                          data-testid="asset-warranty-input"
+                        >
+                          <TextFormField
+                            {...field("warranty_amc_end_of_validity")}
+                            label={t("warranty_amc_expiry")}
+                            onChange={(event) => {
+                              const { value } = event;
+                              const selectedDate = dayjs(value);
+                              const formattedDate =
+                                selectedDate.format("YYYY-MM-DD");
+                              const today = dayjs().format("YYYY-MM-DD");
+
+                              if (selectedDate.isBefore(today)) {
+                                Notification.Error({
+                                  msg: "Warranty / AMC Expiry date can't be in the past",
+                                });
+                              } else {
+                                // Update the provider's state with the valid date
+                                field("warranty_amc_end_of_validity").onChange({
+                                  name: "warranty_amc_end_of_validity",
+                                  value: formattedDate,
+                                });
+                              }
+                            }}
+                            type="date"
+                            min={dayjs().format("YYYY-MM-DD")}
+                          />
+                        </div>
+
+                        {/* Customer Support Name */}
+                        <div
+                          className="col-span-6 sm:col-span-3"
+                          ref={fieldRef["support_name"]}
+                          data-testid="asset-support-name-input"
+                        >
+                          <TextFormField
+                            label={t("customer_support_name")}
+                            placeholder={t("eg_abc")}
+                            {...field("support_name")}
+                          />
+                        </div>
+
+                        {/* Customer Support Number */}
+                        <div
+                          className="col-span-6 sm:col-span-3"
+                          ref={fieldRef["support_phone"]}
+                          id="customer-support-phone-div"
+                        >
+                          <PhoneNumberFormField
+                            label={t("customer_support_number")}
+                            required
+                            {...field("support_phone")}
+                            types={["mobile", "landline", "support"]}
+                          />
+                        </div>
+
+                        {/* Customer Support Email */}
+                        <div
+                          className="col-span-6 sm:col-span-3"
+                          ref={fieldRef["support_email"]}
+                          data-testid="asset-support-email-input"
+                        >
+                          <TextFormField
+                            label={t("customer_support_email")}
+                            placeholder={t("eg_mail_example_com")}
+                            {...field("support_email")}
+                          />
+                        </div>
+
+                        <div className="sm:col-span-3" />
+
+                        {/* Vendor Name */}
+                        <div
+                          className="col-span-6 sm:col-span-3"
+                          ref={fieldRef["vendor_name"]}
+                          data-testid="asset-vendor-name-input"
+                        >
+                          <TextFormField
+                            {...field("vendor_name")}
+                            label={t("vendor_name")}
+                            placeholder={t("eg_xyz")}
+                          />
+                        </div>
+
+                        {/* Serial Number */}
+                        <div
+                          className="col-span-6 sm:col-span-3"
+                          ref={fieldRef["serial_number"]}
+                          data-testid="asset-serial-number-input"
+                        >
+                          <TextFormField
+                            label={t("serial_number")}
+                            {...field("serial_number")}
+                          />
+                        </div>
+
+                        <div className="mt-6" />
+                        {sectionTitle("Service Details")}
+
+                        {/* Last serviced on */}
+                        <div
+                          className="col-span-6 sm:col-span-3"
+                          ref={fieldRef["last_serviced_on"]}
+                          data-testid="asset-last-serviced-on-input"
+                        >
+                          <DateFormField
+                            {...field("serviced_on")}
+                            label={t("last_serviced_on")}
+                            className="mt-2"
+                            disableFuture
+                            value={
+                              field("serviced_on").value &&
+                              new Date(field("serviced_on").value)
+                            }
+                            onChange={(date) => {
+                              const selectedDate = dayjs(date.value).format(
+                                "YYYY-MM-DD",
+                              );
+                              const today = new Date().toLocaleDateString(
+                                "en-ca",
+                              );
+
+                              if (selectedDate > today) {
+                                Notification.Error({
+                                  msg: "Last Serviced date can't be in the future",
+                                });
+                              } else {
+                                field("serviced_on").onChange({
+                                  name: "last_serviced_on",
+                                  value: selectedDate,
+                                });
+                              }
+                            }}
+                          />
+
+                          <FieldErrorText
+                            error={field("serviced_on").error}
+                          ></FieldErrorText>
+                        </div>
+
+                        {/* Notes */}
+                        <div
+                          className="col-span-6 mt-6"
+                          ref={fieldRef["notes"]}
+                          data-testid="asset-notes-input"
+                        >
+                          <TextAreaFormField
+                            label={t("notes")}
+                            placeholder={t(
+                              "Eg. Details on functionality, service, etc.",
+                            )}
+                            {...field("notes")}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mt-12 flex flex-wrap justify-end gap-2"></div>
                     </div>
-
-                    {/* Customer Support Name */}
-                    <div
-                      className="col-span-6 sm:col-span-3"
-                      ref={fieldRef["support_name"]}
-                      data-testid="asset-support-name-input"
-                    >
-                      <TextFormField
-                        id="support-name"
-                        name="support_name"
-                        label={t("customer_support_name")}
-                        placeholder={t("eg_abc")}
-                        value={support_name}
-                        onChange={(e) => setSupportName(e.value)}
-                        error={state.errors.support_name}
-                      />
-                    </div>
-
-                    {/* Customer Support Number */}
-                    <div
-                      className="col-span-6 sm:col-span-3"
-                      ref={fieldRef["support_phone"]}
-                      id="customer-support-phone-div"
-                    >
-                      <PhoneNumberFormField
-                        name="support_phone"
-                        label={t("customer_support_number")}
-                        required
-                        value={support_phone}
-                        onChange={(e) => setSupportPhone(e.value)}
-                        error={state.errors.support_phone}
-                        types={["mobile", "landline", "support"]}
-                      />
-                    </div>
-
-                    {/* Customer Support Email */}
-                    <div
-                      className="col-span-6 sm:col-span-3"
-                      ref={fieldRef["support_email"]}
-                      data-testid="asset-support-email-input"
-                    >
-                      <TextFormField
-                        id="support-email"
-                        name="support_email"
-                        label={t("customer_support_email")}
-                        placeholder={t("eg_mail_example_com")}
-                        value={support_email}
-                        onChange={(e) => setSupportEmail(e.value)}
-                        error={state.errors.support_email}
-                      />
-                    </div>
-
-                    <div className="sm:col-span-3" />
-
-                    {/* Vendor Name */}
-                    <div
-                      className="col-span-6 sm:col-span-3"
-                      ref={fieldRef["vendor_name"]}
-                      data-testid="asset-vendor-name-input"
-                    >
-                      <TextFormField
-                        id="vendor-name"
-                        name="vendor_name"
-                        label={t("vendor_name")}
-                        value={vendor_name}
-                        placeholder={t("eg_xyz")}
-                        onChange={(e) => setVendorName(e.value)}
-                        error={state.errors.vendor_name}
-                      />
-                    </div>
-
-                    {/* Serial Number */}
-                    <div
-                      className="col-span-6 sm:col-span-3"
-                      ref={fieldRef["serial_number"]}
-                      data-testid="asset-serial-number-input"
-                    >
-                      <TextFormField
-                        id="serial-number"
-                        name="serial_number"
-                        label={t("serial_number")}
-                        value={serial_number}
-                        onChange={(e) => setSerialNumber(e.value)}
-                        error={state.errors.serial_number}
-                      />
-                    </div>
-
-                    <div className="mt-6" />
-                    {sectionTitle("Service Details")}
-
-                    {/* Last serviced on */}
-                    <div
-                      className="col-span-6 sm:col-span-3"
-                      ref={fieldRef["last_serviced_on"]}
-                      data-testid="asset-last-serviced-on-input"
-                    >
-                      <DateFormField
-                        label={t("last_serviced_on")}
-                        name="last_serviced_on"
-                        className="mt-2"
-                        disableFuture
-                        value={last_serviced_on && new Date(last_serviced_on)}
-                        onChange={(date) => {
-                          if (
-                            dayjs(date.value).format("YYYY-MM-DD") >
-                            new Date().toLocaleDateString("en-ca")
-                          ) {
-                            Notification.Error({
-                              msg: "Last Serviced date can't be in future",
-                            });
-                          } else {
-                            setLastServicedOn(
-                              dayjs(date.value).format("YYYY-MM-DD"),
-                            );
-                          }
-                        }}
-                      />
-                      <FieldErrorText
-                        error={state.errors.last_serviced_on}
-                      ></FieldErrorText>
-                    </div>
-
-                    {/* Notes */}
-                    <div
-                      className="col-span-6 mt-6"
-                      ref={fieldRef["notes"]}
-                      data-testid="asset-notes-input"
-                    >
-                      <TextAreaFormField
-                        name="notes"
-                        label={t("notes")}
-                        placeholder={t(
-                          "Eg. Details on functionality, service, etc.",
-                        )}
-                        value={notes}
-                        onChange={(e) => setNotes(e.value)}
-                        error={state.errors.notes}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mt-12 flex flex-wrap justify-end gap-2">
-                    <Cancel
-                      onClick={() =>
-                        navigate(
-                          assetId
-                            ? `/facility/${facilityId}/assets/${assetId}`
-                            : `/facility/${facilityId}`,
-                        )
-                      }
-                    />
-                    <Submit
-                      onClick={(e) => handleSubmit(e, false)}
-                      label={assetId ? t("update") : t("create_asset")}
-                      disabled={!isButtonEnabled}
-                    />
-                    {!assetId && (
-                      <Submit
-                        data-testid="create-asset-add-more-button"
-                        onClick={(e) => handleSubmit(e, true)}
-                        label={t("create_add_more")}
-                        disabled={!isButtonEnabled}
-                      />
-                    )}
-                  </div>
-                </div>
-              </form>
+                  </>
+                )}
+              </Form>
             </div>
           </div>
         </div>
