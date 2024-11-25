@@ -66,7 +66,7 @@ interface AssetT {
   name?: string;
   location?: string;
   description?: string;
-  is_working?: boolean;
+  is_working?: boolean | null;
   not_working_reason?: string;
   created_date?: string;
   modified_date?: string;
@@ -95,27 +95,10 @@ const fieldRef = formErrorKeys.reduce(
   {},
 );
 
-// const initialState = {
-//   errors: { ...initError },
-// };
-
 interface AssetProps {
   facilityId: string;
   assetId?: string;
 }
-
-// const asset_create_reducer = (state = initialState, action: any) => {
-//   switch (action.type) {
-//     case "set_error": {
-//       return {
-//         ...state,
-//         errors: action.errors,
-//       };
-//     }
-//     default:
-//       return state;
-//   }
-// };
 
 type AssetFormSection =
   | "General Details"
@@ -132,7 +115,7 @@ const AssetCreate = (props: AssetProps) => {
     name: "",
     location: "",
     description: "",
-    is_working: false,
+    is_working: null,
     not_working_reason: "",
     created_date: "",
     modified_date: "",
@@ -153,29 +136,10 @@ const AssetCreate = (props: AssetProps) => {
     notes: "",
   };
 
-  // State to store asset data
   const [initAssetData, setinitialAssetData] =
     useState<AssetT>(initialAssetData);
 
-  // const [state, dispatch] = useReducer(asset_create_reducer, initialState);
-  // const [name, setName] = useState("");
-  // const [asset_class, setAssetClass] = useState<AssetClass>();
-  // const [not_working_reason, setNotWorkingReason] = useState("");
-  // const [description, setDescription] = useState("");
-  // const [is_working, setIsWorking] = useState<string | undefined>(undefined);
-  // const [serial_number, setSerialNumber] = useState("");
-  // const [vendor_name, setVendorName] = useState("");
-  // const [support_name, setSupportName] = useState("");
-  // const [support_phone, setSupportPhone] = useState("");
-  // const [support_email, setSupportEmail] = useState("");
-  // const [location, setLocation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  // const [qrCodeId, setQrCodeId] = useState("");
-  // const [manufacturer, setManufacturer] = useState("");
-  // const [warranty_amc_end_of_validity, setWarrantyAmcEndOfValidity] =
-  //   useState<any>(null);
-  // const [last_serviced_on, setLastServicedOn] = useState<any>(null);
-  // const [notes, setNotes] = useState("");
   const [isScannerActive, setIsScannerActive] = useState<boolean>(false);
 
   const [currentSection, setCurrentSection] =
@@ -224,40 +188,12 @@ const AssetCreate = (props: AssetProps) => {
     query: { limit: 1 },
   });
 
-  // const assetQuery = useQuery(routes.getAsset, {
-  //   pathParams: { external_id: assetId! },
-  //   prefetch: !!assetId,
-  //   onResponse: ({ data: asset }) => {
-  //     if (!asset) return;
-
-  //     setName(asset.name);
-  //     setDescription(asset.description);
-  //     setLocation(asset.location_object.id!);
-  //     setAssetClass(asset.asset_class);
-  //     setIsWorking(String(asset.is_working));
-  //     setNotWorkingReason(asset.not_working_reason);
-  //     setSerialNumber(asset.serial_number);
-  //     setVendorName(asset.vendor_name);
-  //     setSupportName(asset.support_name);
-  //     setSupportEmail(asset.support_email);
-  //     setSupportPhone(asset.support_phone);
-  //     setQrCodeId(asset.qr_code_id);
-  //     setManufacturer(asset.manufacturer);
-  //     asset.warranty_amc_end_of_validity &&
-  //       setWarrantyAmcEndOfValidity(asset.warranty_amc_end_of_validity);
-  //     asset.last_service?.serviced_on &&
-  //       setLastServicedOn(asset.last_service?.serviced_on);
-  //     asset.last_service?.note && setNotes(asset.last_service?.note);
-  //   },
-  // });
-
   const assetQuery = useQuery(routes.getAsset, {
     pathParams: { external_id: assetId! },
     prefetch: !!assetId,
     onResponse: ({ data: asset }) => {
       if (!asset) return;
 
-      // Update the state with the fetched data
       setinitialAssetData({
         id: asset.id,
         name: asset.name,
@@ -320,168 +256,12 @@ const AssetCreate = (props: AssetProps) => {
       errors.support_email = "Please enter valid email id";
     }
 
-    if (form.notes && !form.last_service) {
+    if (form.notes && !form.serviced_on) {
       errors.serviced_on = "Last serviced on date is required with notes";
     }
 
     return errors;
   };
-
-  // const validateForm = () => {
-  //   const errors = { ...initError };
-  //   let invalidForm = false;
-  //   Object.keys(state.errors).forEach((field) => {
-  //     switch (field) {
-  //       case "name":
-  //         if (!name) {
-  //           errors[field] = "Asset name can't be empty";
-  //           invalidForm = true;
-  //         }
-  //         return;
-  //       case "is_working":
-  //         if (is_working === undefined) {
-  //           errors[field] = t("field_required");
-  //           invalidForm = true;
-  //         }
-  //         return;
-  //       case "location":
-  //         if (!location || location === "0" || location === "") {
-  //           errors[field] = "Select a location";
-  //           invalidForm = true;
-  //         }
-  //         return;
-  //       case "support_phone": {
-  //         if (!support_phone) {
-  //           errors[field] = t("field_required");
-  //           invalidForm = true;
-  //         }
-  //         // eslint-disable-next-line no-case-declarations
-  //         const checkTollFree = support_phone.startsWith("1800");
-  //         const supportPhoneSimple = support_phone
-  //           .replace(/[^0-9]/g, "")
-  //           .slice(2);
-  //         if (supportPhoneSimple.length != 10 && !checkTollFree) {
-  //           errors[field] = "Please enter valid phone number";
-  //           invalidForm = true;
-  //         } else if (
-  //           (support_phone.length < 10 || support_phone.length > 11) &&
-  //           checkTollFree
-  //         ) {
-  //           errors[field] = "Please enter valid phone number";
-  //           invalidForm = true;
-  //         }
-  //         return;
-  //       }
-  //       case "support_email":
-  //         if (support_email && !validateEmailAddress(support_email)) {
-  //           errors[field] = "Please enter valid email id";
-  //           invalidForm = true;
-  //         }
-  //         return;
-  //       case "last_serviced_on":
-  //         if (notes && !last_serviced_on) {
-  //           errors[field] = "Last serviced on date is require with notes";
-  //           invalidForm = true;
-  //         }
-  //         return;
-  //       default:
-  //         return;
-  //     }
-  //   });
-  //   if (invalidForm) {
-  //     dispatch({ type: "set_error", errors });
-  //     const firstError = Object.keys(errors).find((key) => errors[key]);
-  //     if (firstError) {
-  //       fieldRef[firstError].current?.scrollIntoView({
-  //         behavior: "smooth",
-  //         block: "center",
-  //       });
-  //     }
-  //     return false;
-  //   }
-  //   dispatch({ type: "set_error", errors });
-  //   return true;
-  // };
-
-  // const resetFilters = () => {
-  //   setName("");
-  //   setDescription("");
-  //   setLocation("");
-  //   setAssetClass(assetClassInitial);
-  //   setIsWorking(undefined);
-  //   setNotWorkingReason("");
-  //   setSerialNumber("");
-  //   setVendorName("");
-  //   setSupportName("");
-  //   setSupportEmail("");
-  //   setSupportPhone("");
-  //   setQrCodeId("");
-  //   setManufacturer("");
-  //   setWarrantyAmcEndOfValidity("");
-  //   setLastServicedOn("");
-  //   setNotes("");
-  //   setWarrantyAmcEndOfValidity(null);
-  //   setLastServicedOn(null);
-  // };
-
-  // const handleSubmit = async (e: React.SyntheticEvent, addMore: boolean) => {
-  //   e.preventDefault();
-  //   const validated = validateForm();
-  //   if (validated) {
-  //     setIsLoading(true);
-  //     const data: any = {
-  //       name: name,
-  //       asset_type: AssetType.INTERNAL,
-  //       asset_class: asset_class || "",
-  //       description: description,
-  //       is_working: is_working,
-  //       not_working_reason: is_working === "true" ? "" : not_working_reason,
-  //       serial_number: serial_number,
-  //       location: location,
-  //       vendor_name: vendor_name,
-  //       support_name: support_name,
-  //       support_email: support_email,
-  //       support_phone: support_phone.startsWith("1800")
-  //         ? support_phone
-  //         : parsePhoneNumber(support_phone),
-  //       qr_code_id: qrCodeId !== "" ? qrCodeId : null,
-  //       manufacturer: manufacturer,
-  //       warranty_amc_end_of_validity: warranty_amc_end_of_validity
-  //         ? dateQueryString(warranty_amc_end_of_validity)
-  //         : null,
-  //     };
-
-  //     if (last_serviced_on) {
-  //       data["last_serviced_on"] = dateQueryString(last_serviced_on);
-  //       data["note"] = notes ?? "";
-  //     }
-
-  //     if (!assetId) {
-  //       const { res } = await request(routes.createAsset, { body: data });
-  //       if (res?.ok) {
-  //         Notification.Success({ msg: "Asset created successfully" });
-  //         if (addMore) {
-  //           resetFilters();
-  //           const pageContainer = window.document.getElementById("pages");
-  //           pageContainer?.scroll(0, 0);
-  //         } else {
-  //           goBack();
-  //         }
-  //       }
-  //       setIsLoading(false);
-  //     } else {
-  //       const { res } = await request(routes.updateAsset, {
-  //         pathParams: { external_id: assetId },
-  //         body: data,
-  //       });
-  //       if (res?.ok) {
-  //         Notification.Success({ msg: "Asset updated successfully" });
-  //         goBack();
-  //       }
-  //       setIsLoading(false);
-  //     }
-  //   }
-  // };
 
   const handleSubmitAsync = async (form: AssetT, addMore: boolean) => {
     setIsLoading(true);
@@ -833,11 +613,11 @@ const AssetCreate = (props: AssetProps) => {
                               String(field("is_working").value) as
                                 | "true"
                                 | "false"
-                            } // Convert to string
+                            }
                             onChange={(option: "true" | "false") =>
                               field("is_working").onChange({
                                 name: "is_working",
-                                value: option === "true", // Convert back to boolean
+                                value: option === "true",
                               })
                             }
                             optionLabel={(option: "true" | "false") => {
@@ -1036,8 +816,9 @@ const AssetCreate = (props: AssetProps) => {
                             className="mt-2"
                             disableFuture
                             value={
-                              field("serviced_on").value &&
-                              new Date(field("serviced_on").value)
+                              field("serviced_on").value
+                                ? new Date(field("serviced_on").value)
+                                : undefined
                             }
                             onChange={(date) => {
                               const selectedDate = dayjs(date.value).format(
@@ -1053,7 +834,7 @@ const AssetCreate = (props: AssetProps) => {
                                 });
                               } else {
                                 field("serviced_on").onChange({
-                                  name: "last_serviced_on",
+                                  name: "serviced_on",
                                   value: selectedDate,
                                 });
                               }
