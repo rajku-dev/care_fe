@@ -61,7 +61,7 @@ const formErrorKeys = [
   "notes",
 ];
 
-interface AssetT {
+interface AssetData {
   id?: string;
   name?: string;
   location?: string;
@@ -110,7 +110,7 @@ const AssetCreate = (props: AssetProps) => {
   const { t } = useTranslation();
   const { facilityId, assetId } = props;
 
-  const initialAssetData: AssetT = {
+  const initialAssetData: AssetData = {
     id: "",
     name: "",
     location: "",
@@ -137,7 +137,7 @@ const AssetCreate = (props: AssetProps) => {
   };
 
   const [initAssetData, setinitialAssetData] =
-    useState<AssetT>(initialAssetData);
+    useState<AssetData>(initialAssetData);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isScannerActive, setIsScannerActive] = useState<boolean>(false);
@@ -222,8 +222,8 @@ const AssetCreate = (props: AssetProps) => {
     },
   });
 
-  const AssetFormValidator = (form: AssetT): FormErrors<AssetT> => {
-    const errors: Partial<Record<keyof AssetT, FieldError>> = {}; // Initialize error object
+  const AssetFormValidator = (form: AssetData): FormErrors<AssetData> => {
+    const errors: Partial<Record<keyof AssetData, FieldError>> = {}; // Initialize error object
 
     errors.name = RequiredFieldValidator()(form.name);
 
@@ -232,7 +232,7 @@ const AssetCreate = (props: AssetProps) => {
     }
 
     if (!form.location || form.location === "0" || form.location === "") {
-      errors.location = "Select a location";
+      errors.location = t("select_local_body");
     }
 
     if (!form.support_phone) {
@@ -263,7 +263,35 @@ const AssetCreate = (props: AssetProps) => {
     return errors;
   };
 
-  const handleSubmitAsync = async (form: AssetT, addMore: boolean) => {
+  const resetFilters = () => {
+    setinitialAssetData({
+      id: "",
+      name: "",
+      location: "",
+      description: "",
+      is_working: null,
+      not_working_reason: "",
+      created_date: "",
+      modified_date: "",
+      serial_number: "",
+      asset_type: undefined,
+      asset_class: undefined,
+      status: "ACTIVE",
+      vendor_name: "",
+      support_name: "",
+      support_email: "",
+      support_phone: "",
+      qr_code_id: "",
+      manufacturer: "",
+      warranty_amc_end_of_validity: "",
+      latest_status: "",
+      last_service: null,
+      serviced_on: "",
+      notes: "",
+    });
+  };
+
+  const handleSubmitAsync = async (form: AssetData, addMore: boolean) => {
     setIsLoading(true);
 
     const data: any = {
@@ -301,7 +329,7 @@ const AssetCreate = (props: AssetProps) => {
           Notification.Success({ msg: "Asset created successfully" });
           // Handle "Add More" logic if necessary
           if (addMore) {
-            // resetFilters();
+            resetFilters();
             const pageContainer = window.document.getElementById("pages");
             pageContainer?.scroll(0, 0);
           } else {
@@ -334,7 +362,7 @@ const AssetCreate = (props: AssetProps) => {
       // QR Maybe searchParams "asset" or "assetQR"
       const assetId = params.asset || params.assetQR;
       if (assetId) {
-        // setQrCodeId(assetId);
+        setinitialAssetData({ ...initAssetData, qr_code_id: assetId });
         setIsScannerActive(false);
         return;
       }
@@ -452,7 +480,7 @@ const AssetCreate = (props: AssetProps) => {
             name,
           },
           assets: { style: "text-secondary-200 pointer-events-none" },
-          [assetId || "????"]: { name: name || undefined },
+          [assetId || "????"]: { name: name || "Asset" },
         }}
         backUrl={
           assetId
@@ -486,7 +514,7 @@ const AssetCreate = (props: AssetProps) => {
           </div>
           <div className="flex h-full w-full overflow-auto xl:ml-72">
             <div className="w-full max-w-3xl 2xl:max-w-4xl">
-              <Form<AssetT>
+              <Form<AssetData>
                 disabled={isLoading}
                 defaults={initAssetData}
                 onCancel={handleOnCancel}
@@ -497,6 +525,13 @@ const AssetCreate = (props: AssetProps) => {
                 noPadding
                 validate={AssetFormValidator}
                 submitLabel={assetId ? t("update") : t("create_asset")}
+                additionalButtons={[
+                  {
+                    type: "submit",
+                    label: t("create_add_more"),
+                    id: "create-asset-add-more-button",
+                  },
+                ]}
               >
                 {(field) => (
                   <>
