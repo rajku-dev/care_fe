@@ -413,7 +413,7 @@ const AssetCreate = (props: AssetProps) => {
   }
 
   const handleOnCancel: () => void = () => {
-    navigate(`/facility/${facilityId}/location/add`);
+    goBack();
   };
 
   if (isScannerActive)
