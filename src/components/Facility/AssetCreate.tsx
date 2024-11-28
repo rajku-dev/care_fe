@@ -291,10 +291,11 @@ const AssetCreate = (props: AssetProps) => {
     });
   };
 
-  const handleSubmitAsync = async (form: AssetData, addMore: boolean) => {
+  const handleSubmitAsync = async (form: AssetData, buttonId: string) => {
     setIsLoading(true);
 
     const data: any = {
+      id: form.id,
       name: form.name,
       asset_type: AssetType.INTERNAL,
       asset_class: form.asset_class || "",
@@ -328,7 +329,7 @@ const AssetCreate = (props: AssetProps) => {
         if (res?.ok) {
           Notification.Success({ msg: "Asset created successfully" });
           // Handle "Add More" logic if necessary
-          if (addMore) {
+          if (buttonId == "create-asset-add-more-button") {
             resetFilters();
             const pageContainer = window.document.getElementById("pages");
             pageContainer?.scroll(0, 0);
@@ -518,20 +519,24 @@ const AssetCreate = (props: AssetProps) => {
                 disabled={isLoading}
                 defaults={initAssetData}
                 onCancel={handleOnCancel}
-                onSubmit={async (obj) => {
-                  await handleSubmitAsync(obj, Boolean(assetId));
+                onSubmit={async (obj, buttonId) => {
+                  await handleSubmitAsync(obj, buttonId);
                 }}
                 className="rounded bg-white p-6 transition-all sm:rounded-xl sm:p-12"
                 noPadding
                 validate={AssetFormValidator}
                 submitLabel={assetId ? t("update") : t("create_asset")}
-                additionalButtons={[
-                  {
-                    type: "submit",
-                    label: t("create_add_more"),
-                    id: "create-asset-add-more-button",
-                  },
-                ]}
+                additionalButtons={
+                  !assetId
+                    ? [
+                        {
+                          type: "submit",
+                          label: t("create_add_more"),
+                          id: "create-asset-add-more-button",
+                        },
+                      ]
+                    : []
+                }
               >
                 {(field) => (
                   <>
