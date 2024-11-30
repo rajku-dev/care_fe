@@ -17,6 +17,12 @@ import Loading from "@/components/Common/Loading";
 import { LocationSelect } from "@/components/Common/LocationSelect";
 import Page from "@/components/Common/Page";
 import SwitchV2 from "@/components/Common/Switch";
+import {
+  FieldError,
+  PhoneNumberValidator,
+  RequiredFieldValidator,
+} from "@/components/Form/FieldValidators";
+import Form from "@/components/Form/Form";
 import DateFormField from "@/components/Form/FormFields/DateFormField";
 import {
   FieldErrorText,
@@ -26,6 +32,7 @@ import PhoneNumberFormField from "@/components/Form/FormFields/PhoneNumberFormFi
 import { SelectFormField } from "@/components/Form/FormFields/SelectFormField";
 import TextAreaFormField from "@/components/Form/FormFields/TextAreaFormField";
 import TextFormField from "@/components/Form/FormFields/TextFormField";
+import { FormErrors } from "@/components/Form/Utils";
 
 import useAppHistory from "@/hooks/useAppHistory";
 import useVisibility from "@/hooks/useVisibility";
@@ -39,10 +46,6 @@ import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import useQuery from "@/Utils/request/useQuery";
 import { dateQueryString, parsePhoneNumber } from "@/Utils/utils";
-
-import { FieldError, RequiredFieldValidator } from "../Form/FieldValidators";
-import Form from "../Form/Form";
-import { FormErrors } from "../Form/Utils";
 
 const formErrorKeys = [
   "name",
@@ -238,26 +241,23 @@ const AssetCreate = (props: AssetProps) => {
     if (!form.support_phone) {
       errors.support_phone = t("field_required");
     } else {
-      const checkTollFree = form.support_phone.startsWith("1800");
-      const supportPhoneSimple = form.support_phone
-        .replace(/[^0-9]/g, "")
-        .slice(2);
-      if (supportPhoneSimple.length !== 10 && !checkTollFree) {
-        errors.support_phone = "Please enter valid phone number";
-      } else if (
-        (form.support_phone.length < 10 || form.support_phone.length > 11) &&
-        checkTollFree
-      ) {
-        errors.support_phone = "Please enter valid phone number";
+      const validatePhoneNumber = PhoneNumberValidator(
+        ["mobile", "landline", "support"],
+        t("invalid_phone_number"),
+      );
+      const isValid = validatePhoneNumber(form.support_phone);
+      // console.log("Is Valid" ,isValid)
+      if (isValid == "Invalid Phone Number") {
+        errors.support_phone = t("invalid_phone_number");
       }
     }
 
     if (form.support_email && !validateEmailAddress(form.support_email)) {
-      errors.support_email = "Please enter valid email id";
+      errors.support_email = t("invalid_email");
     }
 
     if (form.notes && !form.serviced_on) {
-      errors.serviced_on = "Last serviced on date is required with notes";
+      errors.serviced_on = t("last_serviced_on_required");
     }
 
     return errors;
@@ -291,7 +291,7 @@ const AssetCreate = (props: AssetProps) => {
     });
   };
 
-  const handleSubmitAsync = async (form: AssetData, buttonId: string) => {
+  const handleSubmit = async (form: AssetData, buttonId: string) => {
     setIsLoading(true);
 
     const data: any = {
@@ -520,7 +520,7 @@ const AssetCreate = (props: AssetProps) => {
                 defaults={initAssetData}
                 onCancel={handleOnCancel}
                 onSubmit={async (obj, buttonId) => {
-                  await handleSubmitAsync(obj, buttonId);
+                  await handleSubmit(obj, buttonId);
                 }}
                 className="rounded bg-white p-6 transition-all sm:rounded-xl sm:p-12"
                 noPadding
