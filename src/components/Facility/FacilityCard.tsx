@@ -226,11 +226,14 @@ export const FacilityCard = (props: {
                         id="facility-notify"
                         ghost
                         border
-                        className="h-[38px]"
+                        className="h-[38px] tooltip"
                         onClick={(_) => setNotifyModalFor(facility.id)}
                       >
                         <CareIcon icon="l-megaphone" className="text-lg" />
                         <span className="hidden md:block">Notify</span>
+                        <span className="tooltip-text tooltip-top md:hidden">
+                          Notify
+                        </span>
                       </ButtonV2>
                     )}
                     <ButtonV2
@@ -238,10 +241,13 @@ export const FacilityCard = (props: {
                       id="facility-details"
                       border
                       ghost
-                      className="h-[38px]"
+                      className="tooltip h-[38px]"
                     >
                       <CareIcon icon="l-hospital" className="text-lg" />
-                      <span className="hidden md:inline">
+                      <span className="hidden sm:inline">
+                        {t("view_faciliy")}
+                      </span>
+                      <span className="tooltip-text tooltip-top sm:hidden">
                         {t("view_faciliy")}
                       </span>
                     </ButtonV2>
