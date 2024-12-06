@@ -11,7 +11,8 @@ export class PatientPage {
   }
 
   visitPatient(patientName: string) {
-    cy.get("#name").click().type(patientName);
+    cy.get('[data-test-id="patient-search__name"]').click();
+    cy.get("#patient-search").click().type(patientName); // Type the patient name
     cy.intercept("GET", "**/api/v1/consultation/**").as("getPatient");
     cy.get("#patient-name-list").contains(patientName).click();
     cy.wait(2000);
@@ -66,7 +67,8 @@ export class PatientPage {
   }
 
   typePatientNameList(patientName: string) {
-    cy.get("#name").click().type(patientName);
+    cy.get('[data-test-id="patient-search__name"]').click();
+    cy.get("#patient-search").click().type(patientName);
   }
 
   typePatientAddress(address: string) {
@@ -181,7 +183,7 @@ export class PatientPage {
       expect($dashboard).to.contain(patientName);
       expect($dashboard).to.contain(phoneNumber);
       expect($dashboard).to.contain(emergencyPhoneNumber);
-      expect($dashboard).to.contain(yearOfBirth);
+      //expect($dashboard).to.contain(yearOfBirth); //Commented out because new proposed UI does not have DOB. Can change later.
       expect($dashboard).to.contain(bloodGroup);
       expect($dashboard).to.contain(occupation);
       socioeconomicStatus && expect($dashboard).to.contain(socioeconomicStatus);
@@ -221,7 +223,7 @@ export class PatientPage {
   }
 
   clickPatientUpdateDetails() {
-    cy.verifyAndClickElement("#update-patient-details", "Update Details");
+    cy.verifyAndClickElement("#update-patient-details", "Edit Profile");
   }
 
   interceptFacilities() {
