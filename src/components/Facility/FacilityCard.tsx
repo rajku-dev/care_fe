@@ -230,9 +230,9 @@ export const FacilityCard = (props: {
                         onClick={(_) => setNotifyModalFor(facility.id)}
                       >
                         <CareIcon icon="l-megaphone" className="text-lg" />
-                        <span className="hidden md:block">Notify</span>
+                        <span className="hidden md:block">{t("notify")}</span>
                         <span className="tooltip-text tooltip-top md:hidden">
-                          Notify
+                          {t("notify")}
                         </span>
                       </ButtonV2>
                     )}

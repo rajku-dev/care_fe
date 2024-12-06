@@ -991,6 +991,7 @@
   "notification_cancelled": "Notification cancelled",
   "notification_permission_denied": "Notification permission denied",
   "notification_permission_granted": "Notification permission granted",
+  "notify": "Notify",
   "number_of_aged_dependents": "Number of Aged Dependents (Above 60)",
   "number_of_beds": "Number of beds",
   "number_of_beds_out_of_range_error": "Number of beds cannot be greater than 100",
