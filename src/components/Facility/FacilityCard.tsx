@@ -225,7 +225,7 @@ export const FacilityCard = (props: {
                     {["DistrictAdmin", "StateAdmin"].includes(userType) && (
                       <Button
                         id="facility-notify"
-                        variant={"outline"}
+                        variant={"outline_primary"}
                         className="h-[38px] tooltip"
                         onClick={(_) => setNotifyModalFor(facility.id)}
                         aria-label={t("notify")}
@@ -241,7 +241,7 @@ export const FacilityCard = (props: {
                     <Button
                       onClick={() => navigate(`/facility/${facility.id}`)}
                       id="facility-details"
-                      variant={"outline"}
+                      variant={"outline_primary"}
                       className="tooltip h-[38px]"
                       aria-label={t("view_facility")}
                       role="button"
@@ -257,7 +257,7 @@ export const FacilityCard = (props: {
                     <Button
                       onClick={() => navigate(`/patients?facility=${facility.id}`)}
                       id="facility-patients"
-                      variant={"outline"}
+                      variant={"outline_primary"}
                       aria-label={t("view_patients")}
                       role="button"
                     >
