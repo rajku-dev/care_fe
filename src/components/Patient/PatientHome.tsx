@@ -91,6 +91,9 @@ export const PatientHome = (props: {
   });
 
   const handleAssignedVolunteer = async () => {
+    // console.log(patientData)
+    const previousVolunteerId = patientData?.assigned_to;
+
     const { res, data } = await request(routes.patchPatient, {
       pathParams: {
         id: patientData.id as string,
@@ -99,20 +102,30 @@ export const PatientHome = (props: {
         assigned_to: (assignedVolunteer as UserBareMinimum)?.id || null,
       },
     });
+
     if (res?.ok && data) {
       setPatientData(data);
-      if (!assignedVolunteer) {
+      // console.log(patientData)
+
+      if (!previousVolunteerId && assignedVolunteer) {
         Notification.Success({
           msg: t("volunteer_assigned"),
         });
-      } else {
+      } else if (previousVolunteerId && assignedVolunteer) {
+        Notification.Success({
+          msg: t("volunteer_update"),
+        });
+      } else if (!assignedVolunteer) {
         Notification.Success({
           msg: t("volunteer_unassigned"),
         });
       }
+
       refetch();
     }
+  
     setOpenAssignVolunteerDialog(false);
+  
     if (errors["assignedVolunteer"]) delete errors["assignedVolunteer"];
   };
 
@@ -525,9 +538,9 @@ export const PatientHome = (props: {
                           size="large"
                         >
                           <span className="flex w-full items-center justify-start gap-2">
-                            <CareIcon icon="l-users-alt" className="text-lg" />{" "}
-                            {t("assign_to_volunteer")}
-                          </span>
+                          <CareIcon icon="l-users-alt" className="text-lg" />{" "}
+                          {patientData.assigned_to ? t("update_volunteer") : t("assign_to_volunteer")}
+                        </span>
                         </ButtonV2>
                       </div>
                     )}
@@ -709,7 +722,7 @@ export const PatientHome = (props: {
             />
           </div>
         }
-        action={t("assign")}
+        action={assignedVolunteer || !patientData.assigned_to ? t("assign") : t("unassign")}
         onConfirm={handleAssignedVolunteer}
       />
     </Page>
