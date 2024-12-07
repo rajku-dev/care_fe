@@ -232,8 +232,10 @@ export const FacilityCard = (props: {
                         role="button"
                       >
                         <CareIcon icon="l-megaphone" className="text-lg" />
-                        <span className="hidden md:block">{t("notify")}</span>
-                        <span className="tooltip-text tooltip-top md:hidden">
+                        <span className="hidden sm:inline">
+                          {t("notify")}
+                        </span>
+                        <span className="tooltip-text tooltip-top sm:hidden">
                           {t("notify")}
                         </span>
                       </Button>
@@ -262,7 +264,7 @@ export const FacilityCard = (props: {
                       role="button"
                     >
                       <CareIcon icon="l-user-injured" className="text-lg" />
-                      {t("view_patients")}
+                      {t("view_patients")}  
                     </Button>
                     {/* </div> */}
                   </div>
