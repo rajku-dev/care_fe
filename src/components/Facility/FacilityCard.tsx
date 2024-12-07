@@ -8,7 +8,7 @@ import Chip from "@/CAREUI/display/Chip";
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Avatar } from "@/components/Common/Avatar";
-import ButtonV2, { Cancel, Submit } from "@/components/Common/ButtonV2";
+import { Cancel, Submit } from "@/components/Common/ButtonV2";
 import DialogModal from "@/components/Common/Dialog";
 import { FacilityModel } from "@/components/Facility/models";
 import TextAreaFormField from "@/components/Form/FormFields/TextAreaFormField";
@@ -113,11 +113,10 @@ export const FacilityCard = (props: {
                           </dt>
                         </div>
                       </div>
-                      <ButtonV2
+                      <Button
                         id="view-cns-button"
-                        href={`/facility/${facility.id}/cns`}
-                        border
-                        ghost
+                        onClick={() => navigate(`/facility/${facility.id}/cns`)}
+                        variant={"outline_primary"}
                         className="mt-2 sm:mt-0"
                       >
                         <CareIcon
@@ -125,7 +124,7 @@ export const FacilityCard = (props: {
                           className="text-lg"
                         />
                         <span>{t("view_cns")}</span>
-                      </ButtonV2>
+                      </Button>
                     </div>
 
                     <div className="mt-2 flex flex-wrap gap-1">
