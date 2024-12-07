@@ -1,7 +1,8 @@
 import careConfig from "@careConfig";
-import { Link } from "raviger";
+import { Link,navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 
 import Chip from "@/CAREUI/display/Chip";
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -222,44 +223,47 @@ export const FacilityCard = (props: {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {["DistrictAdmin", "StateAdmin"].includes(userType) && (
-                      <ButtonV2
+                      <Button
                         id="facility-notify"
-                        ghost
-                        border
+                        variant={"outline"}
                         className="h-[38px] tooltip"
                         onClick={(_) => setNotifyModalFor(facility.id)}
+                        aria-label={t("notify")}
+                        role="button"
                       >
                         <CareIcon icon="l-megaphone" className="text-lg" />
                         <span className="hidden md:block">{t("notify")}</span>
                         <span className="tooltip-text tooltip-top md:hidden">
                           {t("notify")}
                         </span>
-                      </ButtonV2>
+                      </Button>
                     )}
-                    <ButtonV2
-                      href={`/facility/${facility.id}`}
+                    <Button
+                      onClick={() => navigate(`/facility/${facility.id}`)}
                       id="facility-details"
-                      border
-                      ghost
+                      variant={"outline"}
                       className="tooltip h-[38px]"
+                      aria-label={t("view_facility")}
+                      role="button"
                     >
                       <CareIcon icon="l-hospital" className="text-lg" />
                       <span className="hidden sm:inline">
-                        {t("view_faciliy")}
+                        {t("view_facility")}
                       </span>
                       <span className="tooltip-text tooltip-top sm:hidden">
-                        {t("view_faciliy")}
+                        {t("view_facility")}
                       </span>
-                    </ButtonV2>
-                    <ButtonV2
-                      href={`/patients?facility=${facility.id}`}
+                    </Button>
+                    <Button
+                      onClick={() => navigate(`/patients?facility=${facility.id}`)}
                       id="facility-patients"
-                      border
-                      ghost
+                      variant={"outline"}
+                      aria-label={t("view_patients")}
+                      role="button"
                     >
                       <CareIcon icon="l-user-injured" className="text-lg" />
                       {t("view_patients")}
-                    </ButtonV2>
+                    </Button>
                     {/* </div> */}
                   </div>
                 </div>
