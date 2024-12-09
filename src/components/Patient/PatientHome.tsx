@@ -121,9 +121,9 @@ export const PatientHome = (props: {
 
       refetch();
     }
-  
+
     setOpenAssignVolunteerDialog(false);
-  
+
     if (errors["assignedVolunteer"]) delete errors["assignedVolunteer"];
   };
 
@@ -536,9 +536,11 @@ export const PatientHome = (props: {
                           size="large"
                         >
                           <span className="flex w-full items-center justify-start gap-2">
-                          <CareIcon icon="l-users-alt" className="text-lg" />{" "}
-                          {patientData.assigned_to ? t("update_volunteer") : t("assign_to_volunteer")}
-                        </span>
+                            <CareIcon icon="l-users-alt" className="text-lg" />{" "}
+                            {patientData.assigned_to
+                              ? t("update_volunteer")
+                              : t("assign_to_volunteer")}
+                          </span>
                         </ButtonV2>
                       </div>
                     )}
@@ -720,7 +722,11 @@ export const PatientHome = (props: {
             />
           </div>
         }
-        action={assignedVolunteer || !patientData.assigned_to ? t("assign") : t("unassign")}
+        action={
+          assignedVolunteer || !patientData.assigned_to
+            ? t("assign")
+            : t("unassign")
+        }
         onConfirm={handleAssignedVolunteer}
       />
     </Page>
