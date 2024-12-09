@@ -91,7 +91,6 @@ export const PatientHome = (props: {
   });
 
   const handleAssignedVolunteer = async () => {
-    // console.log(patientData)
     const previousVolunteerId = patientData?.assigned_to;
 
     const { res, data } = await request(routes.patchPatient, {
@@ -105,7 +104,6 @@ export const PatientHome = (props: {
 
     if (res?.ok && data) {
       setPatientData(data);
-      // console.log(patientData)
 
       if (!previousVolunteerId && assignedVolunteer) {
         Notification.Success({
