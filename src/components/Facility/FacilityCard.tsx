@@ -1,11 +1,12 @@
 import careConfig from "@careConfig";
-import { Link,navigate } from "raviger";
+import { Link, navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
 
 import Chip from "@/CAREUI/display/Chip";
 import CareIcon from "@/CAREUI/icons/CareIcon";
+
+import { Button } from "@/components/ui/button";
 
 import { Avatar } from "@/components/Common/Avatar";
 import { Cancel, Submit } from "@/components/Common/ButtonV2";
@@ -231,9 +232,7 @@ export const FacilityCard = (props: {
                         role="button"
                       >
                         <CareIcon icon="l-megaphone" className="text-lg" />
-                        <span className="hidden sm:inline">
-                          {t("notify")}
-                        </span>
+                        <span className="hidden sm:inline">{t("notify")}</span>
                         <span className="tooltip-text tooltip-top sm:hidden">
                           {t("notify")}
                         </span>
@@ -256,14 +255,16 @@ export const FacilityCard = (props: {
                       </span>
                     </Button>
                     <Button
-                      onClick={() => navigate(`/patients?facility=${facility.id}`)}
+                      onClick={() =>
+                        navigate(`/patients?facility=${facility.id}`)
+                      }
                       id="facility-patients"
                       variant={"outline_primary"}
                       aria-label={t("view_patients")}
                       role="button"
                     >
                       <CareIcon icon="l-user-injured" className="text-lg" />
-                      {t("view_patients")}  
+                      {t("view_patients")}
                     </Button>
                     {/* </div> */}
                   </div>
