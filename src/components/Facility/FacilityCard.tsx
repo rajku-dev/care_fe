@@ -119,6 +119,7 @@ export const FacilityCard = (props: {
                         className="mt-2 sm:mt-0"
                         variant={"outline_primary"}
                       >
+                        
                         <Link href={`/facility/${facility.id}/cns`}>
                           <CareIcon
                             icon="l-monitor-heart-rate"
