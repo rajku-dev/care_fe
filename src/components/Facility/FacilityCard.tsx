@@ -1,11 +1,12 @@
 import careConfig from "@careConfig";
-import { Link,navigate } from "raviger";
+import { Link, navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
 
 import Chip from "@/CAREUI/display/Chip";
 import CareIcon from "@/CAREUI/icons/CareIcon";
+
+import { Button } from "@/components/ui/button";
 
 import { Avatar } from "@/components/Common/Avatar";
 import { Cancel, Submit } from "@/components/Common/ButtonV2";
@@ -114,16 +115,17 @@ export const FacilityCard = (props: {
                         </div>
                       </div>
                       <Button
-                        id="view-cns-button"
-                        onClick={() => navigate(`/facility/${facility.id}/cns`)}
-                        variant={"outline_primary"}
+                        asChild
                         className="mt-2 sm:mt-0"
+                        variant={"outline_primary"}
                       >
-                        <CareIcon
-                          icon="l-monitor-heart-rate"
-                          className="text-lg"
-                        />
-                        <span>{t("view_cns")}</span>
+                        <Link href={`/facility/${facility.id}/cns`}>
+                          <CareIcon
+                            icon="l-monitor-heart-rate"
+                            className="text-lg"
+                          />
+                          <span>{t("view_cns")}</span>
+                        </Link>
                       </Button>
                     </div>
 
@@ -231,39 +233,40 @@ export const FacilityCard = (props: {
                         role="button"
                       >
                         <CareIcon icon="l-megaphone" className="text-lg" />
-                        <span className="hidden sm:inline">
-                          {t("notify")}
-                        </span>
+                        <span className="hidden sm:inline">{t("notify")}</span>
                         <span className="tooltip-text tooltip-top sm:hidden">
                           {t("notify")}
                         </span>
                       </Button>
                     )}
                     <Button
-                      onClick={() => navigate(`/facility/${facility.id}`)}
+                      asChild
                       id="facility-details"
                       variant={"outline_primary"}
                       className="tooltip h-[38px]"
                       aria-label={t("view_facility")}
-                      role="button"
                     >
-                      <CareIcon icon="l-hospital" className="text-lg" />
-                      <span className="hidden sm:inline">
-                        {t("view_facility")}
-                      </span>
-                      <span className="tooltip-text tooltip-top sm:hidden">
-                        {t("view_facility")}
-                      </span>
+                      <Link href={`/facility/${facility.id}`}>
+                        <CareIcon icon="l-hospital" className="text-lg" />
+                        <span className="hidden sm:inline">
+                          {t("view_facility")}
+                        </span>
+                        <span className="tooltip-text tooltip-top sm:hidden">
+                          {t("view_facility")}
+                        </span>
+                      </Link>
                     </Button>
                     <Button
-                      onClick={() => navigate(`/patients?facility=${facility.id}`)}
+                      asChild
                       id="facility-patients"
                       variant={"outline_primary"}
                       aria-label={t("view_patients")}
                       role="button"
                     >
-                      <CareIcon icon="l-user-injured" className="text-lg" />
-                      {t("view_patients")}  
+                      <Link href={`/patients?facility=${facility.id}`}>
+                        <CareIcon icon="l-user-injured" className="text-lg" />
+                        {t("view_patients")}
+                      </Link>
                     </Button>
                     {/* </div> */}
                   </div>
