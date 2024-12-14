@@ -231,7 +231,7 @@ export const FacilityCard = (props: {
                   <div className="flex flex-wrap gap-2">
                     {["DistrictAdmin", "StateAdmin"].includes(userType) && (
                       <TooltipProvider>
-                        <Tooltip>
+                        <Tooltip delayDuration={0}>
                           <TooltipTrigger asChild>
                             <Button
                               id="facility-notify"
@@ -250,14 +250,14 @@ export const FacilityCard = (props: {
                               </span>
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent side="top" className="sm:hidden">
+                          <TooltipContent side="top" className="sm:hidden text-sm px-3 py-3 max-w-[300px]">
                             {t("notify")}
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     )}
                     <TooltipProvider>
-                      <Tooltip>
+                      <Tooltip delayDuration={0} >
                         <TooltipTrigger asChild>
                           <Button
                             id="facility-details"
@@ -274,13 +274,13 @@ export const FacilityCard = (props: {
                             </Link>
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent side="top" className="sm:hidden">
+                        <TooltipContent side="top" className="sm:hidden text-sm px-3 py-3 max-w-[300px]">
                           {t("view_facility")}
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                     <TooltipProvider>
-                      <Tooltip>
+                      <Tooltip delayDuration={0}>
                         <TooltipTrigger asChild>
                           <Button
                             id="facility-patients"
@@ -300,7 +300,7 @@ export const FacilityCard = (props: {
                             </Link>
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent side="top" className="sm:hidden">
+                        <TooltipContent side="top" className="sm:hidden text-sm px-3 py-3 max-w-[300px]">
                           {t("view_patients")}
                         </TooltipContent>
                       </Tooltip>
