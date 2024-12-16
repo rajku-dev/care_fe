@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
 import SlideOver from "@/CAREUI/interactive/SlideOver";
@@ -12,6 +13,7 @@ import useAuthUser from "@/hooks/useAuthUser";
 
 import { triggerGoal } from "@/Integrations/Plausible";
 import { PLUGIN_Component } from "@/PluginEngine";
+import * as Notification from "@/Utils/Notifications";
 import { Warn } from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import useTanStackQueryInstead from "@/Utils/request/useQuery";
@@ -238,6 +240,18 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
     }
   }
 
+  const { t } = useTranslation();
+  const handleCopy = async (
+    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+  ) => {
+    e.stopPropagation();
+    await navigator.clipboard.writeText(user?.alt_phone_number || "");
+
+    Notification.Success({
+      msg: t("phone_number_copied"),
+    });
+  };
+
   return (
     <div
       className={classNames(
@@ -293,16 +307,13 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
               <a
                 role="button"
                 href="#"
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  await navigator.clipboard.writeText(
-                    user?.alt_phone_number || "",
-                  );
+                onClick={(e) => {
+                  handleCopy(e);
                 }}
               >
                 <span className="tooltip" id="copy-phoneicon">
                   <span className="tooltip-text tooltip-top">
-                    Copy Phone number
+                    {t("copy_phone_number")}
                   </span>
                   <CareIcon icon="l-clipboard" className="h-5 w-5" />
                 </span>
