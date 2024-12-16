@@ -241,6 +241,7 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
   }
 
   const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
   const handleCopy = async (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
   ) => {
@@ -250,6 +251,12 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
     Notification.Success({
       msg: t("phone_number_copied"),
     });
+
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   return (
@@ -315,7 +322,11 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
                   <span className="tooltip-text tooltip-top">
                     {t("copy_phone_number")}
                   </span>
-                  <CareIcon icon="l-clipboard" className="h-5 w-5" />
+                  <CareIcon
+                    icon={copied ? "l-check" : "l-clipboard"}
+                    id="copy-icon"
+                    className="h-5 w-5"
+                  />
                 </span>
               </a>
               <span>{user.alt_phone_number}</span>
