@@ -1,8 +1,11 @@
+import { useState } from "react";
+
 import { PatientModel } from "@/components/Patient/models";
 
 import { AREACODES, IN_LANDLINE_AREA_CODES } from "@/common/constants";
 import phoneCodesJson from "@/common/static/countryPhoneAndFlags.json";
 
+import * as Notification from "@/Utils/Notifications";
 import dayjs from "@/Utils/dayjs";
 
 interface ApacheParams {
@@ -561,3 +564,30 @@ export function omitBy<T extends Record<string, unknown>>(
     Object.entries(obj).filter(([_, value]) => !predicate(value)),
   ) as Partial<T>;
 }
+
+export const useClipboard = () => {
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async (
+    text: string,
+    successMsg: string,
+    errorMsg: string,
+    iconResetDuration = 2500,
+  ) => {
+    if (!text) {
+      Notification.Error({ msg: "Nothing To Copy" });
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      Notification.Success({ msg: successMsg });
+      setTimeout(() => setCopied(false), iconResetDuration);
+    } catch (err) {
+      Notification.Error({ msg: errorMsg });
+    }
+  };
+
+  return { copied, copyToClipboard };
+};

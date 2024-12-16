@@ -13,7 +13,6 @@ import useAuthUser from "@/hooks/useAuthUser";
 
 import { triggerGoal } from "@/Integrations/Plausible";
 import { PLUGIN_Component } from "@/PluginEngine";
-import * as Notification from "@/Utils/Notifications";
 import { Warn } from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import useTanStackQueryInstead from "@/Utils/request/useQuery";
@@ -22,6 +21,7 @@ import {
   formatName,
   isUserOnline,
   relativeTime,
+  useClipboard,
 } from "@/Utils/utils";
 
 const UserGroups = {
@@ -241,23 +241,7 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
   }
 
   const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
-  const handleCopy = async (
-    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
-  ) => {
-    e.stopPropagation();
-    await navigator.clipboard.writeText(user?.alt_phone_number || "");
-
-    Notification.Success({
-      msg: t("phone_number_copied"),
-    });
-
-    setCopied(true);
-
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
-  };
+  const { copied, copyToClipboard } = useClipboard();
 
   return (
     <div
@@ -315,7 +299,12 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
                 role="button"
                 href="#"
                 onClick={(e) => {
-                  handleCopy(e);
+                  e.stopPropagation();
+                  copyToClipboard(
+                    user?.alt_phone_number || "",
+                    t("phone_number_copied"),
+                    t("phone_copy_failed"),
+                  );
                 }}
               >
                 <span className="tooltip" id="copy-phoneicon">
