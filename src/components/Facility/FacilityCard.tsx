@@ -250,14 +250,17 @@ export const FacilityCard = (props: {
                               </span>
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent side="top" className="sm:hidden text-sm px-3 py-3 max-w-[300px]">
+                          <TooltipContent
+                            side="top"
+                            className="sm:hidden text-sm px-3 py-3 max-w-[300px]"
+                          >
                             {t("notify")}
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     )}
                     <TooltipProvider>
-                      <Tooltip delayDuration={0} >
+                      <Tooltip delayDuration={0}>
                         <TooltipTrigger asChild>
                           <Button
                             id="facility-details"
@@ -274,7 +277,10 @@ export const FacilityCard = (props: {
                             </Link>
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent side="top" className="sm:hidden text-sm px-3 py-3 max-w-[300px]">
+                        <TooltipContent
+                          side="top"
+                          className="sm:hidden text-sm px-3 py-3 max-w-[300px]"
+                        >
                           {t("view_facility")}
                         </TooltipContent>
                       </Tooltip>
@@ -300,7 +306,10 @@ export const FacilityCard = (props: {
                             </Link>
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent side="top" className="sm:hidden text-sm px-3 py-3 max-w-[300px]">
+                        <TooltipContent
+                          side="top"
+                          className="sm:hidden text-sm px-3 py-3 max-w-[300px]"
+                        >
                           {t("view_patients")}
                         </TooltipContent>
                       </Tooltip>
