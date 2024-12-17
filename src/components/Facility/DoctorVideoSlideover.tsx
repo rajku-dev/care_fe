@@ -300,13 +300,9 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
                 href="#"
                 onClick={(e) => {
                   e.stopPropagation();
-                  copyToClipboard(
-                    user?.alt_phone_number || "",
-                    t("phone_number_copied"),
-                    t("phone_copy_failed"),
-                    () => setCopied(true),
-                    () => setCopied(false),
-                  );
+                  copyToClipboard(user?.alt_phone_number || "");
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2500);
                 }}
               >
                 <span className="tooltip" id="copy-phoneicon">

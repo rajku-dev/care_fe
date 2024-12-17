@@ -563,25 +563,11 @@ export function omitBy<T extends Record<string, unknown>>(
   ) as Partial<T>;
 }
 
-export const copyToClipboard = async (
-  text: string,
-  successMsg: string,
-  errorMsg: string,
-  onSuccess: () => void,
-  onError: () => void,
-  resetIconDuration = 2500,
-) => {
-  if (!text) {
-    Notification.Error({ msg: "Nothing To Copy" });
-    return;
-  }
-
+export const copyToClipboard = async (content: string) => {
   try {
-    await navigator.clipboard.writeText(text);
-    Notification.Success({ msg: successMsg });
-    onSuccess();
-    setTimeout(() => onError(), resetIconDuration);
+    await navigator.clipboard.writeText(content);
+    Notification.Success({ msg: "Copied to clipboard" });
   } catch (err) {
-    Notification.Error({ msg: errorMsg });
+    Notification.Error({ msg: "Copying is not allowed" });
   }
 };
