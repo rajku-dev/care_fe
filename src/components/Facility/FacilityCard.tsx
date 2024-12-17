@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+
 import { Avatar } from "@/components/Common/Avatar";
 import { Cancel, Submit } from "@/components/Common/ButtonV2";
 import DialogModal from "@/components/Common/Dialog";
@@ -106,19 +107,28 @@ export const FacilityCard = (props: {
                         >
                           {facility.name}
                         </Link>
-                        <div
-                          data-test-id="occupancy-badge"
-                          className={`tooltip flex items-center gap-1 text-sm ${(facility.patient_count || 0) / (facility.bed_count || 0) > 0.85 ? "justify-center rounded-md border border-red-600 bg-red-500 p-1 font-bold text-white" : "text-secondary-700"}`}
-                        >
-                          <span className="tooltip-text tooltip-top">
-                            {t("live_patients_total_beds")}
-                          </span>{" "}
-                          <CareIcon icon="l-bed" />
-                          <dt>
-                            {t("occupancy")}: {facility.patient_count} /{" "}
-                            {facility.bed_count}{" "}
-                          </dt>
-                        </div>
+                        <TooltipProvider>
+                          <TooltipComponent
+                            content={t("live_patients_total_beds")}
+                          >
+                            <div
+                              data-test-id="occupancy-badge"
+                              className={`relative flex items-center gap-1 text-sm ${
+                                (facility.patient_count || 0) /
+                                  (facility.bed_count || 0) >
+                                0.85
+                                  ? "justify-center rounded-md border border-red-600 bg-red-500 p-1 font-bold text-white"
+                                  : "text-secondary-700"
+                              }`}
+                            >
+                              <CareIcon icon="l-bed" />
+                              <dt data-test-id="occupancy-badge-text">
+                                {t("occupancy")}: {facility.patient_count} /{" "}
+                                {facility.bed_count}
+                              </dt>
+                            </div>
+                          </TooltipComponent>
+                        </TooltipProvider>
                       </div>
                       <Button
                         asChild
