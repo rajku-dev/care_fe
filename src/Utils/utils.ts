@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import { PatientModel } from "@/components/Patient/models";
 
 import { AREACODES, IN_LANDLINE_AREA_CODES } from "@/common/constants";
@@ -565,29 +563,25 @@ export function omitBy<T extends Record<string, unknown>>(
   ) as Partial<T>;
 }
 
-export const useClipboard = () => {
-  const [copied, setCopied] = useState(false);
+export const copyToClipboard = async (
+  text: string,
+  successMsg: string,
+  errorMsg: string,
+  onSuccess: () => void,
+  onError: () => void,
+  resetIconDuration = 2500,
+) => {
+  if (!text) {
+    Notification.Error({ msg: "Nothing To Copy" });
+    return;
+  }
 
-  const copyToClipboard = async (
-    text: string,
-    successMsg: string,
-    errorMsg: string,
-    iconResetDuration = 2500,
-  ) => {
-    if (!text) {
-      Notification.Error({ msg: "Nothing To Copy" });
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      Notification.Success({ msg: successMsg });
-      setTimeout(() => setCopied(false), iconResetDuration);
-    } catch (err) {
-      Notification.Error({ msg: errorMsg });
-    }
-  };
-
-  return { copied, copyToClipboard };
+  try {
+    await navigator.clipboard.writeText(text);
+    Notification.Success({ msg: successMsg });
+    onSuccess();
+    setTimeout(() => onError(), resetIconDuration);
+  } catch (err) {
+    Notification.Error({ msg: errorMsg });
+  }
 };

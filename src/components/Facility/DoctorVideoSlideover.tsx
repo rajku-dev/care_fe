@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
@@ -18,10 +18,10 @@ import routes from "@/Utils/request/api";
 import useTanStackQueryInstead from "@/Utils/request/useQuery";
 import {
   classNames,
+  copyToClipboard,
   formatName,
   isUserOnline,
   relativeTime,
-  useClipboard,
 } from "@/Utils/utils";
 
 const UserGroups = {
@@ -241,7 +241,7 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
   }
 
   const { t } = useTranslation();
-  const { copied, copyToClipboard } = useClipboard();
+  const [copied, setCopied] = useState(false);
 
   return (
     <div
@@ -304,6 +304,8 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
                     user?.alt_phone_number || "",
                     t("phone_number_copied"),
                     t("phone_copy_failed"),
+                    () => setCopied(true),
+                    () => setCopied(false),
                   );
                 }}
               >
