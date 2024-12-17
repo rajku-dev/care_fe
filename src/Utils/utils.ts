@@ -568,7 +568,7 @@ export const copyToClipboard = async (
   successMsg: string,
   errorMsg: string,
   onSuccess: () => void,
-  onError: () => void,
+  onResetIcon: () => void,
   resetIconDuration = 2500,
 ) => {
   if (!text) {
@@ -580,7 +580,7 @@ export const copyToClipboard = async (
     await navigator.clipboard.writeText(text);
     Notification.Success({ msg: successMsg });
     onSuccess();
-    setTimeout(() => onError(), resetIconDuration);
+    setTimeout(() => onResetIcon(), resetIconDuration);
   } catch (err) {
     Notification.Error({ msg: errorMsg });
   }
