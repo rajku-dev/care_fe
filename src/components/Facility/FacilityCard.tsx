@@ -7,13 +7,7 @@ import Chip from "@/CAREUI/display/Chip";
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-
+import { TooltipComponent, TooltipProvider } from "@/components/ui/tooltip";
 
 import { Avatar } from "@/components/Common/Avatar";
 import { Cancel, Submit } from "@/components/Common/ButtonV2";
@@ -110,6 +104,7 @@ export const FacilityCard = (props: {
                         <TooltipProvider>
                           <TooltipComponent
                             content={t("live_patients_total_beds")}
+                            className="text-sm px-3 py-3 max-w-[300px]"
                           >
                             <div
                               data-test-id="occupancy-badge"
@@ -241,88 +236,73 @@ export const FacilityCard = (props: {
                   <div className="flex flex-wrap gap-2">
                     {["DistrictAdmin", "StateAdmin"].includes(userType) && (
                       <TooltipProvider>
-                        <Tooltip delayDuration={0}>
-                          <TooltipTrigger asChild>
-                            <Button
-                              id="facility-notify"
-                              variant={"outline_primary"}
-                              className="h-[38px]"
-                              onClick={(_) => setNotifyModalFor(facility.id)}
-                              aria-label={t("notify")}
-                              role="button"
-                            >
-                              <CareIcon
-                                icon="l-megaphone"
-                                className="text-lg"
-                              />
-                              <span className="hidden sm:inline">
-                                {t("notify")}
-                              </span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="top"
-                            className="sm:hidden text-sm px-3 py-3 max-w-[300px]"
+                        <TooltipComponent
+                          content={t("notify")}
+                          side="top"
+                          className="sm:hidden text-sm px-3 py-3 max-w-[300px]"
+                        >
+                          <Button
+                            id="facility-notify"
+                            variant={"outline_primary"}
+                            className="h-[38px]"
+                            onClick={(_) => setNotifyModalFor(facility.id)}
+                            aria-label={t("notify")}
+                            role="button"
                           >
-                            {t("notify")}
-                          </TooltipContent>
-                        </Tooltip>
+                            <CareIcon icon="l-megaphone" className="text-lg" />
+                            <span className="hidden sm:inline">
+                              {t("notify")}
+                            </span>
+                          </Button>
+                        </TooltipComponent>
                       </TooltipProvider>
                     )}
                     <TooltipProvider>
-                      <Tooltip delayDuration={0}>
-                        <TooltipTrigger asChild>
-                          <Button
-                            id="facility-details"
-                            variant={"outline_primary"}
-                            className="tooltip h-[38px]"
-                            aria-label={t("view_facility")}
-                            asChild
-                          >
-                            <Link href={`/facility/${facility.id}`}>
-                              <CareIcon icon="l-hospital" className="text-lg" />
-                              <span className="hidden sm:inline">
-                                {t("view_facility")}
-                              </span>
-                            </Link>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="top"
-                          className="sm:hidden text-sm px-3 py-3 max-w-[300px]"
+                      <TooltipComponent
+                        content={t("view_facility")}
+                        side="top"
+                        className="sm:hidden text-sm px-3 py-3 max-w-[300px]"
+                      >
+                        <Button
+                          id="facility-details"
+                          variant={"outline_primary"}
+                          className="tooltip h-[38px]"
+                          aria-label={t("view_facility")}
+                          asChild
                         >
-                          {t("view_facility")}
-                        </TooltipContent>
-                      </Tooltip>
+                          <Link href={`/facility/${facility.id}`}>
+                            <CareIcon icon="l-hospital" className="text-lg" />
+                            <span className="hidden sm:inline">
+                              {t("view_facility")}
+                            </span>
+                          </Link>
+                        </Button>
+                      </TooltipComponent>
                     </TooltipProvider>
                     <TooltipProvider>
-                      <Tooltip delayDuration={0}>
-                        <TooltipTrigger asChild>
-                          <Button
-                            id="facility-patients"
-                            variant={"outline_primary"}
-                            aria-label={t("view_patients")}
-                            asChild
-                            className="tooltip h-[38px]"
-                          >
-                            <Link href={`/patients?facility=${facility.id}`}>
-                              <CareIcon
-                                icon="l-user-injured"
-                                className="text-lg"
-                              />
-                              <span className="hidden sm:inline">
-                                {t("view_patients")}
-                              </span>
-                            </Link>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="top"
-                          className="sm:hidden text-sm px-3 py-3 max-w-[300px]"
+                      <TooltipComponent
+                        content={t("view_patients")}
+                        side="top"
+                        className="sm:hidden text-sm px-3 py-3 max-w-[300px]"
+                      >
+                        <Button
+                          id="facility-patients"
+                          variant={"outline_primary"}
+                          aria-label={t("view_patients")}
+                          asChild
+                          className="tooltip h-[38px]"
                         >
-                          {t("view_patients")}
-                        </TooltipContent>
-                      </Tooltip>
+                          <Link href={`/patients?facility=${facility.id}`}>
+                            <CareIcon
+                              icon="l-user-injured"
+                              className="text-lg"
+                            />
+                            <span className="hidden sm:inline">
+                              {t("view_patients")}
+                            </span>
+                          </Link>
+                        </Button>
+                      </TooltipComponent>
                     </TooltipProvider>
                     {/* </div> */}
                   </div>
