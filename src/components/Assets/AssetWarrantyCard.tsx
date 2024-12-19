@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
-
 import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
 
 import { AssetData } from "@/components/Assets/AssetTypes";
+import CopyButton from "@/components/Common/CopyButton";
 
-import { copyToClipboard, formatDate } from "@/Utils/utils";
+import { formatDate } from "@/Utils/utils";
 
 export default function AssetWarrantyCard(props: { asset: AssetData }) {
   const { asset } = props;
@@ -16,17 +15,6 @@ export default function AssetWarrantyCard(props: { asset: AssetData }) {
       formatDate(asset.warranty_amc_end_of_validity),
     Vendor: asset.vendor_name,
   };
-
-  const [isCopied, setIsCopied] = useState(false);
-
-  useEffect(() => {
-    if (isCopied) {
-      const timeout = setTimeout(() => {
-        setIsCopied(false);
-      }, 2000);
-      return () => clearTimeout(timeout);
-    }
-  }, [isCopied]);
 
   return (
     <div className="warranty-card relative z-10 flex h-full w-screen flex-col overflow-hidden p-6 text-white transition-all hover:scale-[1.01] hover:from-primary-600 hover:to-primary-700 md:w-full md:rounded-xl xl:w-96">
@@ -43,20 +31,11 @@ export default function AssetWarrantyCard(props: { asset: AssetData }) {
               <div className="flex items-center gap-2 font-semibold">
                 {details[key as keyof typeof details] || "--"}
                 {key === "Serial Number" && (
-                  <button
-                    className="tooltip tooltip-bottom"
-                    onClick={() => {
-                      copyToClipboard(details[key as keyof typeof details]);
-                      setIsCopied(true);
-                      setTimeout(() => setIsCopied(false), 2500);
-                    }}
-                  >
-                    <CareIcon
-                      icon={isCopied ? "l-check" : "l-copy"}
-                      className="text-lg"
-                    />
-                    <span className="tooltip-text">Copy to clipboard</span>
-                  </button>
+                  <CopyButton
+                    content={details[key as keyof typeof details] || ""}
+                    tooltipContent="Copy to clipboard"
+                    iconClassName="text-lg"
+                  />
                 )}
               </div>
             </div>

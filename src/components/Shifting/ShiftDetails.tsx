@@ -11,6 +11,7 @@ import PrintPreview from "@/CAREUI/misc/PrintPreview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import ButtonV2 from "@/components/Common/ButtonV2";
+import CopyButton from "@/components/Common/CopyButton";
 import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
 import { ConsultationModel } from "@/components/Facility/models";
@@ -25,12 +26,10 @@ import {
 
 import routes from "@/Utils/request/api";
 import useTanStackQueryInstead from "@/Utils/request/useQuery";
-import { copyToClipboard } from "@/Utils/utils";
 import { formatDateTime, formatName, formatPatientAge } from "@/Utils/utils";
 
 export default function ShiftDetails(props: { id: string }) {
   const [isPrintMode, setIsPrintMode] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
   const { t } = useTranslation();
 
   const shiftStatusOptions = careConfig.wartimeShifting
@@ -42,17 +41,11 @@ export default function ShiftDetails(props: { id: string }) {
   });
   const showCopyToclipBoard = (data: any) => {
     return (
-      <button
-        className="tooltip tooltip-top"
-        onClick={() => {
-          copyToClipboard(copyContent(data));
-          setIsCopied(true);
-          setTimeout(() => setIsCopied(false), 2500);
-        }}
-      >
-        <CareIcon icon={isCopied ? "l-check" : "l-copy"} className="h-6 w-6" />
-        <span className="tooltip-text">Copy Details to Clipboard</span>
-      </button>
+      <CopyButton
+        content={copyContent(data)}
+        tooltipContent="Copy Details to Clipboard"
+        iconClassName="h-6 w-6"
+      />
     );
   };
 

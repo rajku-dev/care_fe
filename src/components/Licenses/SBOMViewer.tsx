@@ -4,11 +4,10 @@ import React, { useState } from "react";
 import Card from "@/CAREUI/display/Card";
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import CopyButton from "@/components/Common/CopyButton";
 import beBomData from "@/components/Licenses/be-sbom.json";
 import feBomData from "@/components/Licenses/fe-sbom.json";
 import licenseUrls from "@/components/Licenses/licenseUrls.json";
-
-import { copyToClipboard } from "@/Utils/utils";
 
 const getLicenseUrl = (licenseId: string | undefined): string | null => {
   if (!licenseId) return null;
@@ -66,7 +65,6 @@ interface CycloneDXBOM {
 }
 
 const BOMDisplay: React.FC = () => {
-  const [isCopied, setIsCopied] = useState(false);
   const [showExternalRefs, setShowExternalRefs] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<string>("bom");
 
@@ -179,21 +177,12 @@ const BOMDisplay: React.FC = () => {
           ))}
         </div>
         <div className="mt-4">
-          <button
-            className="text-md hover:bg-primary-dark w-full rounded-md bg-primary px-4 py-2 text-white transition-all duration-300 focus:outline-none md:w-auto"
-            onClick={() => {
-              copyToClipboard(JSON.stringify(bomData, null, 2));
-              setIsCopied(true);
-              setTimeout(() => setIsCopied(false), 2500);
-            }}
-          >
-            Copy BOM JSON
-          </button>
-          {isCopied && (
-            <span className="mt-2 block text-sm text-gray-600">
-              Copied to clipboard!
-            </span>
-          )}
+          <CopyButton
+            content={JSON.stringify(bomData, null, 2)}
+            tooltipContent="Copy BOM JSON to clipboard"
+            btnContent="Copy BOM JSON"
+            btnClassName="text-md hover:bg-primary-dark w-full rounded-md bg-primary px-4 py-2 text-white transition-all duration-300 focus:outline-none md:w-auto"
+          />
         </div>
       </Card>
     </div>
