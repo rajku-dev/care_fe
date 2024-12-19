@@ -564,10 +564,6 @@ export function omitBy<T extends Record<string, unknown>>(
 }
 
 export const copyToClipboard = async (content: string) => {
-  if (!content) {
-    Notification.Error({ msg: "Nothing to copy here!" });
-    return;
-  }
   try {
     await navigator.clipboard.writeText(content);
     Notification.Success({ msg: "Copied to clipboard" });
