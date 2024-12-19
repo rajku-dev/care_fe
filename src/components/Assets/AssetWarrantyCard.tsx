@@ -35,7 +35,6 @@ export default function AssetWarrantyCard(props: { asset: AssetData }) {
                     <CopyButton
                       content={details[key as keyof typeof details] || ""}
                       tooltipContent="Copy to clipboard"
-                      iconClassName="text-lg"
                     />
                   )}
               </div>

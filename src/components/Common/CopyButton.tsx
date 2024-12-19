@@ -1,55 +1,48 @@
+import { VariantProps } from "class-variance-authority";
 import { useState } from "react";
+import * as React from "react";
 
-import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
+import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { Button, buttonVariants } from "@/components/ui/button";
 import { TooltipComponent, TooltipProvider } from "@/components/ui/tooltip";
 
 import { copyToClipboard } from "@/Utils/utils";
 
-interface CopyButtonProps {
+export interface CopyButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  children?: React.ReactNode;
   content: string;
   tooltipContent?: string;
-  btnContent?: string;
-  resetDuration?: number;
-  iconClassName?: string;
-  btnClassName?: string;
-  icons?: {
-    copied: IconName;
-    copy: IconName;
-  };
 }
-
 const CopyButton = ({
   content,
   tooltipContent = "Copy to clipboard",
-  btnContent = "",
-  resetDuration = 2500,
-  iconClassName = "text-lg",
-  btnClassName = "",
-  icons = { copied: "l-check", copy: "l-copy" },
+  children,
+  size,
 }: CopyButtonProps) => {
   const [isCopied, setIsCopied] = useState(false);
 
   return (
     <TooltipProvider>
       <TooltipComponent content={isCopied ? "Copied!" : tooltipContent}>
-        <button
+        <Button
+          variant="link"
+          size={size}
           onClick={() => {
             copyToClipboard(content);
             setIsCopied(true);
-            setTimeout(() => setIsCopied(false), resetDuration);
+            setTimeout(() => setIsCopied(false), 2500);
           }}
-          className={btnClassName}
         >
-          {btnContent ? (
-            btnContent
-          ) : (
+          {children || (
             <CareIcon
-              icon={isCopied ? icons.copied : icons.copy}
-              className={iconClassName}
+              icon={isCopied ? "l-check" : "l-copy"}
+              className="text-lg"
             />
           )}
-        </button>
+        </Button>
       </TooltipComponent>
     </TooltipProvider>
   );

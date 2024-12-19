@@ -180,8 +180,8 @@ const BOMDisplay: React.FC = () => {
           <CopyButton
             content={JSON.stringify(bomData, null, 2)}
             tooltipContent="Copy BOM JSON to clipboard"
-            btnContent="Copy BOM JSON"
-            btnClassName="text-md hover:bg-primary-dark w-full rounded-md bg-primary px-4 py-2 text-white transition-all duration-300 focus:outline-none md:w-auto"
+            children="Copy BOM JSON"
+            variant="primary"
           />
         </div>
       </Card>
