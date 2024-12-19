@@ -2,7 +2,6 @@ import careConfig from "@careConfig";
 import { QRCodeSVG } from "qrcode.react";
 import { Link, navigate } from "raviger";
 import { useState } from "react";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useTranslation } from "react-i18next";
 
 import RecordMeta from "@/CAREUI/display/RecordMeta";
@@ -26,6 +25,7 @@ import {
 
 import routes from "@/Utils/request/api";
 import useTanStackQueryInstead from "@/Utils/request/useQuery";
+import { copyToClipboard } from "@/Utils/utils";
 import { formatDateTime, formatName, formatPatientAge } from "@/Utils/utils";
 
 export default function ShiftDetails(props: { id: string }) {
@@ -42,20 +42,17 @@ export default function ShiftDetails(props: { id: string }) {
   });
   const showCopyToclipBoard = (data: any) => {
     return (
-      <a href="#">
-        <CopyToClipboard
-          text={copyContent(data)}
-          onCopy={() => setIsCopied(true)}
-        >
-          {isCopied ? (
-            <span className="copied-to-cb">{t("copied_to_clipboard")}</span>
-          ) : (
-            <span className="copy-to-cb">
-              <CareIcon icon="l-clipboard" className="text-2xl" />
-            </span>
-          )}
-        </CopyToClipboard>
-      </a>
+      <button
+        className="tooltip tooltip-top"
+        onClick={() => {
+          copyToClipboard(copyContent(data));
+          setIsCopied(true);
+          setTimeout(() => setIsCopied(false), 2500);
+        }}
+      >
+        <CareIcon icon={isCopied ? "l-check" : "l-copy"} className="h-6 w-6" />
+        <span className="tooltip-text">Copy Details to Clipboard</span>
+      </button>
     );
   };
 
@@ -92,10 +89,6 @@ export default function ShiftDetails(props: { id: string }) {
     }
     return formattedText;
   };
-
-  setTimeout(() => {
-    setIsCopied(false);
-  }, 5000);
 
   const showPatientCard = (patientData: PatientModel) => {
     const patientGender = GENDER_TYPES.find(

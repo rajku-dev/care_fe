@@ -1,12 +1,10 @@
-import { t } from "i18next";
 import { useEffect, useState } from "react";
-import CopyToClipboard from "react-copy-to-clipboard";
 
 import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
 
 import { AssetData } from "@/components/Assets/AssetTypes";
 
-import { formatDate } from "@/Utils/utils";
+import { copyToClipboard, formatDate } from "@/Utils/utils";
 
 export default function AssetWarrantyCard(props: { asset: AssetData }) {
   const { asset } = props;
@@ -45,19 +43,18 @@ export default function AssetWarrantyCard(props: { asset: AssetData }) {
               <div className="flex items-center gap-2 font-semibold">
                 {details[key as keyof typeof details] || "--"}
                 {key === "Serial Number" && (
-                  <button className="tooltip tooltip-bottom">
-                    <CopyToClipboard
-                      text={details[key as keyof typeof details] || "--"}
-                      onCopy={() => setIsCopied(true)}
-                    >
-                      {isCopied ? (
-                        <span className="text-sm text-white">
-                          {t("copied_to_clipboard")}
-                        </span>
-                      ) : (
-                        <CareIcon icon="l-copy" className="text-lg" />
-                      )}
-                    </CopyToClipboard>
+                  <button
+                    className="tooltip tooltip-bottom"
+                    onClick={() => {
+                      copyToClipboard(details[key as keyof typeof details]);
+                      setIsCopied(true);
+                      setTimeout(() => setIsCopied(false), 2500);
+                    }}
+                  >
+                    <CareIcon
+                      icon={isCopied ? "l-check" : "l-copy"}
+                      className="text-lg"
+                    />
                     <span className="tooltip-text">Copy to clipboard</span>
                   </button>
                 )}

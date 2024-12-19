@@ -1,6 +1,5 @@
 import dayjs from "dayjs";
 import React, { useState } from "react";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 
 import Card from "@/CAREUI/display/Card";
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -9,10 +8,13 @@ import beBomData from "@/components/Licenses/be-sbom.json";
 import feBomData from "@/components/Licenses/fe-sbom.json";
 import licenseUrls from "@/components/Licenses/licenseUrls.json";
 
+import { copyToClipboard } from "@/Utils/utils";
+
 const getLicenseUrl = (licenseId: string | undefined): string | null => {
   if (!licenseId) return null;
   return licenseUrls[licenseId as keyof typeof licenseUrls] || null;
 };
+
 interface CycloneDXExternalRef {
   url?: string;
   type?: string;
@@ -64,14 +66,9 @@ interface CycloneDXBOM {
 }
 
 const BOMDisplay: React.FC = () => {
-  const [copyStatus, setCopyStatus] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [showExternalRefs, setShowExternalRefs] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<string>("bom");
-
-  const handleCopy = () => {
-    setCopyStatus(true);
-    setTimeout(() => setCopyStatus(false), 2000);
-  };
 
   const bomData = (activeTab === "bom" ? feBomData : beBomData) as CycloneDXBOM;
 
@@ -182,15 +179,17 @@ const BOMDisplay: React.FC = () => {
           ))}
         </div>
         <div className="mt-4">
-          <CopyToClipboard
-            text={JSON.stringify(bomData, null, 2)}
-            onCopy={handleCopy}
+          <button
+            className="text-md hover:bg-primary-dark w-full rounded-md bg-primary px-4 py-2 text-white transition-all duration-300 focus:outline-none md:w-auto"
+            onClick={() => {
+              copyToClipboard(JSON.stringify(bomData, null, 2));
+              setIsCopied(true);
+              setTimeout(() => setIsCopied(false), 2500);
+            }}
           >
-            <button className="text-md hover:bg-primary-dark w-full rounded-md bg-primary px-4 py-2 text-white transition-all duration-300 focus:outline-none md:w-auto">
-              Copy BOM JSON
-            </button>
-          </CopyToClipboard>
-          {copyStatus && (
+            Copy BOM JSON
+          </button>
+          {isCopied && (
             <span className="mt-2 block text-sm text-gray-600">
               Copied to clipboard!
             </span>
