@@ -40,12 +40,7 @@ export default function ShiftDetails(props: { id: string }) {
     pathParams: { id: props.id },
   });
   const showCopyToclipBoard = (data: any) => {
-    return (
-      <CopyButton
-        content={copyContent(data)}
-        size="sm"
-      />
-    );
+    return <CopyButton content={copyContent(data)} size="sm" />;
   };
 
   const copyContent = (data: any) => {
