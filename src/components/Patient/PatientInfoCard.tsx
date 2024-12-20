@@ -36,7 +36,7 @@ import * as Notification from "@/Utils/Notifications";
 import dayjs from "@/Utils/dayjs";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
-import useQuery from "@/Utils/request/useQuery";
+import useTanStackQueryInstead from "@/Utils/request/useQuery";
 import {
   classNames,
   formatDate,
@@ -123,7 +123,7 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
 
     return false;
   };
-  const skillsQuery = useQuery(routes.userListSkill, {
+  const skillsQuery = useTanStackQueryInstead(routes.userListSkill, {
     pathParams: {
       username: consultation?.treating_physician_object?.username ?? "",
     },
@@ -538,7 +538,7 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
           )}
           {!!consultation?.discharge_date && (
             <div className="flex min-w-max flex-col items-center justify-center">
-              <div className="text-sm font-normal leading-5 text-secondary-500">
+              <div className="text-sm font-normal leading-5 text-gray-600">
                 Discharge Reason
               </div>
               <div className="mt-[6px] text-xl font-semibold leading-5 text-secondary-900">

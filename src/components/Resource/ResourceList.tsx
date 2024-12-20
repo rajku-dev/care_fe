@@ -5,10 +5,11 @@ import Chip from "@/CAREUI/display/Chip";
 import CareIcon from "@/CAREUI/icons/CareIcon";
 import { AdvancedFilterButton } from "@/CAREUI/interactive/FiltersSlideover";
 
-import ButtonV2 from "@/components/Common/ButtonV2";
+import { Button } from "@/components/ui/button";
+
 import { ExportButton } from "@/components/Common/Export";
 import Loading from "@/components/Common/Loading";
-import Page from "@/components/Common/Page";
+import PageTitle from "@/components/Common/PageTitle";
 import { ResourceModel } from "@/components/Facility/models";
 import SearchInput from "@/components/Form/SearchInput";
 import BadgesList from "@/components/Resource/ResourceBadges";
@@ -19,7 +20,7 @@ import useFilters from "@/hooks/useFilters";
 
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
-import useQuery from "@/Utils/request/useQuery";
+import useTanStackQueryInstead from "@/Utils/request/useQuery";
 import { formatDateTime } from "@/Utils/utils";
 
 export default function ListView() {
@@ -34,17 +35,22 @@ export default function ListView() {
 
   const { t } = useTranslation();
 
-  const onBoardViewBtnClick = () =>
+  const onBoardViewBtnClick = () => {
     navigate("/resource/board", { query: qParams });
+    localStorage.setItem("defaultResourceView", "board");
+  };
   const appliedFilters = formatFilter(qParams);
 
-  const { loading, data, refetch } = useQuery(routes.listResourceRequests, {
-    query: formatFilter({
-      ...qParams,
-      limit: resultsPerPage,
-      offset: (qParams.page ? qParams.page - 1 : 0) * resultsPerPage,
-    }),
-  });
+  const { loading, data, refetch } = useTanStackQueryInstead(
+    routes.listResourceRequests,
+    {
+      query: formatFilter({
+        ...qParams,
+        limit: resultsPerPage,
+        offset: (qParams.page ? qParams.page - 1 : 0) * resultsPerPage,
+      }),
+    },
+  );
 
   const showResourceCardList = (data: ResourceModel[]) => {
     if (data && !data.length) {
@@ -188,45 +194,55 @@ export default function ListView() {
   };
 
   return (
-    <Page
-      title="Resource"
-      hideBack
-      componentRight={
-        <ExportButton
-          action={async () => {
-            const { data } = await request(routes.downloadResourceRequests, {
-              query: { ...appliedFilters, csv: true },
-            });
-            return data ?? null;
-          }}
-          filenamePrefix="resource_requests"
-        />
-      }
-      breadcrumbs={false}
-      options={
-        <>
-          <div className="md:px-4"></div>
-          <div className="mt-2 flex w-full flex-col items-center justify-between gap-2 pt-2 xl:flex-row">
-            <SearchInput
-              name="title"
-              value={qParams.title}
-              onChange={(e) => updateQuery({ [e.name]: e.value })}
-              placeholder={t("search_resource")}
-            />
-          </div>
+    <div className="flex-col px-2 pb-2">
+      <div className="flex w-full flex-col items-center justify-between lg:flex-row">
+        <div className="w-1/3 lg:w-1/4">
+          <PageTitle
+            title={t("resource")}
+            hideBack
+            className="mx-3 md:mx-5"
+            componentRight={
+              <ExportButton
+                action={async () => {
+                  const { data } = await request(
+                    routes.downloadResourceRequests,
+                    {
+                      query: { ...appliedFilters, csv: true },
+                    },
+                  );
+                  return data ?? null;
+                }}
+                filenamePrefix="resource_requests"
+              />
+            }
+            breadcrumbs={false}
+          />
+        </div>
 
-          <div className="mt-2 flex w-full flex-col gap-2 lg:w-fit lg:flex-row lg:gap-4">
+        <div className="flex w-full flex-col items-center justify-between gap-2 pt-2 xl:flex-row">
+          <SearchInput
+            name="title"
+            value={qParams.title}
+            onChange={(e) => updateQuery({ [e.name]: e.value })}
+            placeholder={t("search_resource")}
+            className="w-full md:w-60"
+          />
+
+          <div className="flex w-full flex-col gap-2 lg:mr-4 lg:w-fit lg:flex-row lg:gap-4">
+            <Button
+              variant={"primary"}
+              onClick={onBoardViewBtnClick}
+              className="h-10.8 px-4 py-2"
+            >
+              <CareIcon icon="l-list-ul" className="mr-2" />
+              {t("board_view")}
+            </Button>
             <AdvancedFilterButton
               onClick={() => advancedFilter.setShow(true)}
             />
-            <ButtonV2 className="py-[11px]" onClick={onBoardViewBtnClick}>
-              <CareIcon icon="l-list-ul" className="rotate-90" />
-              {t("board_view")}
-            </ButtonV2>
           </div>
-        </>
-      }
-    >
+        </div>
+      </div>
       <BadgesList {...{ appliedFilters, FilterBadges }} />
 
       <div className="px-1">
@@ -276,6 +292,6 @@ export default function ListView() {
         showResourceStatus={true}
         key={window.location.search}
       />
-    </Page>
+    </div>
   );
 }

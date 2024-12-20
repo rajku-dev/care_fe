@@ -1,10 +1,10 @@
 import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
 import { HCXPolicyModel } from "@/components/HCX/models";
-import { InsuranceDetialsCard } from "@/components/Patient/InsuranceDetailsCard";
+import { InsuranceDetailsCard } from "@/components/Patient/InsuranceDetailsCard";
 
 import routes from "@/Utils/request/api";
-import useQuery from "@/Utils/request/useQuery";
+import useTanStackQueryInstead from "@/Utils/request/useQuery";
 
 interface IProps {
   facilityId: string;
@@ -14,7 +14,7 @@ interface IProps {
 export const InsuranceDetails = (props: IProps) => {
   const { facilityId, id } = props;
 
-  const { data: insuranceDetials, loading } = useQuery(
+  const { data: insuranceDetials, loading } = useTanStackQueryInstead(
     routes.hcx.policies.list,
     {
       query: {
@@ -53,7 +53,7 @@ export const InsuranceDetails = (props: IProps) => {
           data-testid="patient-details"
         >
           {insuranceDetials?.results.map((data: HCXPolicyModel) => (
-            <InsuranceDetialsCard data={data} />
+            <InsuranceDetailsCard data={data} />
           ))}
         </section>
       )}

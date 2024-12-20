@@ -133,12 +133,12 @@ Cypress.Commands.add("clickCancelButton", (buttonText = "Cancel") => {
 
 Cypress.Commands.add(
   "typeAndSelectOption",
-  (element: string, referance: string) => {
+  (element: string, reference: string) => {
     cy.get(element)
       .click()
-      .type(referance)
+      .type(reference)
       .then(() => {
-        cy.get("[role='option']").contains(referance).click();
+        cy.get("[role='option']").contains(reference).click();
       });
   },
 );
@@ -175,11 +175,17 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   "clickAndSelectOption",
-  (element: string, reference: string) => {
+  (element: string, reference: string, skipVerification: boolean = false) => {
     cy.get(element)
       .click()
       .then(() => {
         cy.get("[role='option']").contains(reference).click();
+      })
+      .then(() => {
+        // Skip verification if skipVerification is true
+        if (!skipVerification) {
+          cy.get(element).should("contain", reference);
+        }
       });
   },
 );
@@ -229,3 +235,38 @@ Cypress.Commands.add("verifyContentPresence", (selector, texts) => {
     });
   });
 });
+
+Cypress.Commands.add("verifyErrorMessages", (errorMessages: string[]) => {
+  const selector = ".error-text"; // Static selector
+  cy.get(selector).then(($errors) => {
+    const displayedErrorMessages = $errors
+      .map((_, el) => Cypress.$(el).text())
+      .get();
+    errorMessages.forEach((errorMessage) => {
+      expect(displayedErrorMessages).to.include(errorMessage);
+    });
+  });
+});
+
+Cypress.Commands.add(
+  "typeIntoField",
+  (
+    selector: string,
+    value: string,
+    options: { clearBeforeTyping?: boolean; skipVerification?: boolean } = {},
+  ) => {
+    const { clearBeforeTyping = false, skipVerification = false } = options;
+    const inputField = cy.get(selector);
+
+    if (clearBeforeTyping) {
+      inputField.clear(); // Clear the input field if specified
+    }
+
+    inputField.scrollIntoView().should("be.visible").click().type(value);
+
+    // Conditionally skip verification based on the skipVerification flag
+    if (!skipVerification) {
+      inputField.should("have.value", value); // Verify the value if skipVerification is false
+    }
+  },
+);

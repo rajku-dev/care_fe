@@ -1,3 +1,5 @@
+import FacilityHome from "pageobject/Facility/FacilityHome";
+
 import FacilityPage from "../../pageobject/Facility/FacilityCreation";
 import LoginPage from "../../pageobject/Login/LoginPage";
 import ResourcePage from "../../pageobject/Resource/ResourcePage";
@@ -7,24 +9,26 @@ describe("Resource Page", () => {
   const loginPage = new LoginPage();
   const resourcePage = new ResourcePage();
   const facilityPage = new FacilityPage();
+  const facilityHome = new FacilityHome();
   const phone_number = "9999999999";
 
   before(() => {
-    loginPage.loginAsDistrictAdmin();
+    loginPage.loginByRole("districtAdmin");
     cy.saveLocalStorage();
   });
 
   beforeEach(() => {
     cy.restoreLocalStorage();
     cy.clearLocalStorage(/filters--.+/);
-    cy.awaitUrl("/resource");
   });
 
   it("Checks if all download button works", () => {
+    resourcePage.navigationToResourcePage();
     resourcePage.verifyDownloadButtonWorks();
   });
 
   it("Switch between active/completed", () => {
+    resourcePage.navigationToResourcePage();
     resourcePage.spyResourceApi();
     resourcePage.clickCompletedResources();
     resourcePage.verifyCompletedResources();
@@ -34,13 +38,14 @@ describe("Resource Page", () => {
   });
 
   it("Switch between list view and board view", () => {
+    resourcePage.navigationToResourcePage();
     resourcePage.clickListViewButton();
     resourcePage.clickBoardViewButton();
   });
 
   it("Create a resource request", () => {
-    cy.visit("/facility");
-    cy.get("#search").click().type("dummy facility 40");
+    facilityHome.navigateToFacilityHomepage();
+    facilityHome.typeFacilitySearch("dummy facility 40");
     cy.intercept("GET", "**/api/v1/facility/**").as("loadFacilities");
     cy.get("#facility-details").click();
     cy.wait("@loadFacilities").its("response.statusCode").should("eq", 200);
@@ -65,7 +70,7 @@ describe("Resource Page", () => {
   });
 
   it("Update the status of resource", () => {
-    cy.visit(createdResource);
+    cy.awaitUrl(createdResource);
     resourcePage.clickUpdateStatus();
     resourcePage.updateStatus("APPROVED");
     resourcePage.clickSubmitButton();
@@ -75,7 +80,7 @@ describe("Resource Page", () => {
   });
 
   it("Post comment for a resource", () => {
-    cy.visit(createdResource);
+    cy.awaitUrl(createdResource);
     resourcePage.addCommentForResource("Test comment");
     resourcePage.clickPostCommentButton();
     resourcePage.verifySuccessNotification("Comment added successfully");

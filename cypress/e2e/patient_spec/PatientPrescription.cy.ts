@@ -15,7 +15,7 @@ const medicineIndicator = "Test Indicator";
 
 describe("Patient Medicine Administration", () => {
   before(() => {
-    loginPage.loginAsDistrictAdmin();
+    loginPage.loginByRole("districtAdmin");
     cy.saveLocalStorage();
   });
 
@@ -113,7 +113,6 @@ describe("Patient Medicine Administration", () => {
     cy.closeNotification();
     // Administer the medicine in edit form
     patientPrescription.clickAdministerButton();
-    cy.wait(2000);
     patientPrescription.enterAdministerDosage(medicineBaseDosage);
     patientPrescription.enterAdministerNotes(medicineAdministerNote);
     cy.clickSubmitButton("Administer Medicine");
