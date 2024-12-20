@@ -34,7 +34,6 @@ export default function AssetWarrantyCard(props: { asset: AssetData }) {
                   details[key as keyof typeof details] && (
                     <CopyButton
                       content={details[key as keyof typeof details] || ""}
-                      tooltipContent="Copy to clipboard"
                     />
                   )}
               </div>
