@@ -43,7 +43,6 @@ export default function ShiftDetails(props: { id: string }) {
     return (
       <CopyButton
         content={copyContent(data)}
-        tooltipContent="Copy Details to Clipboard"
         size="sm"
       />
     );
