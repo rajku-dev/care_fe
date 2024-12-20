@@ -182,7 +182,6 @@ const BOMDisplay: React.FC = () => {
               try {
                 return JSON.stringify(bomData, null, 2);
               } catch (error) {
-                console.error('Failed to stringify BOM data:', error);
                 return '';
               }
             })()}
