@@ -178,13 +178,7 @@ const BOMDisplay: React.FC = () => {
         </div>
         <div className="mt-4">
           <CopyButton
-            content={(() => {
-              try {
-                return JSON.stringify(bomData, null, 2);
-              } catch (error) {
-                return '';
-              }
-            })()}
+            content={JSON.stringify(bomData, null, 2)}
             tooltipContent="Copy BOM JSON to clipboard"
             variant="primary"
           >
