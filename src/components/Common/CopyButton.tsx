@@ -1,6 +1,7 @@
 import { VariantProps } from "class-variance-authority";
 import { useState } from "react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -19,17 +20,20 @@ export interface CopyButtonProps
 
 const CopyButton = ({
   content,
-  tooltipContent = "Copy to clipboard",
+  tooltipContent = t("copy_to_clipboard"),
   children,
   size,
 }: CopyButtonProps) => {
   const [isCopied, setIsCopied] = useState(false);
+  const { t } = useTranslation();
 
   if (content === undefined) return null;
 
   return (
     <TooltipProvider>
-      <TooltipComponent content={isCopied ? "Copied!" : tooltipContent}>
+      <TooltipComponent
+        content={isCopied ? t("copied_to_clipboard") : tooltipContent}
+      >
         <Button
           variant="link"
           size={size}
