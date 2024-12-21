@@ -174,7 +174,7 @@ const UserGroupList = (props: {
 type MSLaunchURI = (
   uri: string,
   successCB?: null | (() => void),
-  noHandlerCB?: null | (() => void)
+  noHandlerCB?: null | (() => void),
 ) => void;
 
 function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
@@ -186,7 +186,7 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
     if (!user.alt_phone_number) return;
     const phoneNumber = user.alt_phone_number?.replace(/\D+/g, "");
     const message = `${courtesyTitle(user)} ${formatName(
-      user
+      user,
     )}, I have a query regarding a patient.\n\nPatient Link: ${
       window.location.href
     }`;
@@ -252,7 +252,7 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
         "group cursor-default select-none rounded-xl p-3",
         user.alt_phone_number
           ? "cursor-pointer border border-secondary-400 transition hover:border-green-500 hover:bg-green-50"
-          : "pointer-events-none cursor-not-allowed bg-secondary-400"
+          : "pointer-events-none cursor-not-allowed bg-secondary-400",
       )}
     >
       <a className="flex" onClick={connectOnWhatsApp}>
