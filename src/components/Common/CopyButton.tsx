@@ -20,7 +20,7 @@ export interface CopyButtonProps
 
 const CopyButton = ({
   content,
-  tooltipContent = t("copy_to_clipboard"),
+  tooltipContent = "copy_to_clipboard",
   children,
   size,
 }: CopyButtonProps) => {
@@ -32,7 +32,7 @@ const CopyButton = ({
   return (
     <TooltipProvider>
       <TooltipComponent
-        content={isCopied ? t("copied_to_clipboard") : tooltipContent}
+        content={isCopied ? t("copied_to_clipboard") : t(tooltipContent)}
       >
         <Button
           variant="link"
