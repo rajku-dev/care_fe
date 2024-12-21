@@ -151,7 +151,7 @@ const BOMDisplay: React.FC = () => {
                   className="block cursor-pointer font-semibold text-primary"
                   onClick={() =>
                     setShowExternalRefs(
-                      showExternalRefs === index ? null : index
+                      showExternalRefs === index ? null : index,
                     )
                   }
                 >
