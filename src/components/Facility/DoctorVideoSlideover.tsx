@@ -5,6 +5,7 @@ import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
 import SlideOver from "@/CAREUI/interactive/SlideOver";
 import Switch from "@/CAREUI/interactive/Switch";
 
+import CopyButton from "@/components/Common/CopyButton";
 import Loading from "@/components/Common/Loading";
 import { SkillObjectModel } from "@/components/Users/models";
 import { UserAssignedModel } from "@/components/Users/models";
@@ -18,7 +19,6 @@ import routes from "@/Utils/request/api";
 import useTanStackQueryInstead from "@/Utils/request/useQuery";
 import {
   classNames,
-  copyToClipboard,
   formatName,
   isUserOnline,
   relativeTime,
@@ -241,7 +241,6 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
   }
 
   const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
 
   return (
     <div
@@ -295,27 +294,10 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
           )}
           <div className="flex justify-between gap-2 text-sm text-secondary-500">
             <div className="flex items-center gap-1">
-              <a
-                role="button"
-                href="#"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  copyToClipboard(user?.alt_phone_number || "");
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 2500);
-                }}
-              >
-                <span className="tooltip" id="copy-phoneicon">
-                  <span className="tooltip-text tooltip-top">
-                    {t("copy_phone_number")}
-                  </span>
-                  <CareIcon
-                    icon={copied ? "l-check" : "l-clipboard"}
-                    id="copy-icon"
-                    className="h-5 w-5"
-                  />
-                </span>
-              </a>
+              <CopyButton
+                content={user.alt_phone_number || ""}
+                tooltipContent={t("copy_phone_number")}
+              />
               <span>{user.alt_phone_number}</span>
             </div>
             <div className="text-sm text-secondary-500">
