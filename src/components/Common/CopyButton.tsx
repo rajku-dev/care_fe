@@ -21,6 +21,7 @@ const CopyButton = ({
   tooltipContent = "Copy to clipboard",
   children,
   size,
+  disabled = false,
 }: CopyButtonProps) => {
   const [isCopied, setIsCopied] = useState(false);
 

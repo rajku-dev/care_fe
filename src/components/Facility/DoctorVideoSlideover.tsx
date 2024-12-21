@@ -295,7 +295,8 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
           <div className="flex justify-between gap-2 text-sm text-secondary-500">
             <div className="flex items-center gap-1">
               <CopyButton
-                content={user.alt_phone_number || ""}
+                disabled={!user.alt_phone_number}
+                content={user.alt_phone_number}
                 tooltipContent={t("copy_phone_number")}
               />
               <span>{user.alt_phone_number}</span>
