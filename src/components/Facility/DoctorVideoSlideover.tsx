@@ -174,7 +174,7 @@ const UserGroupList = (props: {
 type MSLaunchURI = (
   uri: string,
   successCB?: null | (() => void),
-  noHandlerCB?: null | (() => void),
+  noHandlerCB?: null | (() => void)
 ) => void;
 
 function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
@@ -185,7 +185,11 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
     e.stopPropagation();
     if (!user.alt_phone_number) return;
     const phoneNumber = user.alt_phone_number?.replace(/\D+/g, "");
-    const message = `${courtesyTitle(user)} ${formatName(user)}, I have a query regarding a patient.\n\nPatient Link: ${window.location.href}`;
+    const message = `${courtesyTitle(user)} ${formatName(
+      user
+    )}, I have a query regarding a patient.\n\nPatient Link: ${
+      window.location.href
+    }`;
     const encodedMessage = encodeURIComponent(message);
     const whatsappAppURL = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
     const whatsappWebURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
@@ -248,7 +252,7 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
         "group cursor-default select-none rounded-xl p-3",
         user.alt_phone_number
           ? "cursor-pointer border border-secondary-400 transition hover:border-green-500 hover:bg-green-50"
-          : "pointer-events-none cursor-not-allowed bg-secondary-400",
+          : "pointer-events-none cursor-not-allowed bg-secondary-400"
       )}
     >
       <a className="flex" onClick={connectOnWhatsApp}>
@@ -294,12 +298,12 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
           )}
           <div className="flex justify-between gap-2 text-sm text-secondary-500">
             <div className="flex items-center gap-1">
-            {user.alt_phone_number && (
-              <CopyButton
-                content={user.alt_phone_number}
-                tooltipContent={t("copy_phone_number")}
-              />
-            )}
+              {user.alt_phone_number && (
+                <CopyButton
+                  content={user.alt_phone_number}
+                  tooltipContent={t("copy_phone_number")}
+                />
+              )}
               <span>{user.alt_phone_number}</span>
             </div>
             <div className="text-sm text-secondary-500">
