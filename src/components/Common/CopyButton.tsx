@@ -13,9 +13,10 @@ export interface CopyButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   children?: React.ReactNode;
-  content: string;
+  content: string | undefined;
   tooltipContent?: string;
 }
+
 const CopyButton = ({
   content,
   tooltipContent = "Copy to clipboard",
@@ -23,6 +24,8 @@ const CopyButton = ({
   size,
 }: CopyButtonProps) => {
   const [isCopied, setIsCopied] = useState(false);
+
+  if (content === undefined) return null;
 
   return (
     <TooltipProvider>

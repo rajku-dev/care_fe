@@ -30,12 +30,9 @@ export default function AssetWarrantyCard(props: { asset: AssetData }) {
               </div>
               <div className="flex items-center gap-2 font-semibold">
                 {details[key as keyof typeof details] || "--"}
-                {key === "Serial Number" &&
-                  details[key as keyof typeof details] && (
-                    <CopyButton
-                      content={details[key as keyof typeof details] || ""}
-                    />
-                  )}
+                {key === "Serial Number" && (
+                  <CopyButton content={details[key as keyof typeof details]} />
+                )}
               </div>
             </div>
           ))}
