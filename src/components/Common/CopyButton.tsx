@@ -32,7 +32,11 @@ const CopyButton = ({
   return (
     <TooltipProvider>
       <TooltipComponent
-        content={isCopied ? t("copied_to_clipboard") : tooltipContent ?? t("copy_to_clipboard")}
+        content={
+          isCopied
+            ? t("copied_to_clipboard")
+            : (tooltipContent ?? t("copy_to_clipboard"))
+        }
       >
         <Button
           variant="link"
