@@ -20,7 +20,7 @@ export interface CopyButtonProps
 
 const CopyButton = ({
   content,
-  tooltipContent = "copy_to_clipboard",
+  tooltipContent,
   children,
   size,
 }: CopyButtonProps) => {
