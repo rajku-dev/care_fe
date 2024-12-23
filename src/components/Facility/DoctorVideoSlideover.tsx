@@ -255,61 +255,59 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
           : "pointer-events-none cursor-not-allowed bg-secondary-400",
       )}
     >
-      <a className="flex" onClick={connectOnWhatsApp}>
-        <div className="flex flex-none items-center justify-center sm:h-6 sm:w-6 md:h-10 md:w-10">
-          {
-            // Show online icon based on last_login
-            user.last_login && isUserOnline(user) ? (
-              <>
-                <CareIcon icon={icon} className="text-xl text-green-600" />
-                <span
-                  className="relative top-2 h-3 w-3 rounded-full bg-primary-500"
-                  aria-label="Online"
-                />
-              </>
-            ) : (
-              <CareIcon icon={icon} className="text-2xl text-secondary-600" />
-            )
-          }
-        </div>
-        <div className="ml-4 flex flex-auto flex-col gap-1">
-          <div className="flex justify-between gap-2 text-sm text-secondary-700">
-            <span>
-              <strong>{formatName(user)}</strong>
-            </span>
-            <DoctorConnectButtons
-              user={user}
-              connectOnWhatsApp={connectOnWhatsApp}
-            />
-          </div>
-          {!!user.skills.length && (
-            <div className="mt-1 text-sm leading-5 text-secondary-900">
-              <div className="flex flex-wrap gap-2">
-                {user.skills?.map((skill: SkillObjectModel) => (
-                  <span
-                    key={skill.id}
-                    className="flex items-center gap-2 rounded-full border-secondary-300 bg-secondary-200 px-3 text-xs text-secondary-900"
-                  >
-                    <p className="py-1.5">{skill.name}</p>
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-          <div className="flex justify-between gap-2 text-sm text-secondary-500">
-            <div className="flex items-center gap-1">
-              <CopyButton
-                content={user.alt_phone_number}
-                tooltipContent={t("copy_phone_number")}
+      <div className="flex flex-none items-center justify-center sm:h-6 sm:w-6 md:h-10 md:w-10">
+        {
+          // Show online icon based on last_login
+          user.last_login && isUserOnline(user) ? (
+            <>
+              <CareIcon icon={icon} className="text-xl text-green-600" />
+              <span
+                className="relative top-2 h-3 w-3 rounded-full bg-primary-500"
+                aria-label="Online"
               />
-              <span>{user.alt_phone_number}</span>
-            </div>
-            <div className="text-sm text-secondary-500">
-              {user.last_login && <span>{relativeTime(user.last_login)}</span>}
+            </>
+          ) : (
+            <CareIcon icon={icon} className="text-2xl text-secondary-600" />
+          )
+        }
+      </div>
+      <div className="ml-4 flex flex-auto flex-col gap-1">
+        <div className="flex justify-between gap-2 text-sm text-secondary-700">
+          <span>
+            <strong>{formatName(user)}</strong>
+          </span>
+          <DoctorConnectButtons
+            user={user}
+            connectOnWhatsApp={connectOnWhatsApp}
+          />
+        </div>
+        {!!user.skills.length && (
+          <div className="mt-1 text-sm leading-5 text-secondary-900">
+            <div className="flex flex-wrap gap-2">
+              {user.skills?.map((skill: SkillObjectModel) => (
+                <span
+                  key={skill.id}
+                  className="flex items-center gap-2 rounded-full border-secondary-300 bg-secondary-200 px-3 text-xs text-secondary-900"
+                >
+                  <p className="py-1.5">{skill.name}</p>
+                </span>
+              ))}
             </div>
           </div>
+        )}
+        <div className="flex justify-between gap-2 text-sm text-secondary-500">
+          <div className="flex items-center gap-1">
+            <CopyButton
+              content={user.alt_phone_number}
+              tooltipContent={t("copy_phone_number")}
+            />
+            <span>{user.alt_phone_number}</span>
+          </div>
+          <div className="text-sm text-secondary-500">
+            {user.last_login && <span>{relativeTime(user.last_login)}</span>}
+          </div>
         </div>
-      </a>
+      </div>
     </div>
   );
 }
