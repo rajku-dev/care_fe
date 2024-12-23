@@ -126,6 +126,7 @@ export const FacilityCard = (props: {
                         </TooltipProvider>
                       </div>
                       <Button
+                        id="view-cns-button"
                         asChild
                         className="mt-2 sm:mt-0"
                         variant={"outline_primary"}
