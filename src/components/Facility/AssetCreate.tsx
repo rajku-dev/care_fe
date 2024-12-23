@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import {
   Popover,
   PopoverContent,
@@ -602,7 +603,10 @@ const AssetCreate = (props: AssetProps) => {
                       </div>
 
                       {/* QR Code ID */}
-                      <div className="col-span-6 flex flex-row items-center gap-2">
+                      <div
+                        className="col-span-6 flex flex-row items-center gap-2"
+                        data-testid="asset-qr-id-input"
+                      >
                         <FormField
                           control={form.control}
                           name="qr_code_id"
@@ -746,7 +750,10 @@ const AssetCreate = (props: AssetProps) => {
                                 Customer Support Phone
                               </FormLabel>
                               <FormControl>
-                                <Input placeholder="Phone Number" {...field} />
+                                <PhoneInput
+                                  placeholder="Enter a phone number"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
