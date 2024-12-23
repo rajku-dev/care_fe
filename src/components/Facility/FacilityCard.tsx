@@ -134,7 +134,7 @@ export const FacilityCard = (props: {
                         <Link href={`/facility/${facility.id}/cns`}>
                           <CareIcon
                             icon="l-monitor-heart-rate"
-                            className="text-lg"
+                            className="text-lg mr-1"
                           />
                           <span>{t("view_cns")}</span>
                         </Link>
@@ -250,7 +250,10 @@ export const FacilityCard = (props: {
                             aria-label={t("notify")}
                             role="button"
                           >
-                            <CareIcon icon="l-megaphone" className="text-lg" />
+                            <CareIcon
+                              icon="l-megaphone"
+                              className="text-lg mr-1"
+                            />
                             <span className="hidden sm:inline">
                               {t("notify")}
                             </span>
@@ -272,7 +275,10 @@ export const FacilityCard = (props: {
                           asChild
                         >
                           <Link href={`/facility/${facility.id}`}>
-                            <CareIcon icon="l-hospital" className="text-lg" />
+                            <CareIcon
+                              icon="l-hospital"
+                              className="text-lg mr-1"
+                            />
                             <span className="hidden sm:inline">
                               {t("view_facility")}
                             </span>
@@ -296,7 +302,7 @@ export const FacilityCard = (props: {
                           <Link href={`/patients?facility=${facility.id}`}>
                             <CareIcon
                               icon="l-user-injured"
-                              className="text-lg"
+                              className="text-lg mr-1"
                             />
                             <span className="hidden sm:inline">
                               {t("view_patients")}
