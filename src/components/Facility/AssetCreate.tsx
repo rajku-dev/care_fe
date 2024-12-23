@@ -1,102 +1,57 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
+import { format } from "date-fns";
 import { navigate } from "raviger";
-import {
-  LegacyRef,
-  MutableRefObject,
-  RefObject,
-  createRef,
-  useEffect,
-  useState,
-} from "react";
+import { LegacyRef, MutableRefObject, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
+
+import { cn } from "@/lib/utils";
 
 import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
+
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 
 import { AssetClass, AssetType } from "@/components/Assets/AssetTypes";
 import Loading from "@/components/Common/Loading";
 import { LocationSelect } from "@/components/Common/LocationSelect";
 import Page from "@/components/Common/Page";
-import SwitchV2 from "@/components/Common/Switch";
-import {
-  FieldError,
-  PhoneNumberValidator,
-  RequiredFieldValidator,
-} from "@/components/Form/FieldValidators";
-import Form from "@/components/Form/Form";
-import DateFormField from "@/components/Form/FormFields/DateFormField";
-import {
-  FieldErrorText,
-  FieldLabel,
-} from "@/components/Form/FormFields/FormField";
-import PhoneNumberFormField from "@/components/Form/FormFields/PhoneNumberFormField";
-import { SelectFormField } from "@/components/Form/FormFields/SelectFormField";
-import TextAreaFormField from "@/components/Form/FormFields/TextAreaFormField";
-import TextFormField from "@/components/Form/FormFields/TextFormField";
-import { FormErrors } from "@/components/Form/Utils";
+import { AssetFormSchema } from "@/components/Facility/AssetFormSchema";
 
 import useAppHistory from "@/hooks/useAppHistory";
 import useVisibility from "@/hooks/useVisibility";
 
-import { validateEmailAddress } from "@/common/validation";
-
 import * as Notification from "@/Utils/Notifications";
-import dayjs from "@/Utils/dayjs";
 import { parseQueryParams } from "@/Utils/primitives";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import useTanStackQueryInstead from "@/Utils/request/useQuery";
 import { dateQueryString, parsePhoneNumber } from "@/Utils/utils";
-
-const formErrorKeys = [
-  "name",
-  "asset_class",
-  "description",
-  "is_working",
-  "serial_number",
-  "location",
-  "vendor_name",
-  "support_name",
-  "support_phone",
-  "support_email",
-  "manufacturer",
-  "warranty_amc_end_of_validity",
-  "last_serviced",
-  "notes",
-];
-
-interface AssetData {
-  id?: string;
-  name?: string;
-  location?: string;
-  description?: string;
-  is_working?: boolean | null;
-  not_working_reason?: string;
-  created_date?: string;
-  modified_date?: string;
-  serial_number?: string;
-  asset_type?: AssetType;
-  asset_class?: AssetClass;
-  status?: "ACTIVE" | "TRANSFER_IN_PROGRESS";
-  vendor_name?: string;
-  support_name?: string;
-  support_email?: string;
-  support_phone?: string;
-  qr_code_id?: string;
-  manufacturer?: string;
-  warranty_amc_end_of_validity?: string;
-  serviced_on?: string;
-  latest_status?: string;
-  last_service?: any;
-  notes: string;
-}
-
-const fieldRef = formErrorKeys.reduce(
-  (acc: { [key: string]: RefObject<any> }, key) => {
-    acc[key] = createRef();
-    return acc;
-  },
-  {},
-);
 
 interface AssetProps {
   facilityId: string;
@@ -109,41 +64,132 @@ type AssetFormSection =
   | "Service Details";
 
 const AssetCreate = (props: AssetProps) => {
+  const [addMore, setAddMore] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isScannerActive, setIsScannerActive] = useState(false);
+
   const { goBack } = useAppHistory();
   const { t } = useTranslation();
   const { facilityId, assetId } = props;
 
-  const initialAssetData: AssetData = {
-    id: "",
-    name: "",
-    location: "",
-    description: "",
-    is_working: null,
-    not_working_reason: "",
-    created_date: "",
-    modified_date: "",
-    serial_number: "",
-    asset_type: undefined,
-    asset_class: undefined,
-    status: "ACTIVE",
-    vendor_name: "",
-    support_name: "",
-    support_email: "",
-    support_phone: "",
-    qr_code_id: "",
-    manufacturer: "",
-    warranty_amc_end_of_validity: "",
-    latest_status: "",
-    last_service: null,
-    serviced_on: "",
-    notes: "",
+  const onSubmit = async (values: FormData) => {
+    if (Object.keys(errors).length > 0) {
+      const firstErrorField = Object.keys(errors)[0] as keyof FormData;
+      form.setFocus(firstErrorField, { shouldSelect: true });
+      const firstErrorElement = document.querySelector(
+        `[name=${firstErrorField}]`,
+      );
+      if (firstErrorElement) {
+        firstErrorElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+    setLoading(true);
+
+    const data: any = {
+      name: values.name,
+      asset_type: AssetType.INTERNAL,
+      asset_class: values.asset_class || "",
+      description: values.description,
+      is_working: values.is_working,
+      not_working_reason: values.is_working ? "" : values.not_working_reason,
+      serial_number: values.serial_number,
+      location: values.location,
+      vendor_name: values.vendor_name,
+      support_name: values.support_name,
+      support_email: values.support_email,
+      support_phone: values.support_phone?.startsWith("1800")
+        ? values.support_phone
+        : parsePhoneNumber(String(values.support_phone)),
+      qr_code_id: values.qr_code_id !== "" ? values.qr_code_id : null,
+      manufacturer: values.manufacturer,
+      warranty_amc_end_of_validity: values.warranty_amc_end_of_validity
+        ? dateQueryString(values.warranty_amc_end_of_validity)
+        : null,
+    };
+
+    console.log(data);
+
+    if (values.serviced_on) {
+      data["last_serviced_on"] = dateQueryString(values.serviced_on);
+      data["note"] = values.note ?? "";
+    }
+
+    // If the assetId is not null, it means we are updating an asset
+    if (!assetId) {
+      const { res } = await request(routes.createAsset, { body: data });
+      if (res?.ok) {
+        Notification.Success({ msg: "Asset created successfully" });
+        if (addMore) {
+          form.reset();
+          const pageContainer = window.document.getElementById("pages");
+          pageContainer?.scroll(0, 0);
+          setAddMore(false);
+        } else {
+          goBack();
+        }
+      }
+      setLoading(false);
+    } else {
+      const { res } = await request(routes.updateAsset, {
+        pathParams: { external_id: assetId },
+        body: data,
+      });
+      if (res?.ok) {
+        Notification.Success({ msg: "Asset updated successfully" });
+        goBack();
+      }
+      setLoading(false);
+    }
+  };
+  const parseAssetId = (assetUrl: string) => {
+    try {
+      const params = parseQueryParams(assetUrl);
+      // QR Maybe searchParams "asset" or "assetQR"
+      const assetId = params.asset || params.assetQR;
+      if (assetId) {
+        form.setValue("qr_code_id", assetId);
+        form.clearErrors("qr_code_id");
+        setIsScannerActive(false);
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+      Notification.Error({ msg: err });
+    }
+    Notification.Error({ msg: "Invalid Asset Id" });
+    setIsScannerActive(false);
   };
 
-  const [initAssetData, setinitialAssetData] =
-    useState<AssetData>(initialAssetData);
+  type FormData = z.infer<typeof AssetFormSchema>;
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isScannerActive, setIsScannerActive] = useState<boolean>(false);
+  const form = useForm<FormData>({
+    resolver: zodResolver(AssetFormSchema),
+    defaultValues: {
+      name: "",
+      location: "",
+      asset_class: AssetClass.NONE,
+      description: "",
+      is_working: true,
+      not_working_reason: "",
+      qr_code_id: "",
+      manufacturer: "",
+      warranty_amc_end_of_validity: new Date(),
+      support_name: "",
+      support_phone: "",
+      support_email: "",
+      vendor_name: "",
+      serial_number: "",
+      serviced_on: new Date(),
+      note: "",
+    },
+  });
+
+  const {
+    formState: { errors, isDirty },
+  } = form;
 
   const [currentSection, setCurrentSection] =
     useState<AssetFormSection>("General Details");
@@ -195,195 +241,40 @@ const AssetCreate = (props: AssetProps) => {
   );
 
   const assetQuery = useTanStackQueryInstead(routes.getAsset, {
-    pathParams: { external_id: assetId! },
+    pathParams: { external_id: String(assetId) },
     prefetch: !!assetId,
     onResponse: ({ data: asset }) => {
+      console.log("Asset Data:", asset);
       if (!asset) return;
-
-      setinitialAssetData({
-        id: asset.id,
+      form.reset({
         name: asset.name,
-        location: asset.location_object?.id,
+        location: asset.location_object.id,
+        asset_class: asset.asset_class,
         description: asset.description,
         is_working: asset.is_working,
         not_working_reason: asset.not_working_reason,
-        created_date: asset.created_date,
-        modified_date: asset.modified_date,
-        serial_number: asset.serial_number,
-        asset_type: asset.asset_type,
-        asset_class: asset.asset_class,
-        status: asset.status,
-        vendor_name: asset.vendor_name,
-        support_name: asset.support_name,
-        support_email: asset.support_email,
-        support_phone: asset.support_phone,
-        qr_code_id: asset.qr_code_id,
+        qr_code_id: asset.qr_code_id || "",
         manufacturer: asset.manufacturer,
-        warranty_amc_end_of_validity: asset.warranty_amc_end_of_validity,
-        latest_status: asset.latest_status,
-        last_service: asset.last_service,
-        serviced_on: asset.last_service?.serviced_on,
-        notes: asset.last_service?.note,
+        warranty_amc_end_of_validity:
+          new Date(asset.warranty_amc_end_of_validity) || new Date(),
+        support_name: asset.support_name,
+        support_phone: asset.support_phone,
+        support_email: asset.support_email,
+        vendor_name: asset.vendor_name,
+        serial_number: asset.serial_number,
+        serviced_on: asset.last_service?.serviced_on
+          ? new Date(asset.last_service.serviced_on)
+          : new Date(),
+        note: asset.last_service?.note,
       });
     },
   });
 
-  const AssetFormValidator = (form: AssetData): FormErrors<AssetData> => {
-    const errors: Partial<Record<keyof AssetData, FieldError>> = {}; // Initialize error object
-
-    errors.name = RequiredFieldValidator()(form.name);
-
-    if (form.is_working === undefined) {
-      errors.is_working = t("field_required");
-    }
-
-    if (!form.location || form.location === "0" || form.location === "") {
-      errors.location = t("select_local_body");
-    }
-
-    if (!form.support_phone) {
-      errors.support_phone = t("field_required");
-    } else {
-      const validatePhoneNumber = PhoneNumberValidator(
-        ["mobile", "landline", "support"],
-        t("invalid_phone_number"),
-      );
-      const isValid = validatePhoneNumber(form.support_phone);
-      // console.log("Is Valid" ,isValid)
-      if (isValid == "Invalid Phone Number") {
-        errors.support_phone = t("invalid_phone_number");
-      }
-    }
-
-    if (form.support_email && !validateEmailAddress(form.support_email)) {
-      errors.support_email = t("invalid_email");
-    }
-
-    if (form.notes && !form.serviced_on) {
-      errors.serviced_on = t("last_serviced_on_required");
-    }
-
-    return errors;
-  };
-
-  const resetFilters = () => {
-    setinitialAssetData({
-      id: "",
-      name: "",
-      location: "",
-      description: "",
-      is_working: null,
-      not_working_reason: "",
-      created_date: "",
-      modified_date: "",
-      serial_number: "",
-      asset_type: undefined,
-      asset_class: undefined,
-      status: "ACTIVE",
-      vendor_name: "",
-      support_name: "",
-      support_email: "",
-      support_phone: "",
-      qr_code_id: "",
-      manufacturer: "",
-      warranty_amc_end_of_validity: "",
-      latest_status: "",
-      last_service: null,
-      serviced_on: "",
-      notes: "",
-    });
-  };
-
-  const handleSubmit = async (form: AssetData, buttonId: string) => {
-    setIsLoading(true);
-
-    const data: any = {
-      id: form.id,
-      name: form.name,
-      asset_type: AssetType.INTERNAL,
-      asset_class: form.asset_class || "",
-      description: form.description,
-      is_working: form.is_working,
-      not_working_reason:
-        form.is_working === true ? "" : form.not_working_reason,
-      serial_number: form.serial_number,
-      location: form.location,
-      vendor_name: form.vendor_name,
-      support_name: form.support_name,
-      support_email: form.support_email,
-      support_phone: form.support_phone?.startsWith("1800")
-        ? form.support_phone
-        : parsePhoneNumber(String(form.support_phone)),
-      qr_code_id: form.qr_code_id !== "" ? form.qr_code_id : null,
-      manufacturer: form.manufacturer,
-      warranty_amc_end_of_validity: form.warranty_amc_end_of_validity
-        ? dateQueryString(form.warranty_amc_end_of_validity)
-        : null,
-    };
-
-    if (form.serviced_on) {
-      data["last_serviced_on"] = dateQueryString(form.serviced_on);
-      data["note"] = form.notes ?? "";
-    }
-
-    try {
-      if (!form.id) {
-        const { res } = await request(routes.createAsset, { body: data });
-        if (res?.ok) {
-          Notification.Success({ msg: "Asset created successfully" });
-          // Handle "Add More" logic if necessary
-          if (buttonId == "create-asset-add-more-button") {
-            resetFilters();
-            const pageContainer = window.document.getElementById("pages");
-            pageContainer?.scroll(0, 0);
-          } else {
-            goBack();
-          }
-        }
-      } else {
-        const { res } = await request(routes.updateAsset, {
-          pathParams: { external_id: form.id },
-          body: data,
-        });
-        if (res?.ok) {
-          Notification.Success({ msg: "Asset updated successfully" });
-          goBack();
-        }
-      }
-    } catch (error) {
-      // Handle error (optional)
-      Notification.Error({
-        msg: "An error occurred while processing the asset",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const parseAssetId = (assetUrl: string) => {
-    try {
-      const params = parseQueryParams(assetUrl);
-      // QR Maybe searchParams "asset" or "assetQR"
-      const assetId = params.asset || params.assetQR;
-      if (assetId) {
-        setinitialAssetData({ ...initAssetData, qr_code_id: assetId });
-        setIsScannerActive(false);
-        return;
-      }
-    } catch (err) {
-      console.error(err);
-      Notification.Error({ msg: err });
-    }
-    Notification.Error({ msg: "Invalid Asset Id" });
-    setIsScannerActive(false);
-  };
-
-  if (isLoading || locationsQuery.loading || assetQuery.loading) {
+  if (loading || locationsQuery.loading || assetQuery.loading) {
     return <Loading />;
   }
 
-  const name: string | undefined =
-    locationsQuery.data?.results[0].facility?.name || undefined;
+  const name = form.watch("name");
 
   if (locationsQuery.data?.count === 0) {
     return (
@@ -415,10 +306,6 @@ const AssetCreate = (props: AssetProps) => {
       </Page>
     );
   }
-
-  const handleOnCancel: () => void = () => {
-    goBack();
-  };
 
   if (isScannerActive)
     return (
@@ -481,10 +368,10 @@ const AssetCreate = (props: AssetProps) => {
         className="grow-0 pl-6"
         crumbsReplacements={{
           [facilityId]: {
-            name,
+            name: locationsQuery.data?.results[0].facility?.name,
           },
           assets: { style: "text-secondary-200 pointer-events-none" },
-          [assetId || "????"]: { name: name || "Asset" },
+          [assetId || "????"]: { name },
         }}
         backUrl={
           assetId
@@ -518,397 +405,533 @@ const AssetCreate = (props: AssetProps) => {
           </div>
           <div className="flex h-full w-full overflow-auto xl:ml-72">
             <div className="w-full max-w-3xl 2xl:max-w-4xl">
-              <Form<AssetData>
-                disabled={isLoading}
-                defaults={initAssetData}
-                onCancel={handleOnCancel}
-                onSubmit={async (obj, buttonId) => {
-                  await handleSubmit(obj, buttonId);
-                }}
-                className="rounded bg-white p-6 transition-all sm:rounded-xl sm:p-12"
-                noPadding
-                validate={AssetFormValidator}
-                submitLabel={assetId ? t("update") : t("create_asset")}
-                additionalButtons={
-                  !assetId
-                    ? [
-                        {
-                          type: "submit",
-                          label: t("create_add_more"),
-                          id: "create-asset-add-more-button",
-                        },
-                      ]
-                    : []
-                }
-              >
-                {(field) => (
-                  <>
-                    <div className="grid grid-cols-1 items-start gap-x-12">
-                      <div className="grid grid-cols-6 gap-x-6">
-                        {/* General Details Section */}
-                        {sectionTitle("General Details")}
-                        {/* Asset Name */}
-                        <div
-                          className="col-span-6"
-                          ref={fieldRef["name"]}
-                          data-testid="asset-name-input"
-                        >
-                          <TextFormField
-                            {...field("name", RequiredFieldValidator())}
-                            label={t("asset_name")}
-                            required
-                          />
-                        </div>
-
-                        {/* Location */}
-                        <FieldLabel className="w-max text-sm" required>
-                          {t("asset_location")}
-                        </FieldLabel>
-                        <div
-                          ref={fieldRef["location"]}
-                          className="col-span-6"
-                          data-testid="asset-location-input"
-                        >
-                          <LocationSelect
-                            name={field("location").name}
-                            disabled={false}
-                            selected={field("location").value}
-                            setSelected={(selected) => {
-                              field("location").onChange({
-                                name: "location",
-                                value: selected,
-                              });
-                            }}
-                            errors={field("location").error}
-                            facilityId={facilityId}
-                            multiple={false}
-                            showAll={false}
-                          />
-                        </div>
-
-                        {/* Asset Class */}
-                        <div
-                          ref={fieldRef["asset_class"]}
-                          className="col-span-6"
-                          data-testid="asset-class-input"
-                        >
-                          <SelectFormField
-                            disabled={
-                              !!(props.assetId && !!field("asset_class").value)
-                            }
-                            {...field("asset_class")}
-                            options={[
-                              {
-                                title: "ONVIF Camera",
-                                value: AssetClass.ONVIF,
-                              },
-                              {
-                                title: "HL7 Vitals Monitor",
-                                value: AssetClass.HL7MONITOR,
-                              },
-                              {
-                                title: "Ventilator",
-                                value: AssetClass.VENTILATOR,
-                              },
-                            ]}
-                            optionLabel={({ title }) => title}
-                            optionValue={({ value }) => value}
-                          />
-                        </div>
-                        {/* Description */}
-                        <div
-                          className="col-span-6"
-                          data-testid="asset-description-input"
-                        >
-                          <TextAreaFormField
-                            {...field("description")}
-                            label={t("description")}
-                            placeholder={t("details_about_the_equipment")}
-                          />
-                        </div>
-                        {/* Divider */}
-                        <div
-                          className="col-span-6"
-                          data-testid="asset-divider-input"
-                        >
-                          <hr
-                            className={
-                              "transition-all " +
-                              (field("is_working").value === true
-                                ? "my-0 opacity-0"
-                                : "my-4 opacity-100")
-                            }
-                          />
-                        </div>
-                        {/* Working Status */}
-                        <div
-                          ref={fieldRef["is_working"]}
-                          className="col-span-6"
-                          data-testid="asset-working-status-input"
-                        >
-                          <SwitchV2
-                            className="col-span-6"
-                            required
-                            {...field("is_working")}
-                            label={t("working_status")}
-                            options={["true", "false"]}
-                            value={
-                              String(field("is_working").value) as
-                                | "true"
-                                | "false"
-                            }
-                            onChange={(option: "true" | "false") =>
-                              field("is_working").onChange({
-                                name: "is_working",
-                                value: option === "true",
-                              })
-                            }
-                            optionLabel={(option: "true" | "false") => {
-                              return (
-                                {
-                                  true: "Working",
-                                  false: "Not Working",
-                                }[option] || "undefined"
-                              );
-                            }}
-                            optionClassName={(option) =>
-                              option === "false" &&
-                              "bg-danger-500 text-white border-danger-500 focus:ring-danger-500"
-                            }
-                          />
-                        </div>
-                        {/* Not Working Reason */}
-                        <div
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="rounded bg-white p-6 transition-all sm:rounded-xl sm:p-12"
+                >
+                  <div className="grid grid-cols-1 items-start gap-x-12">
+                    <div className="grid grid-cols-6 gap-x-6">
+                      {/* General Details Section */}
+                      {sectionTitle("General Details")}
+                      {/* Asset Name */}
+                      <div
+                        className="col-span-6"
+                        data-testid="asset-name-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Asset Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Asset Name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {/* Location */}
+                      <div
+                        className="col-span-6"
+                        data-testid="asset-location-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="location"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mt-3">Location</FormLabel>
+                              <FormControl>
+                                <LocationSelect
+                                  name={field.name}
+                                  selected={field.value}
+                                  setSelected={field.onChange}
+                                  facilityId={facilityId}
+                                  disabled={false}
+                                  className="w-full"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {/* Asset Class */}
+                      <div
+                        className="col-span-6"
+                        data-testid="asset-class-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="asset_class"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mt-3">
+                                Asset Class
+                              </FormLabel>
+                              <Select
+                                disabled={
+                                  !!(
+                                    props.assetId &&
+                                    form.getValues("asset_class")
+                                  )
+                                }
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a class" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value={AssetClass.ONVIF}>
+                                    ONVIF Camera
+                                  </SelectItem>
+                                  <SelectItem value={AssetClass.HL7MONITOR}>
+                                    HL7 Vitals Monitor
+                                  </SelectItem>
+                                  <SelectItem value={AssetClass.VENTILATOR}>
+                                    Ventilator
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {/* Description */}
+                      <div
+                        className="col-span-6"
+                        data-testid="asset-description-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mt-3">
+                                Description
+                              </FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Details about the equipment"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {/* Divider */}
+                      <div
+                        className="col-span-6"
+                        data-testid="asset-divider-input"
+                      >
+                        <hr
                           className={
-                            "col-span-6" +
-                            ((field("is_working").value !== false &&
-                              " hidden") ||
-                              "")
+                            "transition-all " +
+                            (form.getValues("is_working")
+                              ? "my-0 opacity-0"
+                              : "my-4 opacity-100")
                           }
-                        >
-                          <TextAreaFormField
-                            label={t("why_the_asset_is_not_working")}
-                            placeholder={t(
-                              "describe_why_the_asset_is_not_working",
-                            )}
-                            {...field("not_working_reason")}
-                          />
-                        </div>
-                        {/* Divider */}
+                        />
+                      </div>
+                      {/* Working Status */}
+                      <div
+                        className="col-span-6"
+                        data-testid="asset-working-status-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="is_working"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mt-3">
+                                Working Status
+                              </FormLabel>
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {/* Not Working Reason */}
+                      {!form.getValues("is_working") && (
                         <div className="col-span-6">
-                          <hr
-                            className={
-                              "transition-all " +
-                              (field("is_working").value === true
-                                ? "my-0 opacity-0"
-                                : "mb-7 opacity-100")
-                            }
-                          />
-                        </div>
-                        {/* Asset QR ID */}
-                        <div className="col-span-6 flex flex-row items-center gap-3">
-                          <div
-                            className="w-full"
-                            data-testid="asset-qr-id-input"
-                          >
-                            <TextFormField
-                              placeholder=""
-                              label={t("asset_qr_id")}
-                              {...field("qr_code_id")}
-                            />
-                          </div>
-                          <div
-                            className="ml-1 mt-1 flex h-10 cursor-pointer items-center justify-self-end rounded border border-secondary-400 px-4 hover:bg-secondary-200"
-                            onClick={() => setIsScannerActive(true)}
-                          >
-                            <CareIcon
-                              icon="l-focus"
-                              className="cursor-pointer text-lg"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-6 gap-x-6">
-                        {sectionTitle("Warranty Details")}
-
-                        {/* Manufacturer */}
-                        <div
-                          className="col-span-6 sm:col-span-3"
-                          ref={fieldRef["manufacturer"]}
-                          data-testid="asset-manufacturer-input"
-                        >
-                          <TextFormField
-                            label={t("manufacturer")}
-                            placeholder={t("eg_xyz")}
-                            {...field("manufacturer")}
-                          />
-                        </div>
-
-                        {/* Warranty / AMC Expiry */}
-                        <div
-                          className="col-span-6 sm:col-span-3"
-                          ref={fieldRef["warranty_amc_end_of_validity"]}
-                          data-testid="asset-warranty-input"
-                        >
-                          <TextFormField
-                            {...field("warranty_amc_end_of_validity")}
-                            label={t("warranty_amc_expiry")}
-                            onChange={(event) => {
-                              const { value } = event;
-                              const selectedDate = dayjs(value);
-                              const formattedDate =
-                                selectedDate.format("YYYY-MM-DD");
-                              const today = dayjs().format("YYYY-MM-DD");
-
-                              if (selectedDate.isBefore(today)) {
-                                Notification.Error({
-                                  msg: "Warranty / AMC Expiry date can't be in the past",
-                                });
-                              } else {
-                                // Update the provider's state with the valid date
-                                field("warranty_amc_end_of_validity").onChange({
-                                  name: "warranty_amc_end_of_validity",
-                                  value: formattedDate,
-                                });
-                              }
-                            }}
-                            type="date"
-                            min={dayjs().format("YYYY-MM-DD")}
-                          />
-                        </div>
-
-                        {/* Customer Support Name */}
-                        <div
-                          className="col-span-6 sm:col-span-3"
-                          ref={fieldRef["support_name"]}
-                          data-testid="asset-support-name-input"
-                        >
-                          <TextFormField
-                            label={t("customer_support_name")}
-                            placeholder={t("eg_abc")}
-                            {...field("support_name")}
-                          />
-                        </div>
-
-                        {/* Customer Support Number */}
-                        <div
-                          className="col-span-6 sm:col-span-3"
-                          ref={fieldRef["support_phone"]}
-                          id="customer-support-phone-div"
-                        >
-                          <PhoneNumberFormField
-                            label={t("customer_support_number")}
-                            required
-                            {...field("support_phone")}
-                            types={["mobile", "landline", "support"]}
-                          />
-                        </div>
-
-                        {/* Customer Support Email */}
-                        <div
-                          className="col-span-6 sm:col-span-3"
-                          ref={fieldRef["support_email"]}
-                          data-testid="asset-support-email-input"
-                        >
-                          <TextFormField
-                            label={t("customer_support_email")}
-                            placeholder={t("eg_mail_example_com")}
-                            {...field("support_email")}
-                          />
-                        </div>
-
-                        <div className="sm:col-span-3" />
-
-                        {/* Vendor Name */}
-                        <div
-                          className="col-span-6 sm:col-span-3"
-                          ref={fieldRef["vendor_name"]}
-                          data-testid="asset-vendor-name-input"
-                        >
-                          <TextFormField
-                            {...field("vendor_name")}
-                            label={t("vendor_name")}
-                            placeholder={t("eg_xyz")}
-                          />
-                        </div>
-
-                        {/* Serial Number */}
-                        <div
-                          className="col-span-6 sm:col-span-3"
-                          ref={fieldRef["serial_number"]}
-                          data-testid="asset-serial-number-input"
-                        >
-                          <TextFormField
-                            label={t("serial_number")}
-                            {...field("serial_number")}
-                          />
-                        </div>
-
-                        <div className="mt-6" />
-                        {sectionTitle("Service Details")}
-
-                        {/* Last serviced on */}
-                        <div
-                          className="col-span-6 sm:col-span-3"
-                          ref={fieldRef["last_serviced_on"]}
-                          data-testid="asset-last-serviced-on-input"
-                        >
-                          <DateFormField
-                            {...field("serviced_on")}
-                            label={t("last_serviced_on")}
-                            className="mt-2"
-                            disableFuture
-                            value={
-                              field("serviced_on").value
-                                ? new Date(field("serviced_on").value)
-                                : undefined
-                            }
-                            onChange={(date) => {
-                              const selectedDate = dayjs(date.value).format(
-                                "YYYY-MM-DD",
-                              );
-                              const today = new Date().toLocaleDateString(
-                                "en-ca",
-                              );
-
-                              if (selectedDate > today) {
-                                Notification.Error({
-                                  msg: "Last Serviced date can't be in the future",
-                                });
-                              } else {
-                                field("serviced_on").onChange({
-                                  name: "serviced_on",
-                                  value: selectedDate,
-                                });
-                              }
-                            }}
-                          />
-
-                          <FieldErrorText
-                            error={field("serviced_on").error}
-                          ></FieldErrorText>
-                        </div>
-
-                        {/* Notes */}
-                        <div
-                          className="col-span-6 mt-6"
-                          ref={fieldRef["notes"]}
-                          data-testid="asset-notes-input"
-                        >
-                          <TextAreaFormField
-                            label={t("notes")}
-                            placeholder={t(
-                              "Eg. Details on functionality, service, etc.",
+                          <FormField
+                            control={form.control}
+                            name="not_working_reason"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Why the asset is not working?
+                                </FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="Reason for not working"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
                             )}
-                            {...field("notes")}
+                          />
+                        </div>
+                      )}
+                      {/* Divider */}
+                      <div className="col-span-6">
+                        <hr
+                          className={
+                            "transition-all " +
+                            (form.getValues("is_working")
+                              ? "my-0 opacity-0"
+                              : "mb-7 opacity-100")
+                          }
+                        />
+                      </div>
+
+                      {/* QR Code ID */}
+                      <div className="col-span-6 flex flex-row items-center gap-2">
+                        <FormField
+                          control={form.control}
+                          name="qr_code_id"
+                          render={({ field }) => (
+                            <FormItem className="flex-grow justify-center items-center">
+                              <FormLabel className="mt-3">QR Code ID</FormLabel>
+                              <FormControl>
+                                <Input placeholder="QR Code ID" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div
+                          className="mt-5 flex h-8 cursor-pointer items-center justify-center rounded border border-secondary-400 px-4 hover:bg-secondary-200"
+                          onClick={() => setIsScannerActive(true)}
+                        >
+                          <CareIcon
+                            icon="l-focus"
+                            className="cursor-pointer text-lg"
                           />
                         </div>
                       </div>
-
-                      <div className="mt-12 flex flex-wrap justify-end gap-2"></div>
                     </div>
-                  </>
-                )}
+
+                    {/* Manufacturer */}
+                    <div className="grid grid-cols-6 gap-x-6">
+                      <div className="mt-6" />
+                      {sectionTitle("Warranty Details")}
+                      <div
+                        className="col-span-6 sm:col-span-3"
+                        data-testid="asset-manufacturer-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="manufacturer"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mt-3">
+                                Manufacturer
+                              </FormLabel>
+                              <FormControl>
+                                <Input placeholder="Manufacturer" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {/* Warranty / AMC Expiry */}
+                      <div
+                        className="col-span-6 sm:col-span-3"
+                        data-testid="asset-warranty-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="warranty_amc_end_of_validity"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                              <FormLabel className="mt-3">
+                                Warranty / AMC Expiry
+                              </FormLabel>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <FormControl>
+                                    <Button
+                                      variant={"outline"}
+                                      className={cn(
+                                        "w-[240px] pl-3 text-left font-normal",
+                                        !field.value && "text-muted-foreground",
+                                      )}
+                                    >
+                                      {field.value ? (
+                                        format(field.value, "PPP")
+                                      ) : (
+                                        <span>Pick a date</span>
+                                      )}
+                                      <CareIcon
+                                        icon="l-calender"
+                                        className="ml-auto h-4 w-4 opacity-50"
+                                      />
+                                    </Button>
+                                  </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent
+                                  className="w-auto p-0"
+                                  align="start"
+                                >
+                                  <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    disabled={(date: Date) => {
+                                      const today = new Date();
+                                      today.setHours(0, 0, 0, 0); // Clear time component
+                                      return (
+                                        date < today ||
+                                        date < new Date("1900-01-01")
+                                      );
+                                    }}
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {/* Customer Support Name */}
+                      <div
+                        className="col-span-6 sm:col-span-3"
+                        data-testid="asset-support-name-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="support_name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mt-3">
+                                Customer Support Name
+                              </FormLabel>
+                              <FormControl>
+                                <Input placeholder="Support Name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {/* Customer Support Phone */}
+                      <div
+                        className="col-span-6 sm:col-span-3"
+                        id="customer-support-phone-div"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="support_phone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mt-3">
+                                Customer Support Phone
+                              </FormLabel>
+                              <FormControl>
+                                <Input placeholder="Phone Number" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {/* Customer Support Email */}
+                      <div
+                        className="col-span-6 sm:col-span-3"
+                        data-testid="asset-support-email-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="support_email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mt-3">
+                                Customer Support Email
+                              </FormLabel>
+                              <FormControl>
+                                <Input placeholder="Email Address" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Vendor name */}
+                      <div
+                        className="col-span-6 sm:col-span-3"
+                        data-testid="asset-vendor-name-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="vendor_name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mt-3">
+                                Vendor Name
+                              </FormLabel>
+                              <FormControl>
+                                <Input placeholder="Vendor Name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Serial Number */}
+                      <div
+                        className="col-span-6 sm:col-span-3 mb-6"
+                        data-testid="asset-serial-number-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="serial_number"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mt-3">
+                                Serial Number
+                              </FormLabel>
+                              <FormControl>
+                                <Input placeholder="Serial Number" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {sectionTitle("Service Details")}
+
+                      {/* Serviced On */}
+                      <div
+                        className="col-span-6 sm:col-span-3"
+                        data-testid="asset-last-serviced-on-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="serviced_on"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                              <FormLabel className="mt-3">
+                                Last Serviced On
+                              </FormLabel>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <FormControl>
+                                    <Button
+                                      variant={"outline"}
+                                      className={cn(
+                                        "w-[240px] pl-3 text-left font-normal",
+                                        !field.value && "text-muted-foreground",
+                                      )}
+                                    >
+                                      {field.value ? (
+                                        format(field.value, "PPP")
+                                      ) : (
+                                        <span>Pick a date</span>
+                                      )}
+                                      <CareIcon
+                                        icon="l-calender"
+                                        className="ml-auto h-4 w-4 opacity-50"
+                                      />
+                                    </Button>
+                                  </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent
+                                  className="w-auto p-0"
+                                  align="start"
+                                >
+                                  <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    disabled={(date: Date) =>
+                                      date > new Date() ||
+                                      date < new Date("1900-01-01")
+                                    }
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {/* Notes */}
+                      <div
+                        className="col-span-6 mt-6"
+                        data-testid="asset-notes-input"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="note"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mt-3">Notes</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Add notes here"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Cancel Button */}
+                  <div className="mt-12 flex flex-wrap justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        navigate(
+                          assetId
+                            ? `/facility/${facilityId}/assets/${assetId}`
+                            : `/facility/${facilityId}`,
+                        )
+                      }
+                    >
+                      {t("cancel")}
+                    </Button>
+                    {/* Submit Button */}
+                    <Button type="submit" disabled={!isDirty}>
+                      {assetId ? t("update") : t("create_asset")}
+                    </Button>
+                    {/* Create and Add More Button */}
+                    {!assetId && (
+                      <Button
+                        type="submit"
+                        variant="default"
+                        disabled={!isDirty}
+                        data-testid="create-asset-add-more-button"
+                        onClick={() => setAddMore(true)}
+                      >
+                        {t("create_add_more")}
+                      </Button>
+                    )}
+                  </div>
+                </form>
               </Form>
             </div>
           </div>
