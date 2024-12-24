@@ -27,7 +27,7 @@ const CopyButton = ({
   const [isCopied, setIsCopied] = useState(false);
   const { t } = useTranslation();
 
-  if (content === undefined) return null;
+  if (!content) return null;
 
   return (
     <TooltipProvider>
