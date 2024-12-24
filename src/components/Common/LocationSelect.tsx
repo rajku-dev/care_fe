@@ -1,10 +1,5 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import AutocompleteFormField from "@/components/Form/FormFields/Autocomplete";
+import AutocompleteMultiSelectFormField from "@/components/Form/FormFields/AutocompleteMultiselect";
 
 import routes from "@/Utils/request/api";
 import useTanStackQueryInstead from "@/Utils/request/useQuery";
@@ -27,7 +22,7 @@ interface LocationSelectProps {
 }
 
 export const LocationSelect = (props: LocationSelectProps) => {
-  const { data, loading } = useTanStackQueryInstead(
+  const { data, loading, refetch } = useTanStackQueryInstead(
     routes.listFacilityAssetLocation,
     {
       query: {
@@ -46,37 +41,36 @@ export const LocationSelect = (props: LocationSelectProps) => {
     props = { ...props, disabled: true };
   }
 
-  const handleSelectChange = (value: string) => {
-    props.setSelected(value);
-  };
-  console.log("Selected", props.selected);
-  return (
-    <div className={props.className}>
-      <Select
-        disabled={props.disabled || loading}
-        onValueChange={handleSelectChange}
-        value={props.selected as string}
-      >
-        <SelectTrigger className={props.errorClassName}>
-          <SelectValue placeholder="Search by location name">
-            {data?.results?.find((option) => option.id === props.selected)
-              ?.name || "Search by location name"}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {data?.results?.length ? (
-            data.results.map((option: { id: string; name: string }) => (
-              <SelectItem key={option.id} value={option.id}>
-                {option.name}
-              </SelectItem>
-            ))
-          ) : (
-            <SelectItem disabled value="No options available">
-              {loading ? "Loading..." : "No options available"}
-            </SelectItem>
-          )}
-        </SelectContent>
-      </Select>
-    </div>
+  return props.multiple ? (
+    <AutocompleteMultiSelectFormField
+      name={props.name}
+      disabled={props.disabled}
+      value={props.selected as unknown as string[]}
+      options={data?.results ?? []}
+      onChange={({ value }) => props.setSelected(value)}
+      onQuery={(search_text) => refetch({ query: { search_text } })}
+      placeholder="Search by location name"
+      optionLabel={(option) => option.name}
+      optionValue={(option) => option.id}
+      error={props.errors}
+      className={props.className}
+      errorClassName={props.errorClassName}
+    />
+  ) : (
+    <AutocompleteFormField
+      name={props.name}
+      disabled={props.disabled}
+      value={props.selected as string}
+      options={data?.results ?? []}
+      onChange={({ value }) => props.setSelected(value)}
+      onQuery={(search_text) => refetch({ query: { search_text } })}
+      isLoading={loading}
+      placeholder="Search by location name"
+      optionLabel={(option) => option.name}
+      optionValue={(option) => option.id}
+      error={props.errors}
+      className={props.className}
+      errorClassName={props.errorClassName}
+    />
   );
 };

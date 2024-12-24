@@ -39,8 +39,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 import { AssetClass, AssetType } from "@/components/Assets/AssetTypes";
+import { LocationSelect } from "@/components/Common/AssetLocationSelect";
 import Loading from "@/components/Common/Loading";
-import { LocationSelect } from "@/components/Common/LocationSelect";
 import Page from "@/components/Common/Page";
 import { AssetFormSchema } from "@/components/Facility/AssetFormSchema";
 

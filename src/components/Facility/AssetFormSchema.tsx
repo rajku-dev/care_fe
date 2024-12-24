@@ -43,11 +43,7 @@ export const AssetFormSchema = z
       ),
     vendor_name: z.string().optional(),
     serial_number: z.string().optional(),
-    serviced_on: z
-      .date({
-        required_error: "Serviced on date is required",
-      })
-      .optional(),
+    serviced_on: z.date().optional(),
     note: z.string().optional(),
   })
   .superRefine((data, ctx) => {
