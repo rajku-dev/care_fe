@@ -1,3 +1,4 @@
+import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
 import { validateEmailAddress } from "@/common/validation";
@@ -18,11 +19,12 @@ export const AssetFormSchema = z
     support_name: z.string().optional(),
     support_phone: z.string().refine(
       (value) => {
-        const supportPhoneSimple = value.replace(/[^0-9]/g, "").slice(2);
         const checkTollFree = value.startsWith("1800");
+        const cleanedNumber = value.replace(/[^0-9]/g, "");
+        const tollFreeRegex = /^1800\d{6,7}$/;
         return checkTollFree
-          ? value.length >= 10 && value.length <= 11
-          : supportPhoneSimple.length === 10;
+          ? tollFreeRegex.test(cleanedNumber)
+          : isValidPhoneNumber(value);
       },
       {
         message: "Please enter a valid phone number",
