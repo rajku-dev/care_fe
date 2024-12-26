@@ -23,6 +23,7 @@ const CopyButton = ({
   tooltipContent,
   children,
   size,
+  id = "copy-button",
 }: CopyButtonProps) => {
   const [isCopied, setIsCopied] = useState(false);
   const { t } = useTranslation();
@@ -39,6 +40,7 @@ const CopyButton = ({
         }
       >
         <Button
+          id={id}
           variant="link"
           size={size}
           onClick={() => {

@@ -300,6 +300,7 @@ function UserListItem({ user }: { user: UserAnnotatedWithGroup }) {
             <CopyButton
               content={user.alt_phone_number}
               tooltipContent={t("copy_phone_number")}
+              id="copy-alt-phone-button"
             />
             <span>{user.alt_phone_number}</span>
           </div>

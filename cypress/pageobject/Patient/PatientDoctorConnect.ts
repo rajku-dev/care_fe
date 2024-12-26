@@ -22,7 +22,7 @@ export class DoctorConnect {
     cy.get(element)
       .contains(text) // Find the element containing "dev doctor"
       .parent() // Move up to the parent element (if necessary)
-      .find("#copy-phoneicon") // Find the #copy-phoneicon within that context
+      .get("#copy-alt-phone-button") // Find the #copy-alt-phone-button within that context
       .click();
   }
 
