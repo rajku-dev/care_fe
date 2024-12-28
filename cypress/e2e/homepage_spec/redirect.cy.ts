@@ -77,8 +77,8 @@ describe("redirect", () => {
 
     loginPage.switchLanguage("हिन्दी");
 
-    cy.get("input[id='username']").type("devdistrictadmin");
-    cy.get("input[id='password']").type("Coronasafe@123");
+    cy.get("input[id='username']").click().type("devdistrictadmin");
+    cy.get("input[id='password']").click().type("Coronasafe@123");
 
     cy.verifyAndClickElement("#login-button", "लॉग इन करें");
 
