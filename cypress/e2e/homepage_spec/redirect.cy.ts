@@ -28,4 +28,33 @@ describe("redirect", () => {
     loginPage.ensureLoggedIn();
     cy.url().should("include", "/facility");
   });
+
+  it("Check if 'Contribute on GitHub' link redirects correctly", () => {
+    cy.awaitUrl("/login", true);
+
+    loginPage.verifyGitHubLinkPresence();
+    loginPage.clickGitHubLink();
+
+    cy.origin("https://github.com", () => {
+      cy.url().should("include", "github.com/ohcnetwork");
+      cy.get(".heading-element").should("exist");
+      cy.get(".heading-element").should(
+        "contain.text",
+        "Reimagining Healthcare Delivery",
+      );
+    });
+  });
+
+  it("Check if 'Third Party Software License' link redirects correctly", () => {
+    cy.awaitUrl("/login", true);
+
+    loginPage.verifyLicenseLinkPresence();
+    loginPage.clickThirdPartyLicenseLink();
+
+    cy.url().should("include", "/licenses");
+
+    cy.contains(
+      "This page shows what third-party software is used in Care, including the respective licenses and versions.",
+    ).should("exist");
+  });
 });

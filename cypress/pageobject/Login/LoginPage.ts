@@ -88,6 +88,32 @@ class LoginPage {
   verifyForgotPasswordHeading(text: string[]): void {
     cy.verifyContentPresence("#forgot-password-heading", text);
   }
+
+  verifyGitHubLinkPresence(): void {
+    cy.verifyContentPresence("a[href='https://github.com/ohcnetwork']", [
+      "Contribute on Github",
+    ]);
+  }
+
+  verifyLicenseLinkPresence(): void {
+    cy.verifyContentPresence("a[href='/licenses']", [
+      "Third Party Software Licenses",
+    ]);
+  }
+
+  clickGitHubLink(): void {
+    cy.get("a[href='https://github.com/ohcnetwork']")
+      .should("exist")
+      .invoke("removeAttr", "target")
+      .click();
+  }
+
+  clickThirdPartyLicenseLink(): void {
+    cy.get("a[href='/licenses']")
+      .should("exist")
+      .invoke("removeAttr", "target")
+      .click();
+  }
 }
 
 export default LoginPage;
