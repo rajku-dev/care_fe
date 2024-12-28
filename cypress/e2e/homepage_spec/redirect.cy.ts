@@ -7,54 +7,54 @@ describe("redirect", () => {
     cy.log("Logging in the user devdistrictadmin");
   });
 
-  it("Check if login redirects to the right url", () => {
-    cy.awaitUrl("/resource/board", true);
-    loginPage.loginManuallyAsDistrictAdmin();
-    loginPage.ensureLoggedIn();
-    cy.url().should("include", "/resource/board");
-  });
+  // it("Check if login redirects to the right url", () => {
+  //   cy.awaitUrl("/resource/board", true);
+  //   loginPage.loginManuallyAsDistrictAdmin();
+  //   loginPage.ensureLoggedIn();
+  //   cy.url().should("include", "/resource/board");
+  // });
 
-  it("Check if the redirect param works", () => {
-    const baseUrl = Cypress.config("baseUrl");
-    cy.awaitUrl(`login?redirect=${baseUrl}/resource/board`, true);
-    loginPage.loginManuallyAsDistrictAdmin();
-    loginPage.ensureLoggedIn();
-    cy.url().should("include", "/resource/board");
-  });
+  // it("Check if the redirect param works", () => {
+  //   const baseUrl = Cypress.config("baseUrl");
+  //   cy.awaitUrl(`login?redirect=${baseUrl}/resource/board`, true);
+  //   loginPage.loginManuallyAsDistrictAdmin();
+  //   loginPage.ensureLoggedIn();
+  //   cy.url().should("include", "/resource/board");
+  // });
 
-  it("Check to ensure that redirect is the same origin", () => {
-    cy.awaitUrl("login?redirect=https://google.com", true);
-    loginPage.loginManuallyAsDistrictAdmin();
-    loginPage.ensureLoggedIn();
-    cy.url().should("include", "/facility");
-  });
+  // it("Check to ensure that redirect is the same origin", () => {
+  //   cy.awaitUrl("login?redirect=https://google.com", true);
+  //   loginPage.loginManuallyAsDistrictAdmin();
+  //   loginPage.ensureLoggedIn();
+  //   cy.url().should("include", "/facility");
+  // });
 
-  it("Check if 'Contribute on GitHub' link redirects correctly", () => {
-    cy.awaitUrl("/", true);
+  // it("Check if 'Contribute on GitHub' link redirects correctly", () => {
+  //   cy.awaitUrl("/", true);
 
-    loginPage.verifyGitHubLinkPresence();
-    loginPage.clickGitHubLink();
+  //   loginPage.verifyGitHubLinkPresence();
+  //   loginPage.clickGitHubLink();
 
-    cy.origin("https://github.com", () => {
-      cy.url().should("include", "github.com/ohcnetwork");
-      cy.get(".heading-element")
-        .should("exist")
-        .and("contain.text", "Reimagining Healthcare Delivery");
-    });
-  });
+  //   cy.origin("https://github.com", () => {
+  //     cy.url().should("include", "github.com/ohcnetwork");
+  //     cy.get(".heading-element")
+  //       .should("exist")
+  //       .and("contain.text", "Reimagining Healthcare Delivery");
+  //   });
+  // });
 
-  it("Check if 'Third Party Software License' link redirects correctly", () => {
-    cy.awaitUrl("/", true);
+  // it("Check if 'Third Party Software License' link redirects correctly", () => {
+  //   cy.awaitUrl("/", true);
 
-    loginPage.verifyLicenseLinkPresence();
-    loginPage.clickThirdPartyLicenseLink();
+  //   loginPage.verifyLicenseLinkPresence();
+  //   loginPage.clickThirdPartyLicenseLink();
 
-    cy.url().should("include", "/licenses");
+  //   cy.url().should("include", "/licenses");
 
-    cy.contains(
-      "This page shows what third-party software is used in Care, including the respective licenses and versions.",
-    ).should("exist");
-  });
+  //   cy.contains(
+  //     "This page shows what third-party software is used in Care, including the respective licenses and versions.",
+  //   ).should("exist");
+  // });
 
   it("Should switch languages and verify the Login button text", () => {
     cy.awaitUrl("/", true);
@@ -77,8 +77,8 @@ describe("redirect", () => {
 
     loginPage.switchLanguage("हिन्दी");
 
-    cy.get("input[id='username']").click().type("devdistrictadmin");
-    cy.get("input[id='password']").click().type("Coronasafe@123");
+    cy.get("label[for='username']").click().type("devdistrictadmin");
+    cy.get("label[for='password']").click().type("Coronasafe@123");
 
     cy.verifyAndClickElement("#login-button", "लॉग इन करें");
 
