@@ -28,6 +28,7 @@ export interface INavItem {
   text: string;
   to?: string;
   icon: IconName;
+  id?: string;
 }
 
 type StatelessSidebarProps =
@@ -51,13 +52,38 @@ const StatelessSidebar = ({
 }: StatelessSidebarProps) => {
   const { t } = useTranslation();
   const BaseNavItems: INavItem[] = [
-    { text: t("facilities"), to: "/facility", icon: "d-hospital" },
-    { text: t("patients"), to: "/patients", icon: "d-patient" },
-    { text: t("assets"), to: "/assets", icon: "d-folder" },
-    { text: t("shifting"), to: "/shifting", icon: "d-ambulance" },
-    { text: t("resource"), to: "/resource", icon: "d-book-open" },
-    { text: t("users"), to: "/users", icon: "d-people" },
-    { text: t("notice_board"), to: "/notice_board", icon: "d-notice-board" },
+    {
+      id: "facilities-link",
+      text: t("facilities"),
+      to: "/facility",
+      icon: "d-hospital",
+    },
+    {
+      id: "patients-link",
+      text: t("patients"),
+      to: "/patients",
+      icon: "d-patient",
+    },
+    { id: "assets-link", text: t("assets"), to: "/assets", icon: "d-folder" },
+    {
+      id: "shifting-link",
+      text: t("shifting"),
+      to: "/shifting",
+      icon: "d-ambulance",
+    },
+    {
+      id: "resource-link",
+      text: t("resource"),
+      to: "/resource",
+      icon: "d-book-open",
+    },
+    { id: "users-link", text: t("users"), to: "/users", icon: "d-people" },
+    {
+      id: "notice-board-link",
+      text: t("notice_board"),
+      to: "/notice_board",
+      icon: "d-notice-board",
+    },
   ];
 
   const PluginNavItems = useCareAppNavItems();

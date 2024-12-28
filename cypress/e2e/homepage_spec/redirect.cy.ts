@@ -30,23 +30,21 @@ describe("redirect", () => {
   });
 
   it("Check if 'Contribute on GitHub' link redirects correctly", () => {
-    cy.awaitUrl("/login", true);
+    cy.awaitUrl("/", true);
 
     loginPage.verifyGitHubLinkPresence();
     loginPage.clickGitHubLink();
 
     cy.origin("https://github.com", () => {
       cy.url().should("include", "github.com/ohcnetwork");
-      cy.get(".heading-element").should("exist");
-      cy.get(".heading-element").should(
-        "contain.text",
-        "Reimagining Healthcare Delivery",
-      );
+      cy.get(".heading-element")
+        .should("exist")
+        .and("contain.text", "Reimagining Healthcare Delivery");
     });
   });
 
   it("Check if 'Third Party Software License' link redirects correctly", () => {
-    cy.awaitUrl("/login", true);
+    cy.awaitUrl("/", true);
 
     loginPage.verifyLicenseLinkPresence();
     loginPage.clickThirdPartyLicenseLink();
@@ -56,5 +54,49 @@ describe("redirect", () => {
     cy.contains(
       "This page shows what third-party software is used in Care, including the respective licenses and versions.",
     ).should("exist");
+  });
+
+  it("Should switch languages and verify the Login button text", () => {
+    cy.awaitUrl("/", true);
+
+    const loginButtonMapping: Record<string, string> = {
+      தமிழ்: "உள்நுழைய",
+      മലയാളം: "ലോഗിൻ ചെയ്യുക/അകത്തു പ്രവേശിക്കുക",
+      मराठी: "लॉगिन",
+      ಕನ್ನಡ: "ಲಾಗಿನ್",
+      हिन्दी: "लॉग इन करें",
+    };
+
+    Object.entries(loginButtonMapping).forEach(([language, loginText]) => {
+      loginPage.switchLanguageAndVerifySubmitText(language, loginText);
+    });
+  });
+
+  it("Should display sidebar items in the selected language", () => {
+    cy.awaitUrl("/", true);
+
+    loginPage.switchLanguage("हिन्दी");
+
+    cy.get("input[id='username']").type("devdistrictadmin");
+    cy.get("input[id='password']").type("Coronasafe@123");
+
+    cy.verifyAndClickElement("#login-button", "लॉग इन करें");
+
+    const sidebarItems: Record<string, string> = {
+      "facilities-link": "सुविधाएँ",
+      "patients-link": "मरीजों",
+      "assets-link": "संपत्ति",
+      "shifting-link": "स्थानांतरण",
+      "resource-link": "संसाधन",
+      "users-link": "उपयोगकर्ताओं",
+      "notice-board-link": "सूचना पट्ट",
+    };
+
+    Object.keys(sidebarItems).forEach((id) => {
+      cy.get(`#${id} span`)
+        .filter(":visible")
+        .invoke("text")
+        .should("equal", sidebarItems[id]);
+    });
   });
 });

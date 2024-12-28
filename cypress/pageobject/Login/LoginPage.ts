@@ -114,6 +114,18 @@ class LoginPage {
       .invoke("removeAttr", "target")
       .click();
   }
+
+  switchLanguageAndVerifySubmitText(
+    language: string,
+    expectedLoginText: string,
+  ): void {
+    cy.get("#lang-select").contains(language).click();
+    cy.get("#login-button").should("have.text", expectedLoginText);
+  }
+
+  switchLanguage(language: string): void {
+    cy.get("#lang-select").contains(language).click();
+  }
 }
 
 export default LoginPage;
