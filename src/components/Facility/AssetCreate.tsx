@@ -104,7 +104,6 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
 
   useEffect(() => {
     if (assetId && assetQuery.data && assetQuery.data.data) {
-      console.log("Asset", assetQuery.data.data);
       const asset = assetQuery.data.data;
       form.reset({
         name: asset.name,
