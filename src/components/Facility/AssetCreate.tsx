@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
 import { format } from "date-fns";
 import { navigate } from "raviger";
@@ -40,7 +40,6 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 import { AssetClass, AssetType } from "@/components/Assets/AssetTypes";
-import { LocationSelect } from "@/components/Common/AssetLocationSelect";
 import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
 import { AssetFormSchema } from "@/components/Facility/AssetFormSchema";
@@ -66,12 +65,70 @@ type AssetFormSection =
   | "Service Details";
 
 const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
+  const queryClient = useQueryClient();
   const [addMore, setAddMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isScannerActive, setIsScannerActive] = useState(false);
 
   const { goBack } = useAppHistory();
   const { t } = useTranslation();
+
+  const { data: locations, isLoading: locationQueryLoading } = useQuery({
+    queryKey: [
+      routes.listFacilityAssetLocation.path,
+      { facility_external_id: facilityId },
+      { limit: 14 },
+    ],
+    queryFn: async ({ signal }) => {
+      return await request(routes.listFacilityAssetLocation, {
+        pathParams: { facility_external_id: facilityId },
+        query: { limit: 14 },
+        signal,
+      });
+    },
+    enabled: true,
+  });
+
+  const assetQueryKey = `${routes.getAsset.path}:${String(assetId)}`;
+
+  const assetQuery = useQuery({
+    queryKey: [assetQueryKey],
+    queryFn: async ({ signal }) => {
+      return await request(routes.getAsset, {
+        pathParams: { external_id: String(assetId) },
+        signal,
+      });
+    },
+    enabled: !!assetId,
+  });
+
+  useEffect(() => {
+    if (assetId && assetQuery.data && assetQuery.data.data) {
+      console.log("Asset", assetQuery.data.data);
+      const asset = assetQuery.data.data;
+      form.reset({
+        name: asset.name,
+        location: asset.location_object.id,
+        asset_class: asset.asset_class,
+        description: asset.description,
+        is_working: asset.is_working,
+        not_working_reason: asset.not_working_reason,
+        qr_code_id: asset.qr_code_id || "",
+        manufacturer: asset.manufacturer,
+        warranty_amc_end_of_validity:
+          new Date(asset.warranty_amc_end_of_validity) || new Date(),
+        support_name: asset.support_name,
+        support_phone: asset.support_phone,
+        support_email: asset.support_email,
+        vendor_name: asset.vendor_name,
+        serial_number: asset.serial_number,
+        serviced_on: asset.last_service?.serviced_on
+          ? new Date(asset.last_service.serviced_on)
+          : new Date(),
+        note: asset.last_service?.note,
+      });
+    }
+  }, [assetQuery.data]);
 
   const { mutateAsync: createAsset } = useMutation({
     mutationFn: mutate(routes.createAsset),
@@ -81,6 +138,11 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
     mutationFn: mutate(routes.updateAsset, {
       pathParams: { external_id: String(assetId) },
     }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [assetQueryKey],
+      });
+    },
   });
 
   const onSubmit = async (values: FormData) => {
@@ -126,7 +188,6 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
       data["note"] = values.note ?? "";
     }
 
-    // If the assetId is not null, it means we are updating an asset
     if (!assetId) {
       const res = await createAsset(data);
       if (res) {
@@ -153,7 +214,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
   const parseAssetId = (assetUrl: string) => {
     try {
       const params = parseQueryParams(assetUrl);
-      // QR Maybe searchParams "asset" or "assetQR"
+
       const assetId = params.asset || params.assetQR;
       if (assetId) {
         form.setValue("qr_code_id", assetId);
@@ -237,69 +298,13 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
     });
   }, [generalDetailsVisible, warrantyDetailsVisible, serviceDetailsVisible]);
 
-  const locationsQuery = useQuery({
-    queryKey: [
-      routes.listFacilityAssetLocation.path,
-      { facility_external_id: facilityId },
-      { limit: 1 },
-    ],
-    queryFn: async ({ signal }) => {
-      return await request(routes.listFacilityAssetLocation, {
-        pathParams: { facility_external_id: facilityId },
-        signal,
-        query: { limit: 1 },
-      });
-    },
-    enabled: true,
-    refetchOnWindowFocus: false,
-  });
-
-  const assetQuery = useQuery({
-    queryKey: [routes.getAsset.path, { external_id: String(assetId) }],
-    queryFn: async ({ signal }) => {
-      const response = await request(routes.getAsset, {
-        pathParams: { external_id: String(assetId) },
-        signal,
-      });
-
-      if (response.data) {
-        const asset = response.data;
-
-        form.reset({
-          name: asset.name,
-          location: asset.location_object.id,
-          asset_class: asset.asset_class,
-          description: asset.description,
-          is_working: asset.is_working,
-          not_working_reason: asset.not_working_reason,
-          qr_code_id: asset.qr_code_id || "",
-          manufacturer: asset.manufacturer,
-          warranty_amc_end_of_validity:
-            new Date(asset.warranty_amc_end_of_validity) || new Date(),
-          support_name: asset.support_name,
-          support_phone: asset.support_phone,
-          support_email: asset.support_email,
-          vendor_name: asset.vendor_name,
-          serial_number: asset.serial_number,
-          serviced_on: asset.last_service?.serviced_on
-            ? new Date(asset.last_service.serviced_on)
-            : new Date(),
-          note: asset.last_service?.note,
-        });
-      }
-      return response;
-    },
-    enabled: !!assetId,
-    refetchOnWindowFocus: false,
-  });
-
-  if (loading || locationsQuery.isLoading || assetQuery.isLoading) {
+  if (loading || locationQueryLoading || assetQuery.isLoading) {
     return <Loading />;
   }
 
   const name = form.watch("name");
 
-  if (!locationsQuery.data?.data?.count) {
+  if (!locations?.data?.count) {
     return (
       <Page
         title={assetId ? t("update_asset") : t("create_new_asset")}
@@ -391,7 +396,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
         className="grow-0 pl-6"
         crumbsReplacements={{
           [facilityId]: {
-            name: locationsQuery.data?.data?.results[0].facility?.name,
+            name: locations?.data?.results[0].facility?.name,
           },
           assets: { style: "text-secondary-200 pointer-events-none" },
           [assetId || "????"]: { name },
@@ -469,16 +474,27 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="mt-3">Location</FormLabel>
-                              <FormControl>
-                                <LocationSelect
-                                  name={field.name}
-                                  selected={field.value}
-                                  setSelected={field.onChange}
-                                  facilityId={facilityId}
-                                  disabled={false}
-                                  className="w-full"
-                                />
-                              </FormControl>
+                              <Select
+                                disabled={false}
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a location" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {locations?.data?.results.map((location) => (
+                                    <SelectItem
+                                      key={location.id}
+                                      value={location.id}
+                                    >
+                                      {location.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -503,7 +519,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                                   !!(assetId && form.getValues("asset_class"))
                                 }
                                 onValueChange={field.onChange}
-                                defaultValue={field.value}
+                                value={field.value}
                               >
                                 <FormControl>
                                   <SelectTrigger>
