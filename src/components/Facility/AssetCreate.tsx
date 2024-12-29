@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
 import { format } from "date-fns";
 import { navigate } from "raviger";
@@ -50,8 +51,8 @@ import useVisibility from "@/hooks/useVisibility";
 import * as Notification from "@/Utils/Notifications";
 import { parseQueryParams } from "@/Utils/primitives";
 import routes from "@/Utils/request/api";
+import mutate from "@/Utils/request/mutate";
 import request from "@/Utils/request/request";
-import useTanStackQueryInstead from "@/Utils/request/useQuery";
 import { dateQueryString, parsePhoneNumber } from "@/Utils/utils";
 
 interface AssetProps {
@@ -64,14 +65,23 @@ type AssetFormSection =
   | "Warranty Details"
   | "Service Details";
 
-const AssetCreate = (props: AssetProps) => {
+const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
   const [addMore, setAddMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isScannerActive, setIsScannerActive] = useState(false);
 
   const { goBack } = useAppHistory();
   const { t } = useTranslation();
-  const { facilityId, assetId } = props;
+
+  const { mutateAsync: createAsset } = useMutation({
+    mutationFn: mutate(routes.createAsset),
+  });
+
+  const { mutateAsync: updateAsset } = useMutation({
+    mutationFn: mutate(routes.updateAsset, {
+      pathParams: { external_id: String(assetId) },
+    }),
+  });
 
   const onSubmit = async (values: FormData) => {
     if (Object.keys(errors).length > 0) {
@@ -111,8 +121,6 @@ const AssetCreate = (props: AssetProps) => {
         : null,
     };
 
-    console.log(data);
-
     if (values.serviced_on) {
       data["last_serviced_on"] = dateQueryString(values.serviced_on);
       data["note"] = values.note ?? "";
@@ -120,8 +128,8 @@ const AssetCreate = (props: AssetProps) => {
 
     // If the assetId is not null, it means we are updating an asset
     if (!assetId) {
-      const { res } = await request(routes.createAsset, { body: data });
-      if (res?.ok) {
+      const res = await createAsset(data);
+      if (res) {
         Notification.Success({ msg: "Asset created successfully" });
         if (addMore) {
           form.reset();
@@ -134,11 +142,8 @@ const AssetCreate = (props: AssetProps) => {
       }
       setLoading(false);
     } else {
-      const { res } = await request(routes.updateAsset, {
-        pathParams: { external_id: assetId },
-        body: data,
-      });
-      if (res?.ok) {
+      const res = await updateAsset(data);
+      if (res) {
         Notification.Success({ msg: "Asset updated successfully" });
         goBack();
       }
@@ -157,7 +162,6 @@ const AssetCreate = (props: AssetProps) => {
         return;
       }
     } catch (err) {
-      console.error(err);
       Notification.Error({ msg: err });
     }
     Notification.Error({ msg: "Invalid Asset Id" });
@@ -233,51 +237,69 @@ const AssetCreate = (props: AssetProps) => {
     });
   }, [generalDetailsVisible, warrantyDetailsVisible, serviceDetailsVisible]);
 
-  const locationsQuery = useTanStackQueryInstead(
-    routes.listFacilityAssetLocation,
-    {
-      pathParams: { facility_external_id: facilityId },
-      query: { limit: 1 },
-    },
-  );
-
-  const assetQuery = useTanStackQueryInstead(routes.getAsset, {
-    pathParams: { external_id: String(assetId) },
-    prefetch: !!assetId,
-    onResponse: ({ data: asset }) => {
-      console.log("Asset Data:", asset);
-      if (!asset) return;
-      form.reset({
-        name: asset.name,
-        location: asset.location_object.id,
-        asset_class: asset.asset_class,
-        description: asset.description,
-        is_working: asset.is_working,
-        not_working_reason: asset.not_working_reason,
-        qr_code_id: asset.qr_code_id || "",
-        manufacturer: asset.manufacturer,
-        warranty_amc_end_of_validity:
-          new Date(asset.warranty_amc_end_of_validity) || new Date(),
-        support_name: asset.support_name,
-        support_phone: asset.support_phone,
-        support_email: asset.support_email,
-        vendor_name: asset.vendor_name,
-        serial_number: asset.serial_number,
-        serviced_on: asset.last_service?.serviced_on
-          ? new Date(asset.last_service.serviced_on)
-          : new Date(),
-        note: asset.last_service?.note,
+  const locationsQuery = useQuery({
+    queryKey: [
+      routes.listFacilityAssetLocation.path,
+      { facility_external_id: facilityId },
+      { limit: 1 },
+    ],
+    queryFn: async ({ signal }) => {
+      return await request(routes.listFacilityAssetLocation, {
+        pathParams: { facility_external_id: facilityId },
+        signal,
+        query: { limit: 1 },
       });
     },
+    enabled: true,
+    refetchOnWindowFocus: false,
   });
 
-  if (loading || locationsQuery.loading || assetQuery.loading) {
+  const assetQuery = useQuery({
+    queryKey: [routes.getAsset.path, { external_id: String(assetId) }],
+    queryFn: async ({ signal }) => {
+      const response = await request(routes.getAsset, {
+        pathParams: { external_id: String(assetId) },
+        signal,
+      });
+
+      if (response.data) {
+        const asset = response.data;
+
+        form.reset({
+          name: asset.name,
+          location: asset.location_object.id,
+          asset_class: asset.asset_class,
+          description: asset.description,
+          is_working: asset.is_working,
+          not_working_reason: asset.not_working_reason,
+          qr_code_id: asset.qr_code_id || "",
+          manufacturer: asset.manufacturer,
+          warranty_amc_end_of_validity:
+            new Date(asset.warranty_amc_end_of_validity) || new Date(),
+          support_name: asset.support_name,
+          support_phone: asset.support_phone,
+          support_email: asset.support_email,
+          vendor_name: asset.vendor_name,
+          serial_number: asset.serial_number,
+          serviced_on: asset.last_service?.serviced_on
+            ? new Date(asset.last_service.serviced_on)
+            : new Date(),
+          note: asset.last_service?.note,
+        });
+      }
+      return response;
+    },
+    enabled: !!assetId,
+    refetchOnWindowFocus: false,
+  });
+
+  if (loading || locationsQuery.isLoading || assetQuery.isLoading) {
     return <Loading />;
   }
 
   const name = form.watch("name");
 
-  if (locationsQuery.data?.count === 0) {
+  if (!locationsQuery.data?.data?.count) {
     return (
       <Page
         title={assetId ? t("update_asset") : t("create_new_asset")}
@@ -369,7 +391,7 @@ const AssetCreate = (props: AssetProps) => {
         className="grow-0 pl-6"
         crumbsReplacements={{
           [facilityId]: {
-            name: locationsQuery.data?.results[0].facility?.name,
+            name: locationsQuery.data?.data?.results[0].facility?.name,
           },
           assets: { style: "text-secondary-200 pointer-events-none" },
           [assetId || "????"]: { name },
@@ -415,6 +437,7 @@ const AssetCreate = (props: AssetProps) => {
                     <div className="grid grid-cols-6 gap-x-6">
                       {/* General Details Section */}
                       {sectionTitle("General Details")}
+
                       {/* Asset Name */}
                       <div
                         className="col-span-6"
@@ -434,6 +457,7 @@ const AssetCreate = (props: AssetProps) => {
                           )}
                         />
                       </div>
+
                       {/* Location */}
                       <div
                         className="col-span-6"
@@ -460,6 +484,7 @@ const AssetCreate = (props: AssetProps) => {
                           )}
                         />
                       </div>
+
                       {/* Asset Class */}
                       <div
                         className="col-span-6"
@@ -475,10 +500,7 @@ const AssetCreate = (props: AssetProps) => {
                               </FormLabel>
                               <Select
                                 disabled={
-                                  !!(
-                                    props.assetId &&
-                                    form.getValues("asset_class")
-                                  )
+                                  !!(assetId && form.getValues("asset_class"))
                                 }
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
@@ -505,6 +527,7 @@ const AssetCreate = (props: AssetProps) => {
                           )}
                         />
                       </div>
+
                       {/* Description */}
                       <div
                         className="col-span-6"
@@ -529,6 +552,7 @@ const AssetCreate = (props: AssetProps) => {
                           )}
                         />
                       </div>
+
                       {/* Divider */}
                       <div
                         className="col-span-6"
@@ -543,6 +567,7 @@ const AssetCreate = (props: AssetProps) => {
                           }
                         />
                       </div>
+
                       {/* Working Status */}
                       <div
                         className="col-span-6"
@@ -567,6 +592,7 @@ const AssetCreate = (props: AssetProps) => {
                           )}
                         />
                       </div>
+
                       {/* Not Working Reason */}
                       {!form.getValues("is_working") && (
                         <div className="col-span-6">
@@ -590,6 +616,7 @@ const AssetCreate = (props: AssetProps) => {
                           />
                         </div>
                       )}
+
                       {/* Divider */}
                       <div className="col-span-6">
                         <hr
@@ -656,6 +683,7 @@ const AssetCreate = (props: AssetProps) => {
                           )}
                         />
                       </div>
+
                       {/* Warranty / AMC Expiry */}
                       <div
                         className="col-span-6 sm:col-span-3"
@@ -701,7 +729,7 @@ const AssetCreate = (props: AssetProps) => {
                                     onSelect={field.onChange}
                                     disabled={(date: Date) => {
                                       const today = new Date();
-                                      today.setHours(0, 0, 0, 0); // Clear time component
+                                      today.setHours(0, 0, 0, 0);
                                       return (
                                         date < today ||
                                         date < new Date("1900-01-01")
@@ -715,6 +743,7 @@ const AssetCreate = (props: AssetProps) => {
                           )}
                         />
                       </div>
+
                       {/* Customer Support Name */}
                       <div
                         className="col-span-6 sm:col-span-3"
@@ -736,6 +765,7 @@ const AssetCreate = (props: AssetProps) => {
                           )}
                         />
                       </div>
+
                       {/* Customer Support Phone */}
                       <div
                         className="col-span-6 sm:col-span-3"
@@ -760,6 +790,7 @@ const AssetCreate = (props: AssetProps) => {
                           )}
                         />
                       </div>
+
                       {/* Customer Support Email */}
                       <div
                         className="col-span-6 sm:col-span-3"
@@ -883,6 +914,7 @@ const AssetCreate = (props: AssetProps) => {
                           )}
                         />
                       </div>
+
                       {/* Notes */}
                       <div
                         className="col-span-6 mt-6"
@@ -907,6 +939,7 @@ const AssetCreate = (props: AssetProps) => {
                       </div>
                     </div>
                   </div>
+
                   {/* Cancel Button */}
                   <div className="mt-12 flex flex-wrap justify-end gap-2">
                     <Button
@@ -921,10 +954,12 @@ const AssetCreate = (props: AssetProps) => {
                     >
                       {t("cancel")}
                     </Button>
+
                     {/* Submit Button */}
                     <Button type="submit" disabled={!isDirty}>
                       {assetId ? t("update") : t("create_asset")}
                     </Button>
+
                     {/* Create and Add More Button */}
                     {!assetId && (
                       <Button
