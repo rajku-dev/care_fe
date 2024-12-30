@@ -155,7 +155,8 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
     const data: any = {
       name: values.name,
       asset_type: AssetType.INTERNAL,
-      asset_class: values.asset_class || "",
+      asset_class:
+        values.asset_class === "NONE" ? "" : values.asset_class || "",
       description: values.description,
       is_working: values.is_working,
       not_working_reason: values.is_working ? "" : values.not_working_reason,
@@ -444,9 +445,16 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Asset Name</FormLabel>
+                              <FormLabel className="text-base">
+                                Asset Name{" "}
+                                <span className="text-red-500">*</span>
+                              </FormLabel>
                               <FormControl>
-                                <Input placeholder="Asset Name" {...field} />
+                                <Input
+                                  className="text-base p-3"
+                                  placeholder="Asset Name"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -456,7 +464,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
 
                       {/* Location */}
                       <div
-                        className="col-span-6"
+                        className="col-span-6 py-4"
                         data-testid="asset-location-input"
                       >
                         <FormField
@@ -464,7 +472,9 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="location"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mt-3">Location</FormLabel>
+                              <FormLabel className="text-base">
+                                Location <span className="text-red-500">*</span>
+                              </FormLabel>
                               <Select
                                 disabled={false}
                                 onValueChange={field.onChange}
@@ -502,7 +512,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="asset_class"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mt-3">
+                              <FormLabel className="text-base">
                                 Asset Class
                               </FormLabel>
                               <Select
@@ -537,7 +547,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
 
                       {/* Description */}
                       <div
-                        className="col-span-6"
+                        className="col-span-6 py-4"
                         data-testid="asset-description-input"
                       >
                         <FormField
@@ -545,11 +555,12 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="description"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mt-3">
+                              <FormLabel className="text-base">
                                 Description
                               </FormLabel>
                               <FormControl>
                                 <Textarea
+                                  className="text-base"
                                   placeholder="Details about the equipment"
                                   {...field}
                                 />
@@ -584,14 +595,16 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           control={form.control}
                           name="is_working"
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="mt-3">
-                                Working Status
+                            <FormItem className="flex items-start space-x-3">
+                              <FormLabel className="text-base mt-1">
+                                Working Status{" "}
+                                <span className="text-red-500">*</span>
                               </FormLabel>
                               <FormControl>
                                 <Switch
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
+                                  className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -602,17 +615,18 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
 
                       {/* Not Working Reason */}
                       {!form.getValues("is_working") && (
-                        <div className="col-span-6">
+                        <div className="col-span-6 mt-6 py-3">
                           <FormField
                             control={form.control}
                             name="not_working_reason"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>
+                                <FormLabel className="text-base">
                                   Why the asset is not working?
                                 </FormLabel>
                                 <FormControl>
                                   <Textarea
+                                    className="text-base"
                                     placeholder="Reason for not working"
                                     {...field}
                                   />
@@ -638,7 +652,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
 
                       {/* QR Code ID */}
                       <div
-                        className="col-span-6 flex flex-row items-center gap-2"
+                        className="col-span-6 flex flex-row items-center gap-2 py-4"
                         data-testid="asset-qr-id-input"
                       >
                         <FormField
@@ -646,16 +660,18 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="qr_code_id"
                           render={({ field }) => (
                             <FormItem className="flex-grow justify-center items-center">
-                              <FormLabel className="mt-3">QR Code ID</FormLabel>
+                              <FormLabel className="text-base">
+                                QR Code ID
+                              </FormLabel>
                               <FormControl>
-                                <Input placeholder="QR Code ID" {...field} />
+                                <Input className="text-base" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                         <div
-                          className="mt-5 flex h-8 cursor-pointer items-center justify-center rounded border border-secondary-400 px-4 hover:bg-secondary-200"
+                          className="mt-8 flex h-9 cursor-pointer items-center justify-center rounded border border-secondary-400 px-4 hover:bg-secondary-200"
                           onClick={() => setIsScannerActive(true)}
                         >
                           <CareIcon
@@ -666,12 +682,13 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                       </div>
                     </div>
 
-                    {/* Manufacturer */}
                     <div className="grid grid-cols-6 gap-x-6">
                       <div className="mt-6" />
                       {sectionTitle("Warranty Details")}
+
+                      {/* Manufacturer */}
                       <div
-                        className="col-span-6 sm:col-span-3"
+                        className="col-span-6 sm:col-span-3 mt-3"
                         data-testid="asset-manufacturer-input"
                       >
                         <FormField
@@ -679,11 +696,15 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="manufacturer"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mt-3">
+                              <FormLabel className="text-base">
                                 Manufacturer
                               </FormLabel>
                               <FormControl>
-                                <Input placeholder="Manufacturer" {...field} />
+                                <Input
+                                  className="text-base py-5"
+                                  placeholder="Manufacturer"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -693,7 +714,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
 
                       {/* Warranty / AMC Expiry */}
                       <div
-                        className="col-span-6 sm:col-span-3"
+                        className="col-span-6 sm:col-span-3 mt-3"
                         data-testid="asset-warranty-input"
                       >
                         <FormField
@@ -701,7 +722,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="warranty_amc_end_of_validity"
                           render={({ field }) => (
                             <FormItem className="flex-grow justify-center items-center">
-                              <FormLabel className="mt-3">
+                              <FormLabel className="text-base">
                                 Warranty / AMC Expiry
                               </FormLabel>
                               <FormControl>
@@ -730,11 +751,15 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="support_name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mt-3">
+                              <FormLabel className="text-base">
                                 Customer Support Name
                               </FormLabel>
                               <FormControl>
-                                <Input placeholder="Support Name" {...field} />
+                                <Input
+                                  className="text-base p-4"
+                                  placeholder="Support Name"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -752,11 +777,13 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="support_phone"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mt-3">
-                                Customer Support Phone
+                              <FormLabel className="text-base">
+                                Customer Support Phone{" "}
+                                <span className="text-red-500">*</span>
                               </FormLabel>
                               <FormControl>
                                 <PhoneInput
+                                  className="text-base"
                                   placeholder="Enter a phone number"
                                   {...field}
                                 />
@@ -769,7 +796,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
 
                       {/* Customer Support Email */}
                       <div
-                        className="col-span-6 sm:col-span-3"
+                        className="col-span-6 sm:col-span-3 py-6"
                         data-testid="asset-support-email-input"
                       >
                         <FormField
@@ -777,11 +804,15 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="support_email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mt-3">
+                              <FormLabel className="text-base">
                                 Customer Support Email
                               </FormLabel>
                               <FormControl>
-                                <Input placeholder="Email Address" {...field} />
+                                <Input
+                                  className="text-base p-5"
+                                  placeholder="Email Address"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -791,7 +822,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
 
                       {/* Vendor name */}
                       <div
-                        className="col-span-6 sm:col-span-3"
+                        className="col-span-6 sm:col-span-3 py-6"
                         data-testid="asset-vendor-name-input"
                       >
                         <FormField
@@ -799,11 +830,15 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="vendor_name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mt-3">
+                              <FormLabel className="text-base">
                                 Vendor Name
                               </FormLabel>
                               <FormControl>
-                                <Input placeholder="Vendor Name" {...field} />
+                                <Input
+                                  className="text-base p-5"
+                                  placeholder="Vendor Name"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -821,11 +856,15 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="serial_number"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mt-3">
+                              <FormLabel className="text-base">
                                 Serial Number
                               </FormLabel>
                               <FormControl>
-                                <Input placeholder="Serial Number" {...field} />
+                                <Input
+                                  className="text-base p-5"
+                                  placeholder="Serial Number"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -845,7 +884,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="serviced_on"
                           render={({ field }) => (
                             <FormItem className="flex-grow justify-center items-center">
-                              <FormLabel className="mt-3">
+                              <FormLabel className="text-base">
                                 Last Serviced On Date
                               </FormLabel>
                               <FormControl>
@@ -875,7 +914,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="note"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Notes</FormLabel>
+                              <FormLabel className="text-base">Notes</FormLabel>
                               <FormControl>
                                 <Textarea
                                   placeholder="Add notes here"
