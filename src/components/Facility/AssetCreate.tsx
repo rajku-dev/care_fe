@@ -1,19 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
-import { format } from "date-fns";
 import { navigate } from "raviger";
 import { LegacyRef, MutableRefObject, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
-import { cn } from "@/lib/utils";
-
 import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -24,11 +20,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -43,6 +34,7 @@ import { AssetClass, AssetType } from "@/components/Assets/AssetTypes";
 import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
 import { AssetFormSchema } from "@/components/Facility/AssetFormSchema";
+import DateFormField from "@/components/Form/FormFields/DateFormField";
 
 import useAppHistory from "@/hooks/useAppHistory";
 import useVisibility from "@/hooks/useVisibility";
@@ -708,51 +700,20 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           control={form.control}
                           name="warranty_amc_end_of_validity"
                           render={({ field }) => (
-                            <FormItem className="flex flex-col">
+                            <FormItem className="flex-grow justify-center items-center">
                               <FormLabel className="mt-3">
                                 Warranty / AMC Expiry
                               </FormLabel>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "w-[240px] pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground",
-                                      )}
-                                    >
-                                      {field.value ? (
-                                        format(field.value, "PPP")
-                                      ) : (
-                                        <span>Pick a date</span>
-                                      )}
-                                      <CareIcon
-                                        icon="l-calender"
-                                        className="ml-auto h-4 w-4 opacity-50"
-                                      />
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  className="w-auto p-0"
-                                  align="start"
-                                >
-                                  <Calendar
-                                    mode="single"
-                                    selected={field.value}
-                                    onSelect={field.onChange}
-                                    disabled={(date: Date) => {
-                                      const today = new Date();
-                                      today.setHours(0, 0, 0, 0);
-                                      return (
-                                        date < today ||
-                                        date < new Date("1900-01-01")
-                                      );
-                                    }}
-                                  />
-                                </PopoverContent>
-                              </Popover>
+                              <FormControl>
+                                <DateFormField
+                                  name="warranty_amc_end_of_validity"
+                                  disablePast
+                                  value={field.value}
+                                  onChange={(date) =>
+                                    field.onChange(date.value)
+                                  }
+                                />
+                              </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -883,47 +844,21 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           control={form.control}
                           name="serviced_on"
                           render={({ field }) => (
-                            <FormItem className="flex flex-col">
+                            <FormItem className="flex-grow justify-center items-center">
                               <FormLabel className="mt-3">
-                                Last Serviced On
+                                Last Serviced On Date
                               </FormLabel>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "w-[240px] pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground",
-                                      )}
-                                    >
-                                      {field.value ? (
-                                        format(field.value, "PPP")
-                                      ) : (
-                                        <span>Pick a date</span>
-                                      )}
-                                      <CareIcon
-                                        icon="l-calender"
-                                        className="ml-auto h-4 w-4 opacity-50"
-                                      />
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  className="w-auto p-0"
-                                  align="start"
-                                >
-                                  <Calendar
-                                    mode="single"
-                                    selected={field.value}
-                                    onSelect={field.onChange}
-                                    disabled={(date: Date) =>
-                                      date > new Date() ||
-                                      date < new Date("1900-01-01")
-                                    }
-                                  />
-                                </PopoverContent>
-                              </Popover>
+                              <FormControl>
+                                <DateFormField
+                                  name="serviced_on"
+                                  className="mt-2"
+                                  disableFuture
+                                  value={field.value}
+                                  onChange={(date) =>
+                                    field.onChange(date.value)
+                                  }
+                                />
+                              </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -932,7 +867,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
 
                       {/* Notes */}
                       <div
-                        className="col-span-6 mt-6"
+                        className="col-span-6"
                         data-testid="asset-notes-input"
                       >
                         <FormField
@@ -940,7 +875,7 @@ const AssetCreate = ({ facilityId, assetId }: AssetProps) => {
                           name="note"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mt-3">Notes</FormLabel>
+                              <FormLabel>Notes</FormLabel>
                               <FormControl>
                                 <Textarea
                                   placeholder="Add notes here"
