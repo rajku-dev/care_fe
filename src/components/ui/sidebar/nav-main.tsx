@@ -1,7 +1,5 @@
 "use client";
 
-import { ActiveLink } from "raviger";
-
 import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
 
 import {
@@ -10,6 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { ActiveLink } from "@/components/ui/sidebar/ActiveLinks";
 
 export function NavMain({
   links,
@@ -33,9 +32,9 @@ export function NavMain({
               }
             >
               <ActiveLink
+                links={links}
                 href={link.url}
                 activeClass="bg-white text-green-700 shadow"
-                exactActiveClass="bg-white text-green-700 shadow"
               >
                 {link.icon && <CareIcon icon={link.icon as IconName} />}
                 <span className="group-data-[collapsible=icon]:hidden">
