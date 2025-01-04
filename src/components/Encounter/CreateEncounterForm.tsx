@@ -145,6 +145,10 @@ export default function CreateEncounterForm({
     },
   });
 
+  const {
+    formState: { isDirty },
+  } = form;
+
   const { mutate: createEncounter } = useMutation({
     mutationFn: mutate(routes.encounter.create),
     onSuccess: (data: Encounter) => {
@@ -318,7 +322,7 @@ export default function CreateEncounterForm({
               }}
             />
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" disabled={!isDirty} className="w-full">
               Create Encounter
             </Button>
           </form>

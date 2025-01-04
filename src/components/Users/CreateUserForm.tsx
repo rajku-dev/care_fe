@@ -23,6 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import DateFormField from "@/components/Form/FormFields/DateFormField";
+
 import { GENDER_TYPES } from "@/common/constants";
 
 import * as Notification from "@/Utils/Notifications";
@@ -74,8 +76,10 @@ const userFormSchema = z
       )
       .optional(),
     phone_number_is_whatsapp: z.boolean().default(true),
-    date_of_birth: z.string().min(1, "Date of birth is required"),
-    gender: z.enum(["male", "female", "other"]),
+    date_of_birth: z.date({
+      required_error: "Date of birth is required",
+    }),
+    gender: z.enum(["male", "female", "transgender", "non_binary"]),
     qualification: z.string().optional(),
     doctor_experience_commenced_on: z.string().optional(),
     doctor_medical_council_registration: z.string().optional(),
@@ -96,6 +100,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
   const { t } = useTranslation();
 
   const form = useForm<UserFormValues>({
+    mode: "onChange",
     resolver: zodResolver(userFormSchema),
     defaultValues: {
       user_type: "staff",
@@ -105,6 +110,10 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       gender: "male",
     },
   });
+
+  const {
+    formState: { isDirty, errors, isValid },
+  } = form;
 
   const userType = form.watch("user_type");
   const phoneNumber = form.watch("phone_number");
@@ -146,6 +155,8 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       });
     }
   };
+  console.log(!!errors, errors);
+  const required = <span className="text-red-500">*</span>;
 
   return (
     <Form {...form}>
@@ -180,7 +191,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="first_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name</FormLabel>
+                <FormLabel>First Name{required}</FormLabel>
                 <FormControl>
                   <Input placeholder="First name" {...field} />
                 </FormControl>
@@ -194,7 +205,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="last_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Last Name</FormLabel>
+                <FormLabel>Last Name{required}</FormLabel>
                 <FormControl>
                   <Input placeholder="Last name" {...field} />
                 </FormControl>
@@ -209,7 +220,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Username{required}</FormLabel>
               <FormControl>
                 <Input placeholder="Username" {...field} />
               </FormControl>
@@ -224,7 +235,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>Password{required}</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="Password" {...field} />
                 </FormControl>
@@ -238,7 +249,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="c_password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
+                <FormLabel>Confirm Password{required}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
@@ -257,7 +268,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Email{required}</FormLabel>
               <FormControl>
                 <Input type="email" placeholder="Email" {...field} />
               </FormControl>
@@ -272,9 +283,14 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="phone_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>Phone Number{required}</FormLabel>
                 <FormControl>
-                  <Input type="tel" placeholder="+91XXXXXXXXXX" {...field} />
+                  <Input
+                    type="tel"
+                    placeholder="+91XXXXXXXXXX"
+                    maxLength={13}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -286,12 +302,13 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="alt_phone_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Alternative Phone Number</FormLabel>
+                <FormLabel>WhatsApp Number{required}</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="+91XXXXXXXXXX"
                     type="tel"
                     {...field}
+                    maxLength={13}
                     disabled={isWhatsApp}
                   />
                 </FormControl>
@@ -325,9 +342,14 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="date_of_birth"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of Birth</FormLabel>
+                <FormLabel>Date of Birth{required}</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <DateFormField
+                    name="date_of_birth"
+                    disableFuture
+                    value={field.value}
+                    onChange={(date) => field.onChange(date.value)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -437,7 +459,11 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           )}
         />
 
-        <Button type="submit" className="w-full">
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={!isDirty || !isValid}
+        >
           Create User
         </Button>
       </form>

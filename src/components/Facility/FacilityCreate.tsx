@@ -137,6 +137,10 @@ export const FacilityCreate = (props: FacilityProps) => {
     },
   });
 
+  const {
+    formState: { isDirty },
+  } = form;
+
   // Update form when facility data is loaded
   useEffect(() => {
     if (facilityData) {
@@ -469,7 +473,11 @@ export const FacilityCreate = (props: FacilityProps) => {
                 >
                   {t("cancel")}
                 </Button>
-                <Button variant="primary" type="submit" disabled={isLoading}>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  disabled={isLoading || !isDirty}
+                >
                   {isLoading ? (
                     <Loading />
                   ) : facilityId ? (

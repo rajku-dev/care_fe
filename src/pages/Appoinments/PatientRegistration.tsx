@@ -139,6 +139,10 @@ export function PatientRegistration(props: PatientRegistrationProps) {
     defaultValues: initialForm,
   });
 
+  const {
+    formState: { isDirty },
+  } = form;
+
   const { mutate: createAppointment } = useMutation({
     mutationFn: (body: AppointmentCreate) =>
       mutate(PublicAppointmentApi.createAppointment, {
@@ -448,6 +452,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
                 variant="primary_gradient"
                 className="sm:w-1/5"
                 type="submit"
+                disabled={!isDirty}
               >
                 <span className="bg-gradient-to-b from-white/15 to-transparent" />
                 {t("register_patient")}
