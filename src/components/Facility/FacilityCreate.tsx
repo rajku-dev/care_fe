@@ -137,10 +137,6 @@ export const FacilityCreate = (props: FacilityProps) => {
     },
   });
 
-  const {
-    formState: { isDirty },
-  } = form;
-
   // Update form when facility data is loaded
   useEffect(() => {
     if (facilityData) {
@@ -476,7 +472,7 @@ export const FacilityCreate = (props: FacilityProps) => {
                 <Button
                   variant="primary"
                   type="submit"
-                  disabled={isLoading || !isDirty}
+                  disabled={isLoading || !form.formState.isDirty}
                 >
                   {isLoading ? (
                     <Loading />

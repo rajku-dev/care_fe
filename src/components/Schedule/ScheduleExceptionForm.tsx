@@ -74,10 +74,6 @@ export default function ScheduleExceptionForm({ user, onRefresh }: Props) {
   });
 
   const {
-    formState: { isDirty },
-  } = form;
-
-  const {
     mutate: createException,
     isPending,
     isSuccess,
@@ -259,7 +255,7 @@ export default function ScheduleExceptionForm({ user, onRefresh }: Props) {
                   <Button
                     variant="primary"
                     type="submit"
-                    disabled={!isDirty || isPending}
+                    disabled={!form.formState.isDirty || isPending}
                   >
                     Confirm Unavailability
                   </Button>
