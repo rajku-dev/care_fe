@@ -144,9 +144,17 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         });
         onSubmitSuccess?.(user!);
       } else {
-        Notification.Error({
-          msg: error?.message ?? t("user_add_error"),
-        });
+        if (error) {
+          const errors = (error.errors as any[]) || [];
+
+          errors.forEach((err) => {
+            const field = err.loc[0];
+            form.setError(field, { message: err.msg });
+            Notification.Error({
+              msg: err.msg,
+            });
+          });
+        }
       }
     } catch (error) {
       Notification.Error({
