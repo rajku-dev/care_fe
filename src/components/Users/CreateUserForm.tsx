@@ -6,6 +6,7 @@ import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Form,
   FormControl,
@@ -22,8 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import DateFormField from "@/components/Form/FormFields/DateFormField";
 
 import { GENDER_TYPES } from "@/common/constants";
 
@@ -360,11 +359,9 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
                   Date of Birth<span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
-                  <DateFormField
-                    name="date_of_birth"
-                    disableFuture
-                    value={field.value}
-                    onChange={(date) => field.onChange(date.value)}
+                  <DatePicker
+                    date={field.value}
+                    onChange={(date) => field.onChange(date)}
                   />
                 </FormControl>
                 <FormMessage />
