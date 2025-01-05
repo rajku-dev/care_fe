@@ -362,6 +362,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
                   <DatePicker
                     date={field.value}
                     onChange={(date) => field.onChange(date)}
+                    disabled={(date) => date < new Date()}
                   />
                 </FormControl>
                 <FormMessage />
