@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/sheet";
 
 import { Avatar } from "@/components/Common/Avatar";
+import { UserStatusIndicator } from "@/components/Users/UserListAndCard";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
@@ -152,12 +153,8 @@ export default function EditUserRoleSheet({
                 <p className="text-sm font-medium">{userRole.role.name}</p>
               </div>
               <div>
-                <span className="text-sm text-gray-500">Last Login</span>
-                <p className="text-sm font-medium">
-                  {userRole.user.last_login
-                    ? new Date(userRole.user.last_login).toLocaleDateString()
-                    : "Never"}
-                </p>
+                <span className="text-sm text-gray-500">Last Login </span>
+                <UserStatusIndicator user={userRole.user} />
               </div>
             </div>
           </div>
