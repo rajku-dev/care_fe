@@ -317,7 +317,11 @@ export default function CreateEncounterForm({
                 form.setValue("organizations", [value]);
               }}
             />
-            <Button type="submit" className="w-full" disabled={isPending || !form.formState.isDirty}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isPending || !form.formState.isDirty}
+            >
               {isPending ? "Creating..." : "Create Encounter"}
             </Button>
           </form>
