@@ -28,7 +28,6 @@ export default function UserBanner({ userData }: { userData: UserBase }) {
                 <UserStatusIndicator user={userData} addPadding />
               </div>
             </div>
-
             <span
               id="username"
               className="text-sm font-light leading-relaxed text-secondary-600"

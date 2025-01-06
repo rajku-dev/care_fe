@@ -3,11 +3,11 @@ import { useQueryParams } from "raviger";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { Avatar } from "@/components/Common/Avatar";
+import { UserStatusIndicator } from "@/components/Users/UserListAndCard";
 
 import query from "@/Utils/request/query";
 import { OrganizationUserRole } from "@/types/organization/organization";
@@ -110,7 +110,6 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
                         imageUrl={userRole.user.profile_picture_url}
                         className="h-12 w-12 sm:h-16 sm:w-16 text-xl sm:text-2xl flex-shrink-0"
                       />
-
                       <div className="flex flex-col min-w-0 flex-1">
                         <div className="flex flex-col gap-1">
                           <h1 className="text-base font-bold break-words pr-2">
@@ -120,15 +119,7 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
                             <span className="text-sm text-gray-500 truncate">
                               {userRole.user.username}
                             </span>
-                            <Badge
-                              variant="secondary"
-                              className="bg-green-100 whitespace-nowrap"
-                            >
-                              <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-green-500 mr-2" />
-                              <span className="text-xs text-green-700">
-                                online
-                              </span>
-                            </Badge>
+                            <UserStatusIndicator user={userRole.user} />
                           </div>
                         </div>
                       </div>
