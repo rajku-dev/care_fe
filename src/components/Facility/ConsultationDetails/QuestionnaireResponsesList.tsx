@@ -149,7 +149,9 @@ export default function QuestionnaireResponsesList({ encounter }: Props) {
       route={routes.getQuestionnaireResponses}
       pathParams={{
         patientId: encounter.patient.id,
-        encounterId: encounter.id,
+      }}
+      query={{
+        encounter: encounter.id,
       }}
     >
       {() => (
@@ -258,13 +260,13 @@ export default function QuestionnaireResponsesList({ encounter }: Props) {
                         // New structured response rendering
                         Object.entries(item.structured_responses).map(
                           ([type, response]) => {
-                            console.log("LOGGG", type, response);
                             return (
                               <StructuredResponseView
                                 key={response.id}
                                 type={type}
                                 id={response.id}
                                 patientId={encounter.patient.id}
+                                encounterId={encounter.id}
                               />
                             );
                           },

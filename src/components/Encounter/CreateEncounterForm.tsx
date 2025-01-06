@@ -145,7 +145,7 @@ export default function CreateEncounterForm({
     },
   });
 
-  const { mutate: createEncounter } = useMutation({
+  const { mutate: createEncounter, isPending } = useMutation({
     mutationFn: mutate(routes.encounter.create),
     onSuccess: (data: Encounter) => {
       toast.success("Encounter created successfully");
@@ -317,13 +317,8 @@ export default function CreateEncounterForm({
                 form.setValue("organizations", [value]);
               }}
             />
-
-            <Button
-              type="submit"
-              disabled={!form.formState.isDirty}
-              className="w-full"
-            >
-              Create Encounter
+            <Button type="submit" className="w-full" disabled={isPending || !form.formState.isDirty}>
+              {isPending ? "Creating..." : "Create Encounter"}
             </Button>
           </form>
         </Form>
