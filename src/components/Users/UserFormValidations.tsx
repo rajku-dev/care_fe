@@ -7,16 +7,22 @@ export type UserType = "doctor" | "nurse" | "staff" | "volunteer";
 export type Gender = "male" | "female" | "non_binary" | "transgender";
 
 export type UserForm = {
-  user_type?: UserType;
+  user_type: UserType;
   gender: Gender;
-  password?: string;
+  password: string;
   c_password?: string;
-  geo_organization?: string;
-  username?: string;
+  geo_organization: string;
+  username: string;
   first_name: string;
   last_name: string;
   email: string;
   phone_number: string;
+  alt_phone_number?: string;
+  phone_number_is_whatsapp: boolean;
+  date_of_birth: Date;
+  qualification?: string;
+  doctor_experience_commenced_on?: string;
+  doctor_medical_council_registration?: string;
 };
 
 export const newUserFields: Array<keyof UserForm> = [

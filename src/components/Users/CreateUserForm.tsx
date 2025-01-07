@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -25,6 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import { UserForm } from "@/components/Users/UserFormValidations";
 
 import { GENDER_TYPES } from "@/common/constants";
 
@@ -113,7 +116,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     }
   }, [phoneNumber, isWhatsApp, form]);
 
-  const { mutate: createUser } = useMutation({
+  const { mutate: createUser, isPending } = useMutation({
     mutationFn: mutate(UserApi.create),
     onSuccess: (user: UserBase) => {
       toast.success(t("user_added_successfully"));
@@ -132,7 +135,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     createUser({
       ...data,
       c_password: undefined,
-    } as unknown as UserBase);
+    } as UserForm);
   };
 
   return (
@@ -279,7 +282,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="alt_phone_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel required>WhatsApp Number</FormLabel>
+                <FormLabel>WhatsApp Number</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="+91XXXXXXXXXX"
@@ -440,9 +443,12 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         <Button
           type="submit"
           className="w-full"
-          disabled={!form.formState.isDirty || !form.formState.isValid}
+          disabled={
+            !form.formState.isDirty || !form.formState.isValid || isPending
+          }
         >
-          Create User
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{" "}
+          {t("create")}
         </Button>
       </form>
     </Form>
