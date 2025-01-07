@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,6 @@ import {
 
 import { GENDER_TYPES } from "@/common/constants";
 
-import * as Notification from "@/Utils/Notifications";
 import mutate from "@/Utils/request/mutate";
 import OrganizationSelector from "@/pages/Organization/components/OrganizationSelector";
 import { UserBase } from "@/types/user/user";
@@ -128,9 +128,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
   const { mutateAsync: createUser } = useMutation({
     mutationFn: mutate(UserApi.create),
     onSuccess: (user: UserBase) => {
-      Notification.Success({
-        msg: t("user_added_successfully"),
-      });
+      toast.success(t("user_added_successfully"));
       onSubmitSuccess?.(user!);
     },
     onError: (error) => {
@@ -138,9 +136,6 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       errors.forEach((err) => {
         const field = err.loc[0];
         form.setError(field, { message: err.msg });
-        Notification.Error({
-          msg: err.msg,
-        });
       });
     },
   });
