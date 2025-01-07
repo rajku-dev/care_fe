@@ -135,7 +135,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       const errors = (error.cause?.errors as any[]) || [];
       errors.forEach((err) => {
         const field = err.loc[0];
-        form.setError(field, { message: err.msg });
+        form.setError(field, { message: err.ctx.error });
       });
     },
   });
