@@ -27,8 +27,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { UserForm } from "@/components/Users/UserFormValidations";
-
 import { GENDER_TYPES } from "@/common/constants";
 
 import mutate from "@/Utils/request/mutate";
@@ -135,7 +133,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     createUser({
       ...data,
       c_password: undefined,
-    } as UserForm);
+    });
   };
 
   return (
