@@ -128,7 +128,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     },
   });
 
-  const onSubmit = async (data: UserFormValues) => {
+  const onSubmit = (data: UserFormValues) => {
     createUser({
       ...data,
       c_password: undefined,
