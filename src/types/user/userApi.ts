@@ -2,8 +2,7 @@ import { UserForm } from "@/components/Users/UserFormValidations";
 
 import { HttpMethod, Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
-
-import { UserBase } from "./user";
+import { UserBase } from "@/types/user/user";
 
 export default {
   list: {
