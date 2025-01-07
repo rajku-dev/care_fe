@@ -45,42 +45,30 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       user_type: z.enum(["doctor", "nurse", "staff", "volunteer"]),
       username: z
         .string()
-        .min(4, "Username must be at least 4 characters")
-        .max(16, "Username must be less than 16 characters")
-        .regex(
-          /^[a-z0-9._-]*$/,
-          "Username can only contain lowercase letters, numbers, and . _ -",
-        )
-        .regex(
-          /^[a-z0-9].*[a-z0-9]$/,
-          "Username must start and end with a letter or number",
-        )
+        .min(4, t("username_more_than"))
+        .max(16, t("username_less_than"))
+        .regex(/^[a-z0-9._-]*$/, t("username_contain_lowercase_special"))
+        .regex(/^[a-z0-9].*[a-z0-9]$/, t("username_start_end_letter_number"))
         .refine(
           (val) => !val.match(/(?:[._-]{2,})/),
-          "Username can't contain consecutive special characters",
+          t("username_consecutive_special_characters"),
         ),
       password: z
         .string()
-        .min(8, "Password must be at least 8 characters")
-        .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-        .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-        .regex(/[0-9]/, "Password must contain at least one number"),
+        .min(8, t("password_must_be_at_least_8_characters"))
+        .regex(/[a-z]/, t("password_must_contain_lowercase"))
+        .regex(/[A-Z]/, t("password_must_contain_uppercase"))
+        .regex(/[0-9]/, t("password_must_contain_number")),
       c_password: z.string(),
       first_name: z.string().min(1, t("this_field_is_required")),
       last_name: z.string().min(1, t("this_field_is_required")),
-      email: z.string().email("Invalid email address"),
+      email: z.string().email(t("invalid_email")),
       phone_number: z
         .string()
-        .regex(
-          /^\+91[0-9]{10}$/,
-          "Phone number must start with +91 followed by 10 digits",
-        ),
+        .regex(/^\+91[0-9]{10}$/, t("phone_number_must_start")),
       alt_phone_number: z
         .string()
-        .regex(
-          /^\+91[0-9]{10}$/,
-          "Phone number must start with +91 followed by 10 digits",
-        )
+        .regex(/^\+91[0-9]{10}$/, t("phone_number_must_start"))
         .optional(),
       phone_number_is_whatsapp: z.boolean().default(true),
       date_of_birth: z
@@ -88,7 +76,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           required_error: t("this_field_is_required"),
         })
         .refine((dob) => dob <= new Date(), {
-          message: "Date of birth cannot be in the future",
+          message: t("date_of_birth_cannot_be_in_future"),
         }),
       gender: z.enum(["male", "female", "transgender", "non_binary"]),
       qualification: z.string().optional(),
@@ -97,7 +85,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       geo_organization: z.string().min(1, t("this_field_is_required")),
     })
     .refine((data) => data.password === data.c_password, {
-      message: "Passwords don't match",
+      message: t("passwords_do_not_match"),
       path: ["c_password"],
     });
 
