@@ -55,10 +55,10 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         ),
       password: z
         .string()
-        .min(8, t("password_must_be_at_least_8_characters"))
-        .regex(/[a-z]/, t("password_must_contain_lowercase"))
-        .regex(/[A-Z]/, t("password_must_contain_uppercase"))
-        .regex(/[0-9]/, t("password_must_contain_number")),
+        .min(8, t("password_length_validation"))
+        .regex(/[a-z]/, t("password_lowercase_validation"))
+        .regex(/[A-Z]/, t("password_uppercase_validation"))
+        .regex(/[0-9]/, t("password_number_validation")),
       c_password: z.string(),
       first_name: z.string().min(1, t("this_field_is_required")),
       last_name: z.string().min(1, t("this_field_is_required")),
@@ -85,7 +85,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       geo_organization: z.string().min(1, t("this_field_is_required")),
     })
     .refine((data) => data.password === data.c_password, {
-      message: t("passwords_do_not_match"),
+      message: t("password_mismatch"),
       path: ["c_password"],
     });
 
