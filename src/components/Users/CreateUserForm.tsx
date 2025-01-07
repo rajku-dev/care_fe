@@ -113,7 +113,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     }
   }, [phoneNumber, isWhatsApp, form]);
 
-  const { mutateAsync: createUser } = useMutation({
+  const { mutate: createUser } = useMutation({
     mutationFn: mutate(UserApi.create),
     onSuccess: (user: UserBase) => {
       toast.success(t("user_added_successfully"));
@@ -129,7 +129,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
   });
 
   const onSubmit = async (data: UserFormValues) => {
-    await createUser({
+    createUser({
       ...data,
       c_password: undefined,
     } as unknown as UserBase);
