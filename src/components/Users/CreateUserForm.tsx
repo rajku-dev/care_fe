@@ -127,12 +127,11 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof userFormSchema>) => {
-    createUser({
-      ...data,
-      c_password: undefined,
-    });
-  };
+  const onSubmit = (data: z.infer<typeof userFormSchema>) =>
+    createUser(
+      (({ c_password: _c, phone_number_is_whatsapp: _p, ...payload }) =>
+        payload)(data),
+    );
 
   return (
     <Form {...form}>

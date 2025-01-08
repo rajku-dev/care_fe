@@ -11,7 +11,6 @@ export const newUserFields: Array<keyof UserCreateRequest> = [
   "user_type",
   "username",
   "password",
-  "c_password",
   "first_name",
   "last_name",
   "email",

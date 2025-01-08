@@ -19,7 +19,6 @@ export type UserCreateRequest = {
   user_type: UserType;
   gender: (typeof GENDER_TYPES)[number]["id"];
   password: string;
-  c_password?: string;
   geo_organization: string;
   username: string;
   first_name: string;
@@ -27,7 +26,6 @@ export type UserCreateRequest = {
   email: string;
   phone_number: string;
   alt_phone_number?: string;
-  phone_number_is_whatsapp: boolean;
   date_of_birth: Date;
   qualification?: string;
   doctor_experience_commenced_on?: string;
