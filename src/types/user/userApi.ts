@@ -1,8 +1,6 @@
-import { UserForm } from "@/components/Users/UserFormValidations";
-
 import { HttpMethod, Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
-import { UserBase } from "@/types/user/user";
+import { UserBase, UserCreateRequest } from "@/types/user/user";
 
 export default {
   list: {
@@ -14,7 +12,7 @@ export default {
     path: "/api/v1/users/",
     method: HttpMethod.POST,
     TRes: Type<UserBase>(),
-    TBody: Type<UserForm>(),
+    TBody: Type<UserCreateRequest>(),
   },
   get: {
     path: "/api/v1/users/{username}/",

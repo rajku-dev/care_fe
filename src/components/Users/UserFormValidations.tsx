@@ -1,31 +1,13 @@
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { classNames } from "@/Utils/utils";
+import { UserCreateRequest } from "@/types/user/user";
 
 export type UserType = "doctor" | "nurse" | "staff" | "volunteer";
 
 export type Gender = "male" | "female" | "non_binary" | "transgender";
 
-export type UserForm = {
-  user_type: UserType;
-  gender: Gender;
-  password: string;
-  c_password?: string;
-  geo_organization: string;
-  username: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  alt_phone_number?: string;
-  phone_number_is_whatsapp: boolean;
-  date_of_birth: Date;
-  qualification?: string;
-  doctor_experience_commenced_on?: string;
-  doctor_medical_council_registration?: string;
-};
-
-export const newUserFields: Array<keyof UserForm> = [
+export const newUserFields: Array<keyof UserCreateRequest> = [
   "user_type",
   "username",
   "password",
@@ -38,7 +20,7 @@ export const newUserFields: Array<keyof UserForm> = [
   "geo_organization",
 ];
 
-export const editUserFields: Array<keyof UserForm> = [
+export const editUserFields: Array<keyof UserCreateRequest> = [
   "first_name",
   "last_name",
   "gender",
@@ -46,13 +28,13 @@ export const editUserFields: Array<keyof UserForm> = [
   "phone_number",
 ];
 
-export const editBasicInfoFields: Array<keyof UserForm> = [
+export const editBasicInfoFields: Array<keyof UserCreateRequest> = [
   "first_name",
   "last_name",
   "gender",
 ];
 
-export const editContactInfoFields: Array<keyof UserForm> = [
+export const editContactInfoFields: Array<keyof UserCreateRequest> = [
   "email",
   "phone_number",
 ];
