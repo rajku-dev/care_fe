@@ -1,6 +1,5 @@
 import careConfig from "@careConfig";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import dayjs from "dayjs";
 import { navigate } from "raviger";
 import { useCallback, useEffect, useState } from "react";
 
@@ -30,30 +29,18 @@ export default function AuthUserProvider({
   const [accessToken, setAccessToken] = useState(
     localStorage.getItem(LocalStorageKeys.accessToken),
   );
-
-  const { data: user, isLoading } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: query(routes.currentUser, { silent: true }),
-    retry: false,
-    enabled: !!accessToken,
-  });
-
-  const [isOTPAuthorized, setIsOTPAuthorized] = useState(false);
-  console.log("isOTPAuthorized", isOTPAuthorized);
-
-  const tokenData: TokenData = JSON.parse(
-    localStorage.getItem(LocalStorageKeys.patientTokenKey) || "{}",
+  const [patientToken, setPatientToken] = useState<TokenData | null>(
+    JSON.parse(
+      localStorage.getItem(LocalStorageKeys.patientTokenKey) || "null",
+    ),
   );
 
-  useEffect(() => {
-    if (
-      tokenData.token &&
-      Object.keys(tokenData).length > 0 &&
-      dayjs(tokenData.createdAt).isAfter(dayjs().subtract(14, "minutes"))
-    ) {
-      setIsOTPAuthorized(true);
-    }
-  }, [tokenData]);
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["currentUser", accessToken],
+    queryFn: query(routes.currentUser, { silent: true }),
+    retry: false,
+    enabled: !!localStorage.getItem(LocalStorageKeys.accessToken),
+  });
 
   useEffect(() => {
     if (!user) {
@@ -67,22 +54,12 @@ export default function AuthUserProvider({
     );
   }, [user]);
 
-  useEffect(() => {
-    // Listen for localStorage changes
-    const listener = (event: StorageEvent) => {
-      if (event.key === LocalStorageKeys.accessToken) {
-        setAccessToken(event.newValue);
-      }
-    };
-    addEventListener("storage", listener);
-    return () => removeEventListener("storage", listener);
-  }, []);
-
   const signIn = useCallback(
     async (creds: { username: string; password: string }) => {
       const query = await request(routes.login, { body: creds });
 
       if (query.res?.ok && query.data) {
+        setAccessToken(query.data.access);
         localStorage.setItem(LocalStorageKeys.accessToken, query.data.access);
         localStorage.setItem(LocalStorageKeys.refreshToken, query.data.refresh);
 
@@ -98,10 +75,20 @@ export default function AuthUserProvider({
     [queryClient],
   );
 
+  const patientLogin = (tokenData: TokenData, redirectUrl: string) => {
+    setPatientToken(tokenData);
+    localStorage.setItem(
+      LocalStorageKeys.patientTokenKey,
+      JSON.stringify(tokenData),
+    );
+    navigate(redirectUrl);
+  };
+
   const signOut = useCallback(async () => {
     localStorage.removeItem(LocalStorageKeys.accessToken);
     localStorage.removeItem(LocalStorageKeys.refreshToken);
     localStorage.removeItem(LocalStorageKeys.patientTokenKey);
+    setPatientToken(null);
 
     await queryClient.resetQueries({ queryKey: ["currentUser"] });
 
@@ -139,7 +126,7 @@ export default function AuthUserProvider({
   const SelectedRouter = () => {
     if (user) {
       return children;
-    } else if (isOTPAuthorized) {
+    } else if (patientToken?.token) {
       return otpAuthorized;
     } else {
       return unauthorized;
@@ -147,7 +134,15 @@ export default function AuthUserProvider({
   };
 
   return (
-    <AuthUserContext.Provider value={{ signIn, signOut, user }}>
+    <AuthUserContext.Provider
+      value={{
+        signIn,
+        signOut,
+        user,
+        patientLogin,
+        patientToken,
+      }}
+    >
       <SelectedRouter />
     </AuthUserContext.Provider>
   );
