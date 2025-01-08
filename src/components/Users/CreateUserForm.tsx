@@ -69,7 +69,11 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         .regex(/^\+91[0-9]{10}$/, t("phone_number_must_start")),
       alt_phone_number: z
         .string()
-        .regex(/^\+91[0-9]{10}$/, t("phone_number_must_start"))
+        .refine(
+          (val) => val === "" || /^\+91[0-9]{10}$/.test(val),
+          t("phone_number_must_start"),
+        )
+        .transform((val) => val || undefined)
         .optional(),
       phone_number_is_whatsapp: z.boolean().default(true),
       date_of_birth: z
@@ -80,9 +84,18 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           message: t("date_of_birth_cannot_be_in_future"),
         }),
       gender: z.enum(["male", "female", "transgender", "non_binary"]),
-      qualification: z.string().optional(),
-      doctor_experience_commenced_on: z.string().optional(),
-      doctor_medical_council_registration: z.string().optional(),
+      qualification: z
+        .string()
+        .optional()
+        .transform((val) => val || undefined),
+      doctor_experience_commenced_on: z
+        .string()
+        .optional()
+        .transform((val) => val || undefined),
+      doctor_medical_council_registration: z
+        .string()
+        .optional()
+        .transform((val) => val || undefined),
       geo_organization: z.string().min(1, t("this_field_is_required")),
     })
     .refine((data) => data.password === data.c_password, {
@@ -127,11 +140,25 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof userFormSchema>) =>
-    createUser(
-      (({ c_password: _c, phone_number_is_whatsapp: _p, ...payload }) =>
-        payload)(data),
-    );
+  const onSubmit = (data: z.infer<typeof userFormSchema>) => {
+    createUser({
+      username: data.username,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      phone_number: data.phone_number,
+      alt_phone_number: data.alt_phone_number,
+      date_of_birth: data.date_of_birth,
+      geo_organization: data.geo_organization,
+      user_type: data.user_type,
+      gender: data.gender,
+      password: data.password,
+      qualification: data.qualification,
+      doctor_experience_commenced_on: data.doctor_experience_commenced_on,
+      doctor_medical_council_registration:
+        data.doctor_medical_council_registration,
+    });
+  };
 
   return (
     <Form {...form}>
