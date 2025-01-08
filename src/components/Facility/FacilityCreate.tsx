@@ -503,7 +503,11 @@ export const FacilityCreate = (props: FacilityProps) => {
                 >
                   {t("cancel")}
                 </Button>
-                <Button variant="primary" type="submit" disabled={isLoading}>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  disabled={isLoading || !form.formState.isDirty}
+                >
                   {isLoading ? (
                     <Loading />
                   ) : facilityId ? (

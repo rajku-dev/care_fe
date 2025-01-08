@@ -418,7 +418,11 @@ export default function CreateFacilityForm({
           )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={isPending}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isPending || !form.formState.isDirty}
+        >
           {isPending ? (
             <>
               <CareIcon
