@@ -90,9 +90,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       path: ["c_password"],
     });
 
-  type UserFormValues = z.infer<typeof userFormSchema>;
-
-  const form = useForm<UserFormValues>({
+  const form = useForm<z.infer<typeof userFormSchema>>({
     mode: "onChange",
     resolver: zodResolver(userFormSchema),
     defaultValues: {
@@ -129,7 +127,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     },
   });
 
-  const onSubmit = (data: UserFormValues) => {
+  const onSubmit = (data: z.infer<typeof userFormSchema>) => {
     createUser({
       ...data,
       c_password: undefined,
