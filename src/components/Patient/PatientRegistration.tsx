@@ -8,6 +8,7 @@ import SectionNavigator from "@/CAREUI/misc/SectionNavigator";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { InputErrors } from "@/components/ui/errors";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -48,6 +49,7 @@ import OrganizationSelector from "@/pages/Organization/components/OrganizationSe
 import { PatientModel, validatePatient } from "@/types/emr/patient";
 
 import Autocomplete from "../ui/autocomplete";
+import InputWithError from "../ui/input-with-error";
 
 interface PatientRegistrationPageProps {
   facilityId: string;
@@ -314,93 +316,71 @@ export default function PatientRegistration(
             </h2>
             <div className="text-sm">{t("general_info_detail")}</div>
             <br />
-            <Label className="mb-2">
-              {t("name")}
-              <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              {...fieldProps("name")}
-              placeholder={t("type_patient_name")}
-            />
-            <div className="mt-1" data-input-error>
-              {errors["name"] &&
-                errors["name"].map((error, i) => (
-                  <div key={i} className="text-red-500 text-xs">
-                    {error}
-                  </div>
-                ))}
-            </div>
-            <br />
-            <Label className="mb-2">
-              {t("phone_number")}
-              <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              {...fieldProps("phone_number")}
-              onChange={(e) => {
-                if (e.target.value.length > 13) return;
-                setForm((f) => ({
-                  ...f,
-                  phone_number: e.target.value,
-                  emergency_phone_number: samePhoneNumber
-                    ? e.target.value
-                    : f.emergency_phone_number,
-                }));
-              }}
-            />
-            <div className="mt-1" data-input-error>
-              {errors["phone_number"] &&
-                errors["phone_number"]?.map((error, i) => (
-                  <div key={i} className="text-red-500 text-xs">
-                    {error}
-                  </div>
-                ))}
-            </div>
-
-            <div className="mt-1 flex gap-1 items-center">
-              <Checkbox
-                checked={samePhoneNumber}
-                onCheckedChange={() => {
-                  const newValue = !samePhoneNumber;
-                  setSamePhoneNumber(newValue);
-                  if (newValue) {
-                    setForm((f) => ({
-                      ...f,
-                      emergency_phone_number: f.phone_number,
-                    }));
-                  }
-                }}
-                id="same-phone-number"
+            <InputWithError label={t("name")} required errors={errors["name"]}>
+              <Input
+                {...fieldProps("name")}
+                placeholder={t("type_patient_name")}
               />
-              <Label htmlFor="same-phone-number">
-                {t("use_phone_number_for_emergency")}
-              </Label>
+            </InputWithError>
+            <br />
+            <InputWithError
+              label={t("phone_number")}
+              required
+              errors={errors["phone_number"]}
+            >
+              <Input
+                {...fieldProps("phone_number")}
+                onChange={(e) => {
+                  if (e.target.value.length > 13) return;
+                  setForm((f) => ({
+                    ...f,
+                    phone_number: e.target.value,
+                    emergency_phone_number: samePhoneNumber
+                      ? e.target.value
+                      : f.emergency_phone_number,
+                  }));
+                }}
+              />
+            </InputWithError>
+            <div className="mt-1 flex gap-1 items-center">
+              <InputWithError>
+                <Checkbox
+                  checked={samePhoneNumber}
+                  onCheckedChange={() => {
+                    const newValue = !samePhoneNumber;
+                    setSamePhoneNumber(newValue);
+                    if (newValue) {
+                      setForm((f) => ({
+                        ...f,
+                        emergency_phone_number: f.phone_number,
+                      }));
+                    }
+                  }}
+                  id="same-phone-number"
+                />
+                <Label htmlFor="same-phone-number">
+                  {t("use_phone_number_for_emergency")}
+                </Label>
+              </InputWithError>
             </div>
             <br />
-
-            <Label className="mb-2">
-              {t("emergency_phone_number")}
-              <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              {...fieldProps("emergency_phone_number")}
-              onChange={(e) => {
-                if (e.target.value.length > 13) return;
-                setForm((f) => ({
-                  ...f,
-                  emergency_phone_number: e.target.value,
-                }));
-              }}
-              disabled={samePhoneNumber}
-            />
-            <div className="mt-1" data-input-error>
-              {errors["emergency_phone_number"] &&
-                errors["emergency_phone_number"]?.map((error, i) => (
-                  <div key={i} className="text-red-500 text-xs">
-                    {error}
-                  </div>
-                ))}
-            </div>
+            <InputWithError
+              label={t("emergency_phone_number")}
+              required
+              errors={errors["emergency_phone_number"]}
+            >
+              <Input
+                {...fieldProps("emergency_phone_number")}
+                onChange={(e) => {
+                  if (e.target.value.length > 13) return;
+                  setForm((f) => ({
+                    ...f,
+                    emergency_phone_number: e.target.value,
+                  }));
+                }}
+                disabled={samePhoneNumber}
+              />
+            </InputWithError>
             {/* <br />
             <Input
               // This field does not exist in the backend, but is present in the design
@@ -409,66 +389,46 @@ export default function PatientRegistration(
               placeholder={t("emergency_contact_person_name")}
             /> */}
             <br />
-
-            <Label className="mb-2">
-              {t("sex")}
-              <span className="text-red-500">*</span>
-            </Label>
-            <RadioGroup
-              value={form.gender?.toString()}
-              onValueChange={(value) =>
-                setForm((f) => ({ ...f, gender: value }))
-              }
-              className="flex items-center gap-4"
-            >
-              {GENDER_TYPES.map((g) => (
-                <Fragment key={g.id}>
-                  <RadioGroupItem
-                    value={g.id.toString()}
-                    id={"gender_" + g.id}
-                  />
-                  <Label htmlFor={"gender_" + g.id}>
-                    {t(`GENDER__${g.id}`)}
-                  </Label>
-                </Fragment>
-              ))}
-            </RadioGroup>
-            <div className="mt-1" data-input-error>
-              {errors["gender"] &&
-                errors["gender"]?.map((error, i) => (
-                  <div key={i} className="text-red-500 text-xs">
-                    {error}
-                  </div>
+            <InputWithError label={t("sex")} required errors={errors["gender"]}>
+              <RadioGroup
+                value={form.gender?.toString()}
+                onValueChange={(value) =>
+                  setForm((f) => ({ ...f, gender: value }))
+                }
+                className="flex items-center gap-4"
+              >
+                {GENDER_TYPES.map((g) => (
+                  <Fragment key={g.id}>
+                    <RadioGroupItem
+                      value={g.id.toString()}
+                      id={"gender_" + g.id}
+                    />
+                    <Label htmlFor={"gender_" + g.id}>
+                      {t(`GENDER__${g.id}`)}
+                    </Label>
+                  </Fragment>
                 ))}
-            </div>
-
+              </RadioGroup>
+            </InputWithError>
             <br />
-
-            <Label className="mb-2">
-              {t("blood_group")}
-              <span className="text-red-500">*</span>
-            </Label>
-            <Select {...selectProps("blood_group")}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {BLOOD_GROUP_CHOICES.map((bg) => (
-                  <SelectItem key={bg.id} value={bg.id}>
-                    {bg.text}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="mt-1" data-input-error>
-              {errors["blood_group"] &&
-                errors["blood_group"]?.map((error, i) => (
-                  <div key={i} className="text-red-500 text-xs">
-                    {error}
-                  </div>
-                ))}
-            </div>
-
+            <InputWithError
+              label={t("blood_group")}
+              required
+              errors={errors["blood_group"]}
+            >
+              <Select {...selectProps("blood_group")}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {BLOOD_GROUP_CHOICES.map((bg) => (
+                    <SelectItem key={bg.id} value={bg.id}>
+                      {bg.text}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </InputWithError>
             <br />
             <Tabs
               value={ageDob}
@@ -487,74 +447,62 @@ export default function PatientRegistration(
               <TabsContent value="dob">
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
-                    <Label className="mb-2">
-                      {t("day")}
-                      <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      placeholder="DD"
-                      type="number"
-                      value={form.date_of_birth?.split("-")[2] || ""}
-                      maxLength={2}
-                      max={31}
-                      min={1}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          date_of_birth: `${form.date_of_birth?.split("-")[0] || ""}-${form.date_of_birth?.split("-")[1] || ""}-${e.target.value}`,
-                        }))
-                      }
-                    />
+                    <InputWithError label={t("day")} required>
+                      <Input
+                        placeholder="DD"
+                        type="number"
+                        value={form.date_of_birth?.split("-")[2] || ""}
+                        maxLength={2}
+                        max={31}
+                        min={1}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            date_of_birth: `${form.date_of_birth?.split("-")[0] || ""}-${form.date_of_birth?.split("-")[1] || ""}-${e.target.value}`,
+                          }))
+                        }
+                      />
+                    </InputWithError>
                   </div>
                   <div className="flex-1">
-                    <Label className="mb-2">
-                      {t("month")}
-                      <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      placeholder="MM"
-                      type="number"
-                      value={form.date_of_birth?.split("-")[1] || ""}
-                      maxLength={2}
-                      max={12}
-                      min={1}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          date_of_birth: `${form.date_of_birth?.split("-")[0] || ""}-${e.target.value}-${form.date_of_birth?.split("-")[2] || ""}`,
-                        }))
-                      }
-                    />
+                    <InputWithError label={t("month")} required>
+                      <Input
+                        placeholder="MM"
+                        type="number"
+                        value={form.date_of_birth?.split("-")[1] || ""}
+                        maxLength={2}
+                        max={12}
+                        min={1}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            date_of_birth: `${form.date_of_birth?.split("-")[0] || ""}-${e.target.value}-${form.date_of_birth?.split("-")[2] || ""}`,
+                          }))
+                        }
+                      />
+                    </InputWithError>
                   </div>
                   <div className="flex-1">
-                    <Label className="mb-2">
-                      {t("year")}
-                      <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      type="number"
-                      placeholder="YYYY"
-                      value={form.date_of_birth?.split("-")[0] || ""}
-                      maxLength={4}
-                      max={new Date().getFullYear()}
-                      min={1900}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          date_of_birth: `${e.target.value}-${form.date_of_birth?.split("-")[1] || ""}-${form.date_of_birth?.split("-")[2] || ""}`,
-                        }))
-                      }
-                    />
+                    <InputWithError label={t("year")} required>
+                      <Input
+                        type="number"
+                        placeholder="YYYY"
+                        value={form.date_of_birth?.split("-")[0] || ""}
+                        maxLength={4}
+                        max={new Date().getFullYear()}
+                        min={1900}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            date_of_birth: `${e.target.value}-${form.date_of_birth?.split("-")[1] || ""}-${form.date_of_birth?.split("-")[2] || ""}`,
+                          }))
+                        }
+                      />
+                    </InputWithError>
                   </div>
                 </div>
                 {errors["date_of_birth"] && (
-                  <div className="mt-1" data-input-error>
-                    {errors["date_of_birth"].map((error, i) => (
-                      <div key={i} className="text-red-500 text-xs">
-                        {error}
-                      </div>
-                    ))}
-                  </div>
+                  <InputErrors errors={errors["date_of_birth"]} />
                 )}
               </TabsContent>
               <TabsContent value="age">
@@ -593,84 +541,68 @@ export default function PatientRegistration(
               </TabsContent>
             </Tabs>
             <br />
-
-            <Label className="mb-2">
-              {t("current_address")}
-              <span className="text-red-500">*</span>
-            </Label>
-            <Textarea
-              {...fieldProps("address")}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  address: e.target.value,
-                  permanent_address: sameAddress
-                    ? e.target.value
-                    : f.permanent_address,
-                }))
-              }
-            />
-            <div className="mt-1" data-input-error>
-              {errors["address"] &&
-                errors["address"]?.map((error, i) => (
-                  <div key={i} className="text-red-500 text-xs">
-                    {error}
-                  </div>
-                ))}
-            </div>
-
-            <div className="mt-1 flex gap-1 items-center">
-              <Checkbox
-                checked={sameAddress}
-                onCheckedChange={() => {
-                  setSameAddress(!sameAddress);
+            <InputWithError
+              label={t("current_address")}
+              required
+              errors={errors["address"]}
+            >
+              <Textarea
+                {...fieldProps("address")}
+                onChange={(e) =>
                   setForm((f) => ({
                     ...f,
-                    permanent_address: !sameAddress
-                      ? f.address
+                    address: e.target.value,
+                    permanent_address: sameAddress
+                      ? e.target.value
                       : f.permanent_address,
-                  }));
-                }}
-                id="same-address"
+                  }))
+                }
               />
-              <Label htmlFor="same-address">
-                {t("use_address_as_permanent")}
-              </Label>
+            </InputWithError>
+            <div className="mt-1 flex gap-1 items-center">
+              <InputWithError>
+                <Checkbox
+                  checked={sameAddress}
+                  onCheckedChange={() => {
+                    setSameAddress(!sameAddress);
+                    setForm((f) => ({
+                      ...f,
+                      permanent_address: !sameAddress
+                        ? f.address
+                        : f.permanent_address,
+                    }));
+                  }}
+                  id="same-address"
+                />
+                <Label htmlFor="same-address">
+                  {t("use_address_as_permanent")}
+                </Label>
+              </InputWithError>
             </div>
             <br />
-
-            <Label className="mb-2">
-              {t("permanent_address")}
-              <span className="text-red-500">*</span>
-            </Label>
-            <Textarea
-              {...fieldProps("permanent_address")}
-              value={form.permanent_address}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, permanent_address: e.target.value }))
-              }
-              disabled={sameAddress}
-            />
+            <InputWithError label={t("permanent_address")} required>
+              <Textarea
+                {...fieldProps("permanent_address")}
+                value={form.permanent_address}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, permanent_address: e.target.value }))
+                }
+                disabled={sameAddress}
+              />
+            </InputWithError>
             {/* <br />
             <Input
               // This field does not exist in the backend, but is present in the design
               label={t("landmark")}
             /> */}
             <br />
-            <Label className="mb-2">
-              {t("pincode")}
-              <span className="text-red-500">*</span>
-            </Label>
-            <Input {...fieldProps("pincode")} type="number" />
-            <div className="mt-1" data-input-error>
-              {errors["pincode"] &&
-                errors["pincode"]?.map((error, i) => (
-                  <div key={i} className="text-red-500 text-xs">
-                    {error}
-                  </div>
-                ))}
-            </div>
-
+            <InputWithError
+              label={t("pincode")}
+              required
+              errors={errors["pincode"]}
+            >
+              <Input {...fieldProps("pincode")} type="number" />
+            </InputWithError>
             {/* {showAutoFilledPincode && (
               <div>
                 <CareIcon
@@ -685,28 +617,22 @@ export default function PatientRegistration(
             <br />
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="mb-2">
-                  {t("nationality")}
-                  <span className="text-red-500">*</span>
-                </Label>
-                <Autocomplete
-                  options={countryList.map((c) => ({ label: c, value: c }))}
-                  value={form.nationality || ""}
-                  onChange={(value) => {
-                    setForm((f) => ({
-                      ...f,
-                      nationality: value,
-                    }));
-                  }}
-                />
-                <div className="mt-1" data-input-error>
-                  {errors["nationality"] &&
-                    errors["nationality"]?.map((error, i) => (
-                      <div key={i} className="text-red-500 text-xs">
-                        {error}
-                      </div>
-                    ))}
-                </div>
+                <InputWithError
+                  label={t("nationality")}
+                  errors={errors["nationality"]}
+                  required
+                >
+                  <Autocomplete
+                    options={countryList.map((c) => ({ label: c, value: c }))}
+                    value={form.nationality || ""}
+                    onChange={(value) => {
+                      setForm((f) => ({
+                        ...f,
+                        nationality: value,
+                      }));
+                    }}
+                  />
+                </InputWithError>
               </div>
               {form.nationality === "India" && (
                 <>

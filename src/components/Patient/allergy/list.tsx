@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { t } from "i18next";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -86,22 +85,22 @@ export function AllergyList({ patientId, encounterId }: AllergyListProps) {
   return (
     <Card className="p-0">
       <CardHeader className="px-4 py-0 pt-4">
-        <CardTitle>{t("allergies")}</CardTitle>
+        <CardTitle>Allergies</CardTitle>
       </CardHeader>
       <CardContent className="p-2">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t("allergen")}</TableHead>
-              <TableHead>{t("category")}</TableHead>
-              <TableHead>{t("status")}</TableHead>
-              <TableHead>{t("criticality")}</TableHead>
-              <TableHead>{t("created_by")}</TableHead>
+              <TableHead>Allergen</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Criticality</TableHead>
+              <TableHead>Created By</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {allergies.results.map((allergy: AllergyIntolerance) => (
-              <TableRow key={allergy.id}>
+              <TableRow>
                 <TableCell className="font-medium">
                   {allergy.code.display}
                 </TableCell>
