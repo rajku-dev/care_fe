@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -34,11 +34,8 @@ import { validateRule } from "@/components/Users/UserFormValidations";
 
 import { GENDER_TYPES } from "@/common/constants";
 
-
 import mutate from "@/Utils/request/mutate";
-import * as Notification from "@/Utils/Notifications";
 import query from "@/Utils/request/query";
-import request from "@/Utils/request/request";
 import OrganizationSelector from "@/pages/Organization/components/OrganizationSelector";
 import { UserBase } from "@/types/user/user";
 import UserApi from "@/types/user/userApi";
