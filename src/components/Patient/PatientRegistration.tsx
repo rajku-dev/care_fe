@@ -468,7 +468,6 @@ export default function PatientRegistration(
                   </div>
                 ))}
             </div>
-
             <br />
             <Tabs
               value={ageDob}
@@ -570,15 +569,16 @@ export default function PatientRegistration(
                   </Label>
                   <Input
                     value={form.age ? form.age : undefined}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const age = Math.max(0, Number(e.target.value));
                       setForm((f) => ({
                         ...f,
-                        age: e.target.value,
-                        year_of_birth: e.target.value
-                          ? new Date().getFullYear() - Number(e.target.value)
+                        age: String(age),
+                        year_of_birth: age
+                          ? new Date().getFullYear() - age
                           : undefined,
-                      }))
-                    }
+                      }));
+                    }}
                     type="number"
                   />
                   <div className="mt-1" data-input-error>
