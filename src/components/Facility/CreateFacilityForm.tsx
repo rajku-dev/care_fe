@@ -434,7 +434,7 @@ export default function CreateFacilityForm({
         <Button
           type="submit"
           className="w-full"
-          disabled={isPending || !form.formState.isDirty}
+          disabled={isPending}
           data-cy="submit-facility"
         >
           {isPending ? (

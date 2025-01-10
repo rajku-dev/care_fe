@@ -319,11 +319,7 @@ export default function CreateEncounterForm({
               }}
             />
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isPending || !form.formState.isDirty}
-            >
+            <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? "Creating..." : "Create Encounter"}
             </Button>
           </form>
