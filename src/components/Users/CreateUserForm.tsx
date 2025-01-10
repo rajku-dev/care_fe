@@ -1,5 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -10,6 +12,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Form,
   FormControl,
@@ -31,69 +34,12 @@ import { validateRule } from "@/components/Users/UserFormValidations";
 
 import { GENDER_TYPES } from "@/common/constants";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import request from "@/Utils/request/request";
 import OrganizationSelector from "@/pages/Organization/components/OrganizationSelector";
 import { UserBase } from "@/types/user/user";
 import UserApi from "@/types/user/userApi";
 import userApi from "@/types/user/userApi";
-
-const userFormSchema = z
-  .object({
-    user_type: z.enum(["doctor", "nurse", "staff", "volunteer"]),
-    username: z
-      .string()
-      .min(4, "Username must be at least 4 characters")
-      .max(16, "Username must be less than 16 characters")
-      .regex(
-        /^[a-z0-9._-]*$/,
-        "Username can only contain lowercase letters, numbers, and . _ -",
-      )
-      .regex(
-        /^[a-z0-9].*[a-z0-9]$/,
-        "Username must start and end with a letter or number",
-      )
-      .refine(
-        (val) => !val.match(/(?:[._-]{2,})/),
-        "Username can't contain consecutive special characters",
-      ),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
-    c_password: z.string(),
-    first_name: z.string().min(1, "First name is required"),
-    last_name: z.string().min(1, "Last name is required"),
-    email: z.string().email("Invalid email address"),
-    phone_number: z
-      .string()
-      .regex(
-        /^\+91[0-9]{10}$/,
-        "Phone number must start with +91 followed by 10 digits",
-      ),
-    alt_phone_number: z
-      .string()
-      .regex(
-        /^\+91[0-9]{10}$/,
-        "Phone number must start with +91 followed by 10 digits",
-      )
-      .optional(),
-    phone_number_is_whatsapp: z.boolean().default(true),
-    date_of_birth: z.string().min(1, "Date of birth is required"),
-    gender: z.enum(["male", "female", "other"]),
-    qualification: z.string().optional(),
-    doctor_experience_commenced_on: z.string().optional(),
-    doctor_medical_council_registration: z.string().optional(),
-    geo_organization: z.string().min(1, "Organization is required"),
-  })
-  .refine((data) => data.password === data.c_password, {
-    message: "Passwords don't match",
-    path: ["c_password"],
-  });
-
-type UserFormValues = z.infer<typeof userFormSchema>;
 
 interface Props {
   onSubmitSuccess?: (user: UserBase) => void;
@@ -102,7 +48,72 @@ interface Props {
 export default function CreateUserForm({ onSubmitSuccess }: Props) {
   const { t } = useTranslation();
 
+  const userFormSchema = z
+    .object({
+      user_type: z.enum(["doctor", "nurse", "staff", "volunteer"]),
+      username: z
+        .string()
+        .min(4, t("username_more_than"))
+        .max(16, t("username_less_than"))
+        .regex(/^[a-z0-9._-]*$/, t("username_contain_lowercase_special"))
+        .regex(/^[a-z0-9].*[a-z0-9]$/, t("username_start_end_letter_number"))
+        .refine(
+          (val) => !val.match(/(?:[._-]{2,})/),
+          t("username_consecutive_special_characters"),
+        ),
+      password: z
+        .string()
+        .min(8, t("password_length_validation"))
+        .regex(/[a-z]/, t("password_lowercase_validation"))
+        .regex(/[A-Z]/, t("password_uppercase_validation"))
+        .regex(/[0-9]/, t("password_number_validation")),
+      c_password: z.string(),
+      first_name: z.string().min(1, t("this_field_is_required")),
+      last_name: z.string().min(1, t("this_field_is_required")),
+      email: z.string().email(t("invalid_email")),
+      phone_number: z
+        .string()
+        .regex(/^\+91[0-9]{10}$/, t("phone_number_must_start")),
+      alt_phone_number: z
+        .string()
+        .refine(
+          (val) => val === "" || /^\+91[0-9]{10}$/.test(val),
+          t("phone_number_must_start"),
+        )
+        .transform((val) => val || undefined)
+        .optional(),
+      phone_number_is_whatsapp: z.boolean().default(true),
+      date_of_birth: z
+        .date({
+          required_error: t("this_field_is_required"),
+        })
+        .refine((dob) => dob <= new Date(), {
+          message: t("date_of_birth_cannot_be_in_future"),
+        }),
+      gender: z.enum(["male", "female", "transgender", "non_binary"]),
+      qualification: z
+        .string()
+        .optional()
+        .transform((val) => val || undefined),
+      doctor_experience_commenced_on: z
+        .string()
+        .optional()
+        .transform((val) => val || undefined),
+      doctor_medical_council_registration: z
+        .string()
+        .optional()
+        .transform((val) => val || undefined),
+      geo_organization: z.string().min(1, t("this_field_is_required")),
+    })
+    .refine((data) => data.password === data.c_password, {
+      message: t("password_mismatch"),
+      path: ["c_password"],
+    });
+
+  type UserFormValues = z.infer<typeof userFormSchema>;
+
   const form = useForm<UserFormValues>({
+    mode: "onChange",
     resolver: zodResolver(userFormSchema),
     defaultValues: {
       user_type: "staff",
@@ -161,29 +172,39 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     }
   };
 
-  const onSubmit = async (data: UserFormValues) => {
-    try {
-      const {
-        res,
-        data: user,
-        error,
-      } = await request(UserApi.create, {
-        body: {
-          ...data,
-          // Omit c_password as it's not needed in the API
-          c_password: undefined,
-        } as unknown as UserBase,
+  const { mutate: createUser, isPending } = useMutation({
+    mutationFn: mutate(UserApi.create),
+    onSuccess: (user: UserBase) => {
+      toast.success(t("user_added_successfully"));
+      onSubmitSuccess?.(user!);
+    },
+    onError: (error) => {
+      const errors = (error.cause?.errors as any[]) || [];
+      errors.forEach((err) => {
+        const field = err.loc[0];
+        form.setError(field, { message: err.ctx.error });
       });
+    },
+  });
 
-      if (res?.ok) {
-        toast.success(t("user_added_successfully"));
-        onSubmitSuccess?.(user!);
-      } else {
-        toast.error((error?.message as string) ?? t("user_add_error"));
-      }
-    } catch (error) {
-      toast.error(t("user_add_error"));
-    }
+  const onSubmit = (data: z.infer<typeof userFormSchema>) => {
+    createUser({
+      username: data.username,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      phone_number: data.phone_number,
+      alt_phone_number: data.alt_phone_number,
+      date_of_birth: data.date_of_birth,
+      geo_organization: data.geo_organization,
+      user_type: data.user_type,
+      gender: data.gender,
+      password: data.password,
+      qualification: data.qualification,
+      doctor_experience_commenced_on: data.doctor_experience_commenced_on,
+      doctor_medical_council_registration:
+        data.doctor_medical_council_registration,
+    });
   };
 
   return (
@@ -194,7 +215,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           name="user_type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("user_type")}</FormLabel>
+              <FormLabel required>{t("user_type")}</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -219,7 +240,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="first_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("first_name")}</FormLabel>
+                <FormLabel required>{t("first_name")}</FormLabel>
                 <FormControl>
                   <Input placeholder={t("first_name")} {...field} />
                 </FormControl>
@@ -233,7 +254,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="last_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("last_name")}</FormLabel>
+                <FormLabel required>{t("last_name")}</FormLabel>
                 <FormControl>
                   <Input placeholder={t("last_name")} {...field} />
                 </FormControl>
@@ -247,7 +268,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("username")}</FormLabel>
+              <FormLabel required>{t("username")}</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input placeholder={t("username")} {...field} />
@@ -264,7 +285,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("password")}</FormLabel>
+                <FormLabel required>{t("password")}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
@@ -282,7 +303,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="c_password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("confirm_password")}</FormLabel>
+                <FormLabel required>{t("confirm_password")}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
@@ -301,7 +322,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("email")}</FormLabel>
+              <FormLabel required>{t("email")}</FormLabel>
               <FormControl>
                 <Input type="email" placeholder={t("email")} {...field} />
               </FormControl>
@@ -316,9 +337,14 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="phone_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("phone_number")}</FormLabel>
+                <FormLabel required>{t("phone_number")}</FormLabel>
                 <FormControl>
-                  <Input type="tel" placeholder="+91XXXXXXXXXX" {...field} />
+                  <Input
+                    type="tel"
+                    placeholder="+91XXXXXXXXXX"
+                    maxLength={13}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -371,9 +397,15 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             name="date_of_birth"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("date_of_birth")}</FormLabel>
+                <FormLabel required>{t("date_of_birth")}</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <DatePicker
+                    date={field.value}
+                    onChange={(date) => field.onChange(date)}
+                    disabled={(date) =>
+                      date > new Date() || date < new Date("1900-01-01")
+                    }
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -482,8 +514,15 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           )}
         />
 
-        <Button type="submit" className="w-full">
-          {t("create_user")}
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={
+            !form.formState.isDirty || !form.formState.isValid || isPending
+          }
+        >
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{" "}
+          {t("create")}
         </Button>
       </form>
     </Form>
