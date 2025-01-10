@@ -184,7 +184,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       });
     },
   });
-    
+
   const onSubmit = (data: z.infer<typeof userFormSchema>) => {
     createUser({
       username: data.username,
