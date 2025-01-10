@@ -252,11 +252,7 @@ export default function ScheduleExceptionForm({ user, onRefresh }: Props) {
                       Cancel
                     </Button>
                   </SheetClose>
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    disabled={isPending || !form.formState.isDirty}
-                  >
+                  <Button variant="primary" type="submit" disabled={isPending}>
                     Confirm Unavailability
                   </Button>
                 </SheetFooter>
