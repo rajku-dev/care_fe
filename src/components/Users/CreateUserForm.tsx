@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/input-password";
 import {
   Select,
   SelectContent,
@@ -53,13 +54,13 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       user_type: z.enum(["doctor", "nurse", "staff", "volunteer"]),
       username: z
         .string()
-        .min(4, t("username_more_than"))
-        .max(16, t("username_less_than"))
-        .regex(/^[a-z0-9._-]*$/, t("username_contain_lowercase_special"))
-        .regex(/^[a-z0-9].*[a-z0-9]$/, t("username_start_end_letter_number"))
+        .min(4, t("username_min_length_validation"))
+        .max(16, t("username_max_length_validation"))
+        .regex(/^[a-z0-9._-]*$/, t("username_characters_validation"))
+        .regex(/^[a-z0-9].*[a-z0-9]$/, t("username_start_end_validation"))
         .refine(
           (val) => !val.match(/(?:[._-]{2,})/),
-          t("username_consecutive_special_characters"),
+          t("username_consecutive_validation"),
         ),
       password: z
         .string()
@@ -138,7 +139,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     }
   }, [phoneNumber, isWhatsApp, form, usernameInput]);
 
-  const { error, isLoading } = useQuery({
+  const { isLoading: isUsernameChecking, isError: isUsernameTaken } = useQuery({
     queryKey: ["checkUsername", usernameInput],
     queryFn: query(userApi.checkUsername, {
       pathParams: { username: usernameInput },
@@ -151,9 +152,16 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     const {
       errors: { username },
     } = form.formState;
+    const isInitialRender = usernameInput === "";
+
     if (username?.message) {
-      return validateRule(false, username.message);
-    } else if (isLoading) {
+      return validateRule(
+        false,
+        username.message,
+        isInitialRender,
+        t("username_valid"),
+      );
+    } else if (isUsernameChecking) {
       return (
         <div className="flex items-center gap-1">
           <CareIcon
@@ -165,10 +173,13 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           </span>
         </div>
       );
-    } else if (error) {
-      return validateRule(false, t("username_not_available"));
     } else if (usernameInput) {
-      return validateRule(true, t("username_available"));
+      return validateRule(
+        !isUsernameTaken,
+        t("username_not_available"),
+        isInitialRender,
+        t("username_available"),
+      );
     }
   };
 
@@ -287,11 +298,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               <FormItem>
                 <FormLabel required>{t("password")}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    placeholder={t("password")}
-                    {...field}
-                  />
+                  <PasswordInput placeholder={t("password")} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -305,8 +312,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               <FormItem>
                 <FormLabel required>{t("confirm_password")}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     placeholder={t("confirm_password")}
                     {...field}
                   />
