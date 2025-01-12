@@ -12,7 +12,6 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DatePicker } from "@/components/ui/date-picker";
 import {
   Form,
   FormControl,
@@ -85,10 +84,10 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         .optional(),
       phone_number_is_whatsapp: z.boolean().default(true),
       date_of_birth: z
-        .date({
+        .string({
           required_error: t("this_field_is_required"),
         })
-        .refine((dob) => dob <= new Date(), {
+        .refine((dob) => dob <= new Date().toISOString(), {
           message: t("date_of_birth_cannot_be_in_future"),
         }),
       gender: z.enum(["male", "female", "transgender", "non_binary"]),
@@ -206,7 +205,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       email: data.email,
       phone_number: data.phone_number,
       alt_phone_number: data.alt_phone_number,
-      date_of_birth: data.date_of_birth?.toISOString(),
+      date_of_birth: data.date_of_birth,
       geo_organization: data.geo_organization,
       user_type: data.user_type,
       gender: data.gender,
@@ -405,13 +404,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               <FormItem>
                 <FormLabel required>{t("date_of_birth")}</FormLabel>
                 <FormControl>
-                  <DatePicker
-                    date={field.value}
-                    onChange={(date) => field.onChange(date)}
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
-                  />
+                  <Input type="date" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
