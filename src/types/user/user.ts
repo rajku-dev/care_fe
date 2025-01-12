@@ -26,7 +26,7 @@ export type UserCreateRequest = {
   email: string;
   phone_number: string;
   alt_phone_number?: string;
-  date_of_birth: Date;
+  date_of_birth: string;
   qualification?: string;
   doctor_experience_commenced_on?: string;
   doctor_medical_council_registration?: string;

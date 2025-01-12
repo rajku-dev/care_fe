@@ -206,7 +206,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       email: data.email,
       phone_number: data.phone_number,
       alt_phone_number: data.alt_phone_number,
-      date_of_birth: data.date_of_birth,
+      date_of_birth: data.date_of_birth?.toISOString(),
       geo_organization: data.geo_organization,
       user_type: data.user_type,
       gender: data.gender,
