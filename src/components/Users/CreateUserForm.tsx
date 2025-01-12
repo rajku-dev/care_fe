@@ -128,6 +128,8 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
   const usernameInput = form.watch("username");
   const phoneNumber = form.watch("phone_number");
   const isWhatsApp = form.watch("phone_number_is_whatsapp");
+  const password = form.watch("password");
+  const c_password = form.watch("c_password");
 
   useEffect(() => {
     if (isWhatsApp) {
@@ -136,7 +138,14 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     if (usernameInput && usernameInput.length > 0) {
       form.trigger("username");
     }
-  }, [phoneNumber, isWhatsApp, form, usernameInput]);
+    if (password?.length && c_password?.length && password !== c_password) {
+      form.setError("c_password", { message: t("password_mismatch") });
+      form.setError("password", { message: t("password_mismatch") });
+    } else {
+      form.clearErrors("c_password");
+      form.clearErrors("password");
+    }
+  }, [phoneNumber, isWhatsApp, form, usernameInput, c_password, password]);
 
   const { isLoading: isUsernameChecking, isError: isUsernameTaken } = useQuery({
     queryKey: ["checkUsername", usernameInput],
