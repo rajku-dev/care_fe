@@ -291,20 +291,11 @@ const AppointmentDetails = ({
               <p className="text-gray-600">
                 {appointment.patient.date_of_birth && (
                   <>
-                    {format(appointment.patient.date_of_birth, "MMMM d, yyyy")}{" "}
+                    {format(appointment.patient.date_of_birth, "MMMM d, yyyy")}
+                    {" | "}
                     {differenceInYears(
                       new Date(),
                       appointment.patient.date_of_birth!,
-                    )}
-                  </>
-                )}
-                {appointment.patient.year_of_birth && (
-                  <>
-                    {differenceInYears(
-                      new Date(),
-                      new Date().setFullYear(
-                        Number(appointment.patient.year_of_birth),
-                      ),
                     )}
                   </>
                 )}{" "}
