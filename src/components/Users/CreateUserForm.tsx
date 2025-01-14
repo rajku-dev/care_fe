@@ -136,20 +136,19 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
   const c_password = form.watch("c_password");
 
   useEffect(() => {
-    console.log(form.formState.errors, form.formState);
     if (isWhatsApp) {
       form.setValue("alt_phone_number", phoneNumber);
     }
     if (usernameInput && usernameInput.length > 0) {
       form.trigger("username");
     }
-    // if (password?.length && c_password?.length && password !== c_password) {
-    //   form.setError("c_password", { message: t("password_mismatch") });
-    //   form.setError("password", { message: t("password_mismatch") });
-    // } else {
-    //   form.clearErrors("c_password");
-    //   form.clearErrors("password");
-    // }
+    if (password?.length && c_password?.length && password !== c_password) {
+      form.setError("c_password", { message: t("password_mismatch") });
+      form.setError("password", { message: t("password_mismatch") });
+    } else {
+      form.clearErrors("c_password");
+      form.clearErrors("password");
+    }
   }, [phoneNumber, isWhatsApp, form, usernameInput, c_password, password]);
 
   const { isLoading: isUsernameChecking, isError: isUsernameTaken } = useQuery({
