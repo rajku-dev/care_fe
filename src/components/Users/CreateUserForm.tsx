@@ -68,8 +68,8 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         .regex(/[A-Z]/, t("password_uppercase_validation"))
         .regex(/[0-9]/, t("password_number_validation")),
       c_password: z.string(),
-      first_name: z.string().min(1, t("this_field_is_required")),
-      last_name: z.string().min(1, t("this_field_is_required")),
+      first_name: z.string().min(1, t("field_required")),
+      last_name: z.string().min(1, t("field_required")),
       email: z.string().email(t("invalid_email")),
       phone_number: z
         .string()
@@ -85,7 +85,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       phone_number_is_whatsapp: z.boolean().default(true),
       date_of_birth: z
         .string({
-          required_error: t("this_field_is_required"),
+          required_error: t("field_required"),
         })
         .refine((dob) => dob <= new Date().toISOString(), {
           message: t("date_of_birth_cannot_be_in_future"),
@@ -103,11 +103,15 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         .string()
         .optional()
         .transform((val) => val || undefined),
-      geo_organization: z.string().min(1, t("this_field_is_required")),
+      geo_organization: z.string().min(1, t("field_required")),
     })
-    .refine((data) => data.password === data.c_password, {
-      message: t("password_mismatch"),
-      path: ["c_password"],
+    .superRefine((data) => {
+      if (data.password !== data.c_password) {
+        form.setError("c_password", {
+          message: t("password_mismatch"),
+        });
+      }
+      return data.password === data.c_password;
     });
 
   type UserFormValues = z.infer<typeof userFormSchema>;
@@ -132,19 +136,20 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
   const c_password = form.watch("c_password");
 
   useEffect(() => {
+    console.log(form.formState.errors, form.formState);
     if (isWhatsApp) {
       form.setValue("alt_phone_number", phoneNumber);
     }
     if (usernameInput && usernameInput.length > 0) {
       form.trigger("username");
     }
-    if (password?.length && c_password?.length && password !== c_password) {
-      form.setError("c_password", { message: t("password_mismatch") });
-      form.setError("password", { message: t("password_mismatch") });
-    } else {
-      form.clearErrors("c_password");
-      form.clearErrors("password");
-    }
+    // if (password?.length && c_password?.length && password !== c_password) {
+    //   form.setError("c_password", { message: t("password_mismatch") });
+    //   form.setError("password", { message: t("password_mismatch") });
+    // } else {
+    //   form.clearErrors("c_password");
+    //   form.clearErrors("password");
+    // }
   }, [phoneNumber, isWhatsApp, form, usernameInput, c_password, password]);
 
   const { isLoading: isUsernameChecking, isError: isUsernameTaken } = useQuery({
