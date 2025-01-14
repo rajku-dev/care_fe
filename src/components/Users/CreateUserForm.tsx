@@ -242,7 +242,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder={t("select_user_type")} />
+                    <SelectValue placeholder={t("please_select_user_type")} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
