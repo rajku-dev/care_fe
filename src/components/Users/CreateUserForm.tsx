@@ -90,7 +90,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         .refine((dob) => dob <= new Date().toISOString(), {
           message: t("date_of_birth_cannot_be_in_future"),
         }),
-      gender: z.enum(GENDER_TYPES.map((g) => g.id) as [string, ...string[]]),
+      gender: z.enum(["male", "female", "transgender", "non_binary"]),
       qualification: z
         .string()
         .optional()
