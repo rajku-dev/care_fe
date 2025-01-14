@@ -87,9 +87,17 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         .string({
           required_error: t("field_required"),
         })
-        .refine((dob) => dob <= new Date().toISOString(), {
-          message: t("date_of_birth_cannot_be_in_future"),
-        }),
+        .refine(
+          (dob) => {
+            const date = new Date(dob);
+            const minDate = new Date();
+            minDate.setFullYear(minDate.getFullYear() - 120);
+            return date >= minDate && date <= new Date();
+          },
+          {
+            message: t("date_of_birth_cannot_be_in_future"),
+          },
+        ),
       gender: z.enum(
         GENDER_TYPES.map((gender) => gender.id) as [
           (typeof GENDER_TYPES)[number]["id"],
