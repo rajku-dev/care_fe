@@ -298,7 +298,7 @@ const AppointmentDetails = ({
                       appointment.patient.date_of_birth!,
                     )}
                   </>
-                ) : appointment.patient.year_of_birth ? (
+                ) : (
                   <>
                     {differenceInYears(
                       new Date(),
@@ -307,7 +307,7 @@ const AppointmentDetails = ({
                       ),
                     )}
                   </>
-                ) : null}{" "}
+                )}{" "}
                 {t("years")}
               </p>
             </div>
