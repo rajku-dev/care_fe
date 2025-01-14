@@ -109,13 +109,9 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         .transform((val) => val || undefined),
       geo_organization: z.string().min(1, t("field_required")),
     })
-    .superRefine((data) => {
-      if (data.password !== data.c_password) {
-        form.setError("c_password", {
-          message: t("password_mismatch"),
-        });
-      }
-      return data.password === data.c_password;
+    .refine((data) => data.password === data.c_password, {
+      message: t("password_mismatch"),
+      path: ["c_password"],
     });
 
   type UserFormValues = z.infer<typeof userFormSchema>;
