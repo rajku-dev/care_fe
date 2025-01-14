@@ -387,6 +387,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
                   <Input
                     placeholder="+91XXXXXXXXXX"
                     type="tel"
+                    maxLength={13}
                     {...field}
                     disabled={isWhatsApp}
                   />
