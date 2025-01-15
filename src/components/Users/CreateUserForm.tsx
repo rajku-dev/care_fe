@@ -574,16 +574,12 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         <Button
           type="submit"
           className="w-full"
+          data-cy="submit-user-form"
           disabled={
             !form.formState.isDirty || !form.formState.isValid || isPending
           }
         >
-          {isPending && (
-            <Loader2
-              className="mr-2 h-4 w-4 animate-spin"
-              data-cy="submit-user-form"
-            />
-          )}{" "}
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{" "}
           {t("create")}
         </Button>
       </form>
