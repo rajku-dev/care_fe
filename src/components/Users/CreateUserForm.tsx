@@ -92,7 +92,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             const date = new Date(dob);
             const minDate = new Date();
             minDate.setFullYear(minDate.getFullYear() - 120);
-            return date >= minDate && date <= new Date();
+            return minDate <= date && date <= new Date();
           },
           {
             message: t("date_of_birth_cannot_be_in_future"),
