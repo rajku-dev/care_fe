@@ -578,7 +578,12 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             !form.formState.isDirty || !form.formState.isValid || isPending
           }
         >
-          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" data-cy="submit-user-form" />}{" "}
+          {isPending && (
+            <Loader2
+              className="mr-2 h-4 w-4 animate-spin"
+              data-cy="submit-user-form"
+            />
+          )}{" "}
           {t("create")}
         </Button>
       </form>
