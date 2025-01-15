@@ -88,7 +88,9 @@ export default CommentSection;
 export const Comment = ({ comment, created_by }: CommentModel) => (
   <div className="mt-4 flex w-full flex-col rounded-lg border border-secondary-300 bg-white p-4 text-secondary-800">
     <div className="w-full">
-      <p className="break-words">{comment}</p>
+      <p className="break-words whitespace-pre-wrap">
+        {comment.replace(/\n+/g, "\n")}
+      </p>
     </div>
     <div className="mr-auto flex items-center rounded-md border bg-secondary-100 py-1 pl-2 pr-3">
       <Avatar
