@@ -249,8 +249,8 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               <FormLabel required>{t("user_type")}</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("please_select_user_type")} />
+                  <SelectTrigger data-cy="user-type-select">
+                    <SelectValue placeholder={t("select_user_type")} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -273,7 +273,11 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               <FormItem>
                 <FormLabel required>{t("first_name")}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t("first_name")} {...field} />
+                  <Input
+                    data-cy="first-name-input"
+                    placeholder={t("first_name")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -287,7 +291,11 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               <FormItem>
                 <FormLabel required>{t("last_name")}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t("last_name")} {...field} />
+                  <Input
+                    data-cy="last-name-input"
+                    placeholder={t("last_name")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -302,7 +310,11 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               <FormLabel required>{t("username")}</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Input placeholder={t("username")} {...field} />
+                  <Input
+                    data-cy="username-input"
+                    placeholder={t("username")}
+                    {...field}
+                  />
                 </div>
               </FormControl>
               {renderUsernameFeedback(usernameInput)}
@@ -318,7 +330,11 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               <FormItem>
                 <FormLabel required>{t("password")}</FormLabel>
                 <FormControl>
-                  <PasswordInput placeholder={t("password")} {...field} />
+                  <PasswordInput
+                    data-cy="password-input"
+                    placeholder={t("password")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -333,6 +349,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
                 <FormLabel required>{t("confirm_password")}</FormLabel>
                 <FormControl>
                   <PasswordInput
+                    data-cy="confirm-password-input"
                     placeholder={t("confirm_password")}
                     {...field}
                   />
@@ -350,7 +367,12 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             <FormItem>
               <FormLabel required>{t("email")}</FormLabel>
               <FormControl>
-                <Input type="email" placeholder={t("email")} {...field} />
+                <Input
+                  data-cy="email-input"
+                  type="email"
+                  placeholder={t("email")}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -366,6 +388,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
                 <FormLabel required>{t("phone_number")}</FormLabel>
                 <FormControl>
                   <Input
+                    data-cy="phone-number-input"
                     type="tel"
                     placeholder="+91XXXXXXXXXX"
                     maxLength={13}
@@ -385,6 +408,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
                 <FormLabel>{t("alternate_phone_number")}</FormLabel>
                 <FormControl>
                   <Input
+                    data-cy="alt-phone-number-input"
                     placeholder="+91XXXXXXXXXX"
                     type="tel"
                     maxLength={13}
@@ -405,6 +429,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
                 <Checkbox
+                  data-cy="whatsapp-checkbox"
                   checked={field.value}
                   onCheckedChange={field.onChange}
                 />
@@ -426,7 +451,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               <FormItem>
                 <FormLabel required>{t("date_of_birth")}</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <Input data-cy="dob-input" type="date" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -444,13 +469,17 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger data-cy="gender-select">
                       <SelectValue placeholder={t("select_gender")} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {GENDER_TYPES.map((gender) => (
-                      <SelectItem key={gender.id} value={gender.id}>
+                      <SelectItem
+                        key={gender.id}
+                        value={gender.id}
+                        data-cy={`gender-${gender.id}`}
+                      >
                         {gender.text}
                       </SelectItem>
                     ))}
@@ -470,7 +499,11 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               <FormItem>
                 <FormLabel>{t("qualification")}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t("qualification")} {...field} />
+                  <Input
+                    data-cy="qualification-input"
+                    placeholder={t("qualification")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -489,6 +522,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
                     <FormLabel>{t("years_of_experience")}</FormLabel>
                     <FormControl>
                       <Input
+                        data-cy="experience-input"
                         type="number"
                         placeholder={t("years_of_experience")}
                         {...field}
@@ -507,6 +541,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
                     <FormLabel>{t("medical_council_registration")}</FormLabel>
                     <FormControl>
                       <Input
+                        data-cy="medical-registration-input"
                         placeholder={t("medical_council_registration")}
                         {...field}
                       />
@@ -525,6 +560,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             <FormItem>
               <FormControl>
                 <OrganizationSelector
+                  data-cy="organization-selector"
                   value={field.value}
                   onChange={field.onChange}
                   required
@@ -542,7 +578,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
             !form.formState.isDirty || !form.formState.isValid || isPending
           }
         >
-          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{" "}
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" data-cy="submit-user-form" />}{" "}
           {t("create")}
         </Button>
       </form>
