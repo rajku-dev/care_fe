@@ -123,9 +123,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     });
 
   type UserFormValues = z.infer<typeof userFormSchema>;
-
   const form = useForm<UserFormValues>({
-    mode: "onChange",
     resolver: zodResolver(userFormSchema),
     defaultValues: {
       user_type: "staff",
@@ -140,8 +138,6 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
   const usernameInput = form.watch("username");
   const phoneNumber = form.watch("phone_number");
   const isWhatsApp = form.watch("phone_number_is_whatsapp");
-  const password = form.watch("password");
-  const c_password = form.watch("c_password");
 
   useEffect(() => {
     if (isWhatsApp) {
@@ -150,14 +146,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     if (usernameInput && usernameInput.length > 0) {
       form.trigger("username");
     }
-    if (password?.length && c_password?.length && password !== c_password) {
-      form.setError("c_password", { message: t("password_mismatch") });
-      form.setError("password", { message: t("password_mismatch") });
-    } else {
-      form.clearErrors("c_password");
-      form.clearErrors("password");
-    }
-  }, [phoneNumber, isWhatsApp, form, usernameInput, c_password, password]);
+  }, [phoneNumber, isWhatsApp, form, usernameInput]);
 
   const { isLoading: isUsernameChecking, isError: isUsernameTaken } = useQuery({
     queryKey: ["checkUsername", usernameInput],
@@ -575,9 +564,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           type="submit"
           className="w-full"
           data-cy="submit-user-form"
-          disabled={
-            !form.formState.isDirty || !form.formState.isValid || isPending
-          }
+          disabled={!form.formState.isDirty || isPending}
         >
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{" "}
           {t("create_user")}
