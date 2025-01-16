@@ -580,7 +580,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
           }
         >
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{" "}
-          {t("create")}
+          {t("create_user")}
         </Button>
       </form>
     </Form>
