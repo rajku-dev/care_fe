@@ -99,7 +99,7 @@ export const Comment = ({
     <div className="flex w-full items-center">
       <div className="mr-auto flex items-center rounded-md border bg-secondary-100 py-1 pl-2 pr-3">
         <Avatar
-          name={`${created_by.first_name} ${created_by.first_name}`}
+          name={`${created_by.first_name} ${created_by.last_name}`}
           className="h-8 w-8 "
         />
         <span className="pl-2 text-sm text-secondary-700">
