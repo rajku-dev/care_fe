@@ -106,7 +106,7 @@ export const Comment = ({
           {formatName(created_by)}
         </span>
       </div>
-      <div className="italic text-xs">{relativeTime(created_date)}</div>
+      <div className="text-xs">{relativeTime(created_date)}</div>
     </div>
   </div>
 );
