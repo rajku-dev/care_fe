@@ -50,7 +50,12 @@ export const ResourceRequests = (props: PatientProps) => {
     };
 
     return (
-      <Badge className={statusColors[status] || "bg-gray-100 text-gray-800"}>
+      <Badge
+        className={
+          statusColors[status] ||
+          "bg-gray-100 text-gray-800 hover:bg-gray-200 hover:text-gray-900"
+        }
+      >
         {status}
       </Badge>
     );
