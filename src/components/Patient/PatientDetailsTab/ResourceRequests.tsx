@@ -40,10 +40,13 @@ export const ResourceRequests = (props: PatientProps) => {
 
   const getStatusBadge = (status: ResourceRequest["status"]) => {
     const statusColors: Record<ResourceRequest["status"], string> = {
-      PENDING: "bg-yellow-100 text-yellow-800",
-      APPROVED: "bg-green-100 text-green-800",
-      REJECTED: "bg-red-100 text-red-800",
-      COMPLETED: "bg-blue-100 text-blue-800",
+      PENDING:
+        "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 hover:text-yellow-900",
+      APPROVED:
+        "bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900",
+      REJECTED: "bg-red-100 text-red-800 hover:bg-red-200 hover:text-red-900",
+      COMPLETED:
+        "bg-blue-100 text-blue-800 hover:bg-blue-200 hover:text-blue-900",
     };
 
     return (
