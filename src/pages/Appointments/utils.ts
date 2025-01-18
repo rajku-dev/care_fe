@@ -10,8 +10,6 @@ import {
 import { TFunction } from "i18next";
 import { toast } from "sonner";
 
-import { FacilityModel } from "@/components/Facility/models";
-
 import query from "@/Utils/request/query";
 import {
   dateQueryString,
@@ -20,6 +18,7 @@ import {
   getMonthStartAndEnd,
 } from "@/Utils/utils";
 import { getFakeTokenNumber } from "@/pages/Scheduling/utils";
+import { FacilityData } from "@/types/facility/facility";
 import {
   Appointment,
   AvailabilityHeatmapResponse,
@@ -79,7 +78,9 @@ export const useAvailabilityHeatmap = ({
   let queryFn = query(scheduleApis.slots.availabilityStats, {
     pathParams: { facility_id: facilityId },
     body: {
-      user: userId,
+      // voluntarily coalesce to empty string since we know query would be
+      // enabled only if userId is present
+      user: userId ?? "",
       from_date: fromDate,
       to_date: toDate,
     },
@@ -140,7 +141,7 @@ export const printAppointment = ({
   appointment,
 }: {
   t: TFunction;
-  facility: FacilityModel;
+  facility: FacilityData;
   appointment: Appointment;
 }) => {
   const patient = appointment.patient;

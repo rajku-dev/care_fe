@@ -1,14 +1,14 @@
 import careConfig from "@careConfig";
 
 import { getResponseBody } from "@/Utils/request/request";
-import { APICallOptions, HTTPError, Route } from "@/Utils/request/types";
+import { ApiCallOptions, ApiRoute, HTTPError } from "@/Utils/request/types";
 import { makeHeaders, makeUrl } from "@/Utils/request/utils";
 import { sleep } from "@/Utils/utils";
 
-export async function callApi<TData, TBody>(
-  { path, method, noAuth }: Route<TData, TBody>,
-  options?: APICallOptions<TBody>,
-): Promise<TData> {
+export async function callApi<Route extends ApiRoute<unknown, unknown>>(
+  { path, method, noAuth }: Route,
+  options?: ApiCallOptions<Route>,
+): Promise<Route["TRes"]> {
   const url = `${careConfig.apiUrl}${makeUrl(path, options?.queryParams, options?.pathParams)}`;
 
   const fetchOptions: RequestInit = {
@@ -29,13 +29,18 @@ export async function callApi<TData, TBody>(
     throw new Error("Network Error");
   }
 
-  const data = await getResponseBody<TData>(res);
+  const data = await getResponseBody<Route["TRes"]>(res);
 
   if (!res.ok) {
+    const isSilent =
+      typeof options?.silent === "function"
+        ? options.silent(res)
+        : (options?.silent ?? false);
+
     throw new HTTPError({
       message: "Request Failed",
       status: res.status,
-      silent: options?.silent ?? false,
+      silent: isSilent,
       cause: data as unknown as Record<string, unknown>,
     });
   }
@@ -60,9 +65,9 @@ export async function callApi<TData, TBody>(
  * });
  * ```
  */
-export default function query<TData, TBody>(
-  route: Route<TData, TBody>,
-  options?: APICallOptions<TBody>,
+export default function query<Route extends ApiRoute<unknown, unknown>>(
+  route: Route,
+  options?: ApiCallOptions<Route>,
 ) {
   return ({ signal }: { signal: AbortSignal }) => {
     return callApi(route, { ...options, signal });
@@ -98,9 +103,9 @@ export default function query<TData, TBody>(
  * - When aborted, both the `sleep` promise and the fetch request are cancelled automatically
  * - TanStack Query handles the abortion and cleanup of previous in-flight requests
  */
-const debouncedQuery = <TData, TBody>(
-  route: Route<TData, TBody>,
-  options?: APICallOptions<TBody> & { debounceInterval?: number },
+const debouncedQuery = <Route extends ApiRoute<unknown, unknown>>(
+  route: Route,
+  options?: ApiCallOptions<Route> & { debounceInterval?: number },
 ) => {
   return async ({ signal }: { signal: AbortSignal }) => {
     await sleep(options?.debounceInterval ?? 500);

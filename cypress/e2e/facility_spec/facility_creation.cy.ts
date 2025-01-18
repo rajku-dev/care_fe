@@ -2,21 +2,29 @@ import { FacilityCreation } from "../../pageObject/facility/FacilityCreation";
 import { generatePhoneNumber } from "../../utils/commonUtils";
 import { generateFacilityData } from "../../utils/facilityData";
 
+const LOCATION_HIERARCHY = {
+  localBody: "Aluva",
+  ward: "4",
+};
+
 describe("Facility Management", () => {
   const facilityPage = new FacilityCreation();
   const facilityType = "Primary Health Centre";
-  const testFacility = generateFacilityData();
-  const phoneNumber = generatePhoneNumber();
 
   beforeEach(() => {
     cy.visit("/login");
     cy.loginByApi("nurse");
   });
 
-  it("Create a new facility using the admin role", () => {
+  it("Create a new facility using the admin role and verify validation errors", () => {
+    const testFacility = generateFacilityData();
+    const phoneNumber = generatePhoneNumber();
+
     facilityPage.navigateToOrganization("Kerala");
     facilityPage.navigateToFacilitiesList();
     facilityPage.clickAddFacility();
+    facilityPage.submitFacilityCreationForm();
+    facilityPage.verifyValidationErrors();
 
     // Fill form
     facilityPage.fillBasicDetails(
@@ -33,6 +41,8 @@ describe("Facility Management", () => {
       testFacility.address,
     );
 
+    facilityPage.fillLocationHierarchy(LOCATION_HIERARCHY);
+
     facilityPage.fillLocationDetails(
       testFacility.coordinates.latitude,
       testFacility.coordinates.longitude,
@@ -43,16 +53,11 @@ describe("Facility Management", () => {
     facilityPage.submitFacilityCreationForm();
     facilityPage.verifySuccessMessage();
 
+    // Wait for facility cards to load
+    facilityPage.waitForFacilityCardsToLoad();
+
     // Search for the facility and verify in card
     facilityPage.searchFacility(testFacility.name);
     facilityPage.verifyFacilityNameInCard(testFacility.name);
-  });
-
-  it("Should show validation errors for required fields", () => {
-    facilityPage.navigateToOrganization("Kerala");
-    facilityPage.navigateToFacilitiesList();
-    facilityPage.clickAddFacility();
-    facilityPage.submitFacilityCreationForm();
-    facilityPage.verifyValidationErrors();
   });
 });
