@@ -618,7 +618,7 @@ const FileUploadDialog = ({
                     index === 0 && fileUpload.error
                       ? "border-red-500 focus:ring-red-500"
                       : "border-gray-300 focus:ring-primary"
-                 }
+                  }
                   value={fileUpload.fileNames[index] || ""}
                   disabled={fileUpload.uploading}
                   onChange={(e) =>
