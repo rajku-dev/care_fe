@@ -577,7 +577,7 @@ const FileUploadDialog = ({
       aria-labelledby="file-upload-dialog"
     >
       <DialogContent
-        className="mb-8 rounded-lg p-5 sm:p-10 max-w-fit"
+        className="mb-8 rounded-lg p-5 max-w-fit"
         aria-describedby="file-upload"
       >
         <DialogHeader>
