@@ -591,7 +591,7 @@ const FileUploadDialog = ({
               <div className="flex items-center justify-between gap-2 rounded-md bg-secondary-300 px-4 py-2">
                 <span className="flex items-center truncate">
                   <CareIcon icon="l-paperclip" className="mr-2 shrink-0" />
-                  <span className="truncate">{file.name}</span>
+                  <span className="truncate max-w-xs">{file.name}</span>
                 </span>
                 <Button
                   variant="ghost"
