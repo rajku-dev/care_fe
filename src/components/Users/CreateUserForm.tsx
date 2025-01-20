@@ -36,7 +36,6 @@ import { GENDER_TYPES } from "@/common/constants";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import request from "@/Utils/request/request";
 import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
 import { UserBase } from "@/types/user/user";
 import UserApi from "@/types/user/userApi";
