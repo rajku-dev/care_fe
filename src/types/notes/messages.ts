@@ -5,5 +5,6 @@ export interface Message {
   message: string;
   message_history: Record<string, unknown>;
   created_by: UserBase;
+  created_date: Date;
   updated_by: UserBase;
 }

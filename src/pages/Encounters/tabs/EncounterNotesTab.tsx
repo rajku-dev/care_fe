@@ -53,6 +53,7 @@ import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
+import { relativeTime } from "@/Utils/utils";
 import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
 import { Message } from "@/types/notes/messages";
 import { Thread } from "@/types/notes/threads";
@@ -184,7 +185,7 @@ const MessageItem = ({ message }: { message: Message }) => {
           </span>
           <div
             className={cn(
-              "p-3 rounded-lg break-words",
+              "pt-3 px-3 pb-1 rounded-lg break-words",
               isCurrentUser
                 ? "bg-primary-100 text-white rounded-br-none"
                 : "bg-gray-100 rounded-bl-none",
@@ -192,7 +193,10 @@ const MessageItem = ({ message }: { message: Message }) => {
           >
             {message.message && (
               <div className="mt-4">
-                <Markdown content={message.message} className="text-sm" />
+                <Markdown content={message.message} className="text-sm mb-2" />
+                <div className="text-xs text-gray-500 flex justify-end">
+                  {relativeTime(message.created_date)}
+                </div>
               </div>
             )}
           </div>
