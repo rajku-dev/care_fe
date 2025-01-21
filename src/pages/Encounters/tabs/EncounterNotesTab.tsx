@@ -13,6 +13,7 @@ import {
   Send,
   Users,
 } from "lucide-react";
+import { Link, usePathParams } from "raviger";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useInView } from "react-intersection-observer";
@@ -135,6 +136,7 @@ const ThreadItem = ({
 // Message item component
 const MessageItem = ({ message }: { message: Message }) => {
   const authUser = useAuthUser();
+  const { facilityId } = usePathParams("/facility/:facilityId/*")!;
   const isCurrentUser = authUser?.external_id === message.created_by.id;
 
   return (
@@ -152,15 +154,19 @@ const MessageItem = ({ message }: { message: Message }) => {
       >
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex">
-                <Avatar
-                  name={message.created_by.username}
-                  imageUrl={message.created_by.profile_picture_url}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-              </div>
-            </TooltipTrigger>
+            <Link
+              href={`/facility/${facilityId}/users/${message.created_by.username}`}
+            >
+              <TooltipTrigger asChild>
+                <div className="flex">
+                  <Avatar
+                    name={message.created_by.username}
+                    imageUrl={message.created_by.profile_picture_url}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                </div>
+              </TooltipTrigger>
+            </Link>
             <TooltipContent>
               <p>{message.created_by.username}</p>
             </TooltipContent>
@@ -257,7 +263,7 @@ const NewThreadDialog = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isCreating}>
-            {t("Cancel")}
+            {t("cancel")}
           </Button>
           <Button
             onClick={() => onCreate(title)}
@@ -268,7 +274,7 @@ const NewThreadDialog = ({
             ) : (
               <MessageSquarePlus className="h-4 w-4 mr-2" />
             )}
-            {t("Create")}
+            {t("create")}
           </Button>
         </DialogFooter>
       </DialogContent>
