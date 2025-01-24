@@ -210,7 +210,7 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
         </div>
 
         <div>
-          <ScrollArea className="max-h-[calc(100vh-18rem)] min-h-3 overflow-auto -mr-3 pr-3 pb-4">
+          <ScrollArea className="max-h-[calc(100vh-18rem)] overflow-auto -mr-3 pr-3 pb-4">
             {view === "schedule" && (
               <ScheduleTemplates
                 facilityId={facilityId}
