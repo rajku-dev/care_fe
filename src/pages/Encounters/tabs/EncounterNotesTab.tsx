@@ -8,6 +8,7 @@ import {
   Info,
   Loader2,
   MessageCircle,
+  MessageSquare,
   MessageSquarePlus,
   Plus,
   Send,
@@ -142,11 +143,11 @@ const MessageItem = ({ message }: { message: Message }) => {
               href={`/facility/${facilityId}/users/${message.created_by.username}`}
             >
               <TooltipTrigger asChild>
-                <div className="flex">
+                <div className="flex pr-2">
                   <Avatar
                     name={message.created_by.username}
                     imageUrl={message.created_by.profile_picture_url}
-                    className="w-8 h-8 rounded-full object-cover"
+                    className="w-8 h-8 rounded-full object-cover ring-1 ring-transparent hover:ring-red-200 transition"
                   />
                 </div>
               </TooltipTrigger>
@@ -547,6 +548,10 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                 </h2>
                 <div className="flex items-center gap-2 text-xs text-gray-500">
                   <Users className="h-4 w-4" />
+                  <span>
+                    {new Set(messages.map((m) => m.created_by.id)).size}
+                  </span>
+                  <MessageSquare className="h-4 w-4 ml-3" />
                   <span>{messages.length}</span>
                 </div>
               </div>
