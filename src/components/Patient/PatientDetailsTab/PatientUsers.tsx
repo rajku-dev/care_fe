@@ -32,6 +32,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { Avatar } from "@/components/Common/Avatar";
 import UserSelector from "@/components/Common/UserSelector";
@@ -259,11 +264,13 @@ export const PatientUsers = (props: PatientProps) => {
                   <h3 className="text-sm font-medium text-gray-900">
                     {formatDisplayName(user)}
                   </h3>
-                  <p
-                    className="text-sm text-gray-500 truncate sm:max-w-28"
-                    title={user.username}
-                  >
-                    {user.username}
+                  <p className="text-sm text-gray-500 truncate sm:max-w-xl lg:max-w-28">
+                    <Tooltip>
+                      <TooltipTrigger>{user.username}</TooltipTrigger>
+                      <TooltipContent>
+                        <p>{user.username}</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </p>
                 </div>
               </div>
