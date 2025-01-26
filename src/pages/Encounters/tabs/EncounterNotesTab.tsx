@@ -553,14 +553,25 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                       ?.title
                   }
                 </h2>
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <Users className="h-4 w-4" />
-                  <span>
-                    {new Set(messages.map((m) => m.created_by.id)).size}
-                  </span>
-                  <MessageSquare className="h-4 w-4 ml-3" />
-                  <span>{messages.length}</span>
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+                      <Users className="h-4 w-4" />
+                      <span>
+                        {new Set(messages.map((m) => m.created_by.id)).size}
+                      </span>
+                      <MessageSquare className="h-4 w-4 ml-3" />
+                      <span>{messages.length}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      Participants:{" "}
+                      {new Set(messages.map((m) => m.created_by.id)).size}
+                    </p>
+                    <p>Messages: {messages.length}</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             ) : (
               <div className="text-center text-sm font-medium text-gray-500">
