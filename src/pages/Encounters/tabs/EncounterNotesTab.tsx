@@ -418,6 +418,12 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
 
   const handleCreateThread = (title: string) => {
     if (title.trim()) {
+      if (
+        threadsData?.results.some((thread) => thread.title === title.trim())
+      ) {
+        toast.error("Thread with this title already exists.");
+        return;
+      }
       createThreadMutation.mutate({
         title: title.trim(),
         encounter: encounter.id,
