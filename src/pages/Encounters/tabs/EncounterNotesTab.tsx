@@ -178,9 +178,16 @@ const MessageItem = ({ message }: { message: Message }) => {
             {message.message && (
               <div className="mt-2">
                 <Markdown content={message.message} className="text-sm mb-2" />
-                <div className="text-xs text-gray-500 flex justify-end">
-                  {relativeTime(message.created_date)}
-                </div>
+                <span className="text-xs text-gray-500 flex justify-end">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      {relativeTime(message.created_date)}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {new Date(message.created_date).toLocaleString()}
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
               </div>
             )}
           </div>
