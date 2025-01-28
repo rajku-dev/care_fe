@@ -229,6 +229,11 @@ export default function CreateScheduleTemplateSheet({
 
     if (!slotsPerSession || !tokenDuration) return null;
 
+    if (slotsPerSession <= 0 || tokenDuration <= 0) {
+      toast.error(t("start_time_must_be_before_end_time"));
+      return null;
+    }
+
     return (
       <Callout variant="alert" badge="Info">
         <Trans

@@ -1926,6 +1926,7 @@
   "start_new_clinical_encounter": "Start a new clinical encounter",
   "start_review": "Start Review",
   "start_time": "Start Time",
+  "start_time_before_end_time": "Start time must be before end time",
   "start_time_must_be_before_end_time": "Start time must be before end time",
   "state": "State",
   "state_reason_for_archiving": "State reason for archiving <strong>{{name}}</strong> file?",
