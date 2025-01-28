@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { navigate, useQueryParams } from "raviger";
+import { navigate, useNavigationPrompt, useQueryParams } from "raviger";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -171,10 +171,7 @@ export default function PatientRegistration(
       navigate(`/facility/${facilityId}/patients/verify`, {
         query: {
           phone_number: resp.phone_number,
-          year_of_birth:
-            form.getValues("age_or_dob") === "dob"
-              ? new Date(resp.date_of_birth!).getFullYear()
-              : new Date().getFullYear() - Number(resp.age!),
+          year_of_birth: resp.year_of_birth,
           partial_id: resp?.id?.slice(0, 5),
         },
       });
@@ -299,6 +296,22 @@ export default function PatientRegistration(
       } as unknown as z.infer<typeof formSchema>);
     }
   }, [patientQuery.data]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const showDuplicate =
+    !patientPhoneSearch.isLoading &&
+    !!duplicatePatients?.length &&
+    !!parsePhoneNumber(form.watch("phone_number") || "") &&
+    !suppressDuplicateWarning;
+
+  // TODO: Use useBlocker hook after switching to tanstack router
+  // https://tanstack.com/router/latest/docs/framework/react/guide/navigation-blocking#how-do-i-use-navigation-blocking
+  useNavigationPrompt(
+    form.formState.isDirty &&
+      !isCreatingPatient &&
+      !isUpdatingPatient &&
+      !showDuplicate,
+    t("unsaved_changes"),
+  );
 
   if (patientId && patientQuery.isLoading) {
     return <Loading />;
@@ -675,7 +688,7 @@ export default function PatientRegistration(
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <FormField
                   control={form.control}
                   name="nationality"
@@ -699,6 +712,9 @@ export default function PatientRegistration(
                     </FormItem>
                   )}
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 {form.watch("nationality") === "India" && (
                   <FormField
                     control={form.control}
@@ -743,18 +759,15 @@ export default function PatientRegistration(
           </form>
         </Form>
       </div>
-      {!patientPhoneSearch.isLoading &&
-        !!duplicatePatients?.length &&
-        !!parsePhoneNumber(form.watch("phone_number") || "") &&
-        !suppressDuplicateWarning && (
-          <DuplicatePatientDialog
-            patientList={duplicatePatients}
-            handleOk={handleDialogClose}
-            handleCancel={() => {
-              handleDialogClose("close");
-            }}
-          />
-        )}
+      {showDuplicate && (
+        <DuplicatePatientDialog
+          patientList={duplicatePatients}
+          handleOk={handleDialogClose}
+          handleCancel={() => {
+            handleDialogClose("close");
+          }}
+        />
+      )}
     </Page>
   );
 }
