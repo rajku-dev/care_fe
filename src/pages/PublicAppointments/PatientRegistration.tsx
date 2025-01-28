@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { navigate } from "raviger";
+import { navigate, useNavigationPrompt } from "raviger";
 import { Fragment } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import DateField from "@/components/ui/date-field";
 import {
   Form,
   FormControl,
@@ -21,8 +22,6 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 
-import DateFormField from "@/components/Form/FormFields/DateFormField";
-
 import { usePatientContext } from "@/hooks/usePatientUser";
 
 import { GENDER_TYPES } from "@/common/constants";
@@ -33,6 +32,7 @@ import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import { HTTPError } from "@/Utils/request/types";
 import { dateQueryString } from "@/Utils/utils";
+import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
 import {
   AppointmentPatient,
   AppointmentPatientRegister,
@@ -43,8 +43,6 @@ import {
   AppointmentCreateRequest,
   TokenSlot,
 } from "@/types/scheduling/schedule";
-
-import OrganizationSelector from "../Organization/components/OrganizationSelector";
 
 const initialForm: AppointmentPatientRegister & {
   ageInputType: "age" | "date_of_birth";
@@ -167,7 +165,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
     },
   });
 
-  const { mutate: createPatient } = useMutation({
+  const { mutate: createPatient, isPending: isCreatingPatient } = useMutation({
     mutationFn: (body: Partial<AppointmentPatientRegister>) =>
       mutate(routes.otp.createPatient, {
         body: { ...body, phone_number: tokenData.phoneNumber },
@@ -214,11 +212,20 @@ export function PatientRegistration(props: PatientRegistrationProps) {
     createPatient(formattedData);
   });
 
+
   const goBack = () => {
     navigate(
       `/facility/${props.facilityId}/appointments/${staffId}/patient-select`,
     );
   };
+
+  // TODO: Use useBlocker hook after switching to tanstack router
+  // https://tanstack.com/router/latest/docs/framework/react/guide/navigation-blocking#how-do-i-use-navigation-blocking
+  useNavigationPrompt(
+    form.formState.isDirty && !isCreatingPatient,
+    t("unsaved_changes"),
+  );
+
 
   // const [showAutoFilledPincode, setShowAutoFilledPincode] = useState(false);
 
@@ -323,24 +330,14 @@ export function PatientRegistration(props: PatientRegistrationProps) {
                       <FormItem className="flex flex-col">
                         <FormLabel required>{t("date_of_birth")}</FormLabel>
                         <FormControl>
-                          <DateFormField
-                            name="date_of_birth"
-                            value={
+                          <DateField
+                            date={
                               field.value ? new Date(field.value) : undefined
                             }
-                            onChange={(dateObj: {
-                              name: string;
-                              value: Date;
-                            }) => {
-                              if (dateObj?.value instanceof Date) {
-                                field.onChange(dateObj.value.toISOString());
-                              } else {
-                                field.onChange(null);
-                              }
-                            }}
-                            disableFuture
-                            min={new Date(1900, 0, 1)}
-                            className="-mb-6"
+                            onChange={(date) =>
+                              field.onChange(dateQueryString(date))
+                            }
+                            id="dob"
                           />
                         </FormControl>
                         <FormMessage />
@@ -409,7 +406,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormControl>
-                      <OrganizationSelector
+                      <GovtOrganizationSelector
                         required
                         authToken={tokenData.token}
                         onChange={(value) => {

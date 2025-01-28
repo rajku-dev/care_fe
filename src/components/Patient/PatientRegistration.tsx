@@ -1,17 +1,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { navigate, useQueryParams } from "raviger";
+import { navigate, useNavigationPrompt, useQueryParams } from "raviger";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { isValidPhoneNumber } from "react-phone-number-input";
 import { toast } from "sonner";
 import { z } from "zod";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 import SectionNavigator from "@/CAREUI/misc/SectionNavigator";
 
+import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import DateField from "@/components/ui/date-field";
 import {
   Form,
   FormControl,
@@ -22,6 +25,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -45,27 +49,24 @@ import {
   GENDER_TYPES, // OCCUPATION_TYPES,
   //RATION_CARD_CATEGORY, // SOCIOECONOMIC_STATUS_CHOICES ,
 } from "@/common/constants";
+import { GENDERS } from "@/common/constants";
 import countryList from "@/common/static/countries.json";
 
 import { PLUGIN_Component } from "@/PluginEngine";
+import dayjs from "@/Utils/dayjs";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { parsePhoneNumber } from "@/Utils/utils";
-import OrganizationSelector from "@/pages/Organization/components/OrganizationSelector";
+import { dateQueryString } from "@/Utils/utils";
+import validators from "@/Utils/validators";
+import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
 import { PatientModel } from "@/types/emr/patient";
 import { Organization } from "@/types/organization/organization";
-
-import Autocomplete from "../ui/autocomplete";
 
 interface PatientRegistrationPageProps {
   facilityId: string;
   patientId?: string;
 }
-
-export const GENDERS = GENDER_TYPES.map((gender) => gender.id) as [
-  (typeof GENDER_TYPES)[number]["id"],
-];
 
 export const BLOOD_GROUPS = BLOOD_GROUP_CHOICES.map((bg) => bg.id) as [
   (typeof BLOOD_GROUP_CHOICES)[number]["id"],
@@ -89,13 +90,9 @@ export default function PatientRegistration(
       z
         .object({
           name: z.string().nonempty(t("name_is_required")),
-          phone_number: z
-            .string()
-            .regex(/^\+\d{12}$/, t("phone_number_must_be_10_digits")),
+          phone_number: validators.phoneNumber.required,
           same_phone_number: z.boolean(),
-          emergency_phone_number: z
-            .string()
-            .regex(/^\+\d{12}$/, t("phone_number_must_be_10_digits")),
+          emergency_phone_number: validators.phoneNumber.required,
           gender: z.enum(GENDERS, { required_error: t("gender_is_required") }),
           blood_group: z.enum(BLOOD_GROUPS, {
             required_error: t("blood_group_is_required"),
@@ -104,6 +101,10 @@ export default function PatientRegistration(
           date_of_birth: z
             .string()
             .regex(/^\d{4}-\d{2}-\d{2}$/, t("date_of_birth_format"))
+            .refine((date) => {
+              const parsedDate = dayjs(date);
+              return parsedDate.isValid() && !parsedDate.isAfter(dayjs());
+            }, t("enter_valid_dob"))
             .optional(),
           age: z
             .number()
@@ -114,9 +115,7 @@ export default function PatientRegistration(
             .optional(),
           address: z.string().nonempty(t("address_is_required")),
           same_address: z.boolean(),
-          permanent_address: z
-            .string()
-            .nonempty(t("permanent_address_is_required")),
+          permanent_address: z.string().nonempty(t("field_required")),
           pincode: z
             .number()
             .int()
@@ -152,8 +151,8 @@ export default function PatientRegistration(
     resolver: zodResolver(formSchema),
     defaultValues: {
       nationality: "India",
-      phone_number: phone_number || "+91",
-      emergency_phone_number: "+91",
+      phone_number: phone_number || "",
+      emergency_phone_number: "",
       age_or_dob: "dob",
       same_phone_number: false,
       same_address: true,
@@ -169,10 +168,7 @@ export default function PatientRegistration(
       navigate(`/facility/${facilityId}/patients/verify`, {
         query: {
           phone_number: resp.phone_number,
-          year_of_birth:
-            form.getValues("age_or_dob") === "dob"
-              ? new Date(resp.date_of_birth!).getFullYear()
-              : new Date().getFullYear() - Number(resp.age!),
+          year_of_birth: resp.year_of_birth,
           partial_id: resp?.id?.slice(0, 5),
         },
       });
@@ -250,14 +246,16 @@ export default function PatientRegistration(
     }
   };
 
+  const phoneNumber = form.watch("phone_number");
+
   const patientPhoneSearch = useQuery({
-    queryKey: ["patients", "phone-number", form.watch("phone_number")],
+    queryKey: ["patients", "phone-number", phoneNumber],
     queryFn: query.debounced(routes.searchPatient, {
       body: {
-        phone_number: parsePhoneNumber(form.watch("phone_number") || "") || "",
+        phone_number: phoneNumber,
       },
     }),
-    enabled: !!parsePhoneNumber(form.watch("phone_number") || ""),
+    enabled: isValidPhoneNumber(phoneNumber),
   });
 
   const duplicatePatients = useMemo(() => {
@@ -297,6 +295,22 @@ export default function PatientRegistration(
       } as unknown as z.infer<typeof formSchema>);
     }
   }, [patientQuery.data]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const showDuplicate =
+    !patientPhoneSearch.isLoading &&
+    !!duplicatePatients?.length &&
+    !!isValidPhoneNumber(phoneNumber) &&
+    !suppressDuplicateWarning;
+
+  // TODO: Use useBlocker hook after switching to tanstack router
+  // https://tanstack.com/router/latest/docs/framework/react/guide/navigation-blocking#how-do-i-use-navigation-blocking
+  useNavigationPrompt(
+    form.formState.isDirty &&
+      !isCreatingPatient &&
+      !isUpdatingPatient &&
+      !showDuplicate,
+    t("unsaved_changes"),
+  );
 
   if (patientId && patientQuery.isLoading) {
     return <Loading />;
@@ -352,17 +366,12 @@ export default function PatientRegistration(
                   <FormItem>
                     <FormLabel required>{t("phone_number")}</FormLabel>
                     <FormControl>
-                      <Input
-                        type="tel"
+                      <PhoneInput
                         {...field}
-                        maxLength={13}
-                        onChange={(e) => {
-                          form.setValue("phone_number", e.target.value);
+                        onChange={(value) => {
+                          form.setValue("phone_number", value);
                           if (form.watch("same_phone_number")) {
-                            form.setValue(
-                              "emergency_phone_number",
-                              e.target.value,
-                            );
+                            form.setValue("emergency_phone_number", value);
                           }
                         }}
                         data-cy="patient-phone-input"
@@ -387,6 +396,7 @@ export default function PatientRegistration(
                                   }
                                 }}
                                 data-cy="same-phone-number-checkbox"
+                                className="mt-2"
                               />
                             </FormControl>
                             <FormLabel>
@@ -411,10 +421,8 @@ export default function PatientRegistration(
                       {t("emergency_phone_number")}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="tel"
+                      <PhoneInput
                         {...field}
-                        maxLength={13}
                         data-cy="patient-emergency-phone-input"
                       />
                     </FormControl>
@@ -512,89 +520,15 @@ export default function PatientRegistration(
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center gap-2">
-                            <div className="flex flex-col gap-1">
-                              <FormLabel required>{t("day")}</FormLabel>
-
-                              <Input
-                                type="number"
-                                placeholder="DD"
-                                {...field}
-                                value={
-                                  form.watch("date_of_birth")?.split("-")[2]
-                                }
-                                onChange={(e) => {
-                                  form.setValue(
-                                    "date_of_birth",
-                                    `${form.watch("date_of_birth")?.split("-")[0]}-${form.watch("date_of_birth")?.split("-")[1]}-${e.target.value}`,
-                                  );
-                                  const day = parseInt(e.target.value);
-                                  if (
-                                    e.target.value.length === 2 &&
-                                    day >= 1 &&
-                                    day <= 31
-                                  ) {
-                                    document
-                                      .getElementById("dob-month-input")
-                                      ?.focus();
-                                  }
-                                }}
-                                data-cy="dob-day-input"
-                              />
-                            </div>
-
-                            <div className="flex flex-col gap-1">
-                              <FormLabel required>{t("month")}</FormLabel>
-
-                              <Input
-                                type="number"
-                                id="dob-month-input"
-                                placeholder="MM"
-                                {...field}
-                                value={
-                                  form.watch("date_of_birth")?.split("-")[1]
-                                }
-                                onChange={(e) => {
-                                  form.setValue(
-                                    "date_of_birth",
-                                    `${form.watch("date_of_birth")?.split("-")[0]}-${e.target.value}-${form.watch("date_of_birth")?.split("-")[2]}`,
-                                  );
-                                  const month = parseInt(e.target.value);
-                                  if (
-                                    e.target.value.length === 2 &&
-                                    month >= 1 &&
-                                    month <= 12
-                                  ) {
-                                    document
-                                      .getElementById("dob-year-input")
-                                      ?.focus();
-                                  }
-                                }}
-                                data-cy="dob-month-input"
-                              />
-                            </div>
-
-                            <div className="flex flex-col gap-1">
-                              <FormLabel required>{t("year")}</FormLabel>
-
-                              <Input
-                                type="number"
-                                id="dob-year-input"
-                                placeholder="YYYY"
-                                {...field}
-                                value={
-                                  form.watch("date_of_birth")?.split("-")[0]
-                                }
-                                onChange={(e) =>
-                                  form.setValue(
-                                    "date_of_birth",
-                                    `${e.target.value}-${form.watch("date_of_birth")?.split("-")[1]}-${form.watch("date_of_birth")?.split("-")[2]}`,
-                                  )
-                                }
-                                data-cy="dob-year-input"
-                              />
-                            </div>
-                          </div>
+                          <DateField
+                            date={
+                              field.value ? new Date(field.value) : undefined
+                            }
+                            onChange={(date) =>
+                              field.onChange(dateQueryString(date))
+                            }
+                            id="dob"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -747,7 +681,7 @@ export default function PatientRegistration(
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <FormField
                   control={form.control}
                   name="nationality"
@@ -771,7 +705,9 @@ export default function PatientRegistration(
                     </FormItem>
                   )}
                 />
+              </div>
 
+              <div className="grid grid-cols-2 gap-4">
                 {form.watch("nationality") === "India" && (
                   <FormField
                     control={form.control}
@@ -779,7 +715,7 @@ export default function PatientRegistration(
                     render={({ field }) => (
                       <FormItem className="contents">
                         <FormControl>
-                          <OrganizationSelector
+                          <GovtOrganizationSelector
                             {...field}
                             required={true}
                             selected={selectedLevels}
@@ -816,18 +752,15 @@ export default function PatientRegistration(
           </form>
         </Form>
       </div>
-      {!patientPhoneSearch.isLoading &&
-        !!duplicatePatients?.length &&
-        !!parsePhoneNumber(form.watch("phone_number") || "") &&
-        !suppressDuplicateWarning && (
-          <DuplicatePatientDialog
-            patientList={duplicatePatients}
-            handleOk={handleDialogClose}
-            handleCancel={() => {
-              handleDialogClose("close");
-            }}
-          />
-        )}
+      {showDuplicate && (
+        <DuplicatePatientDialog
+          patientList={duplicatePatients}
+          handleOk={handleDialogClose}
+          handleCancel={() => {
+            handleDialogClose("close");
+          }}
+        />
+      )}
     </Page>
   );
 }
