@@ -404,7 +404,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
       }, 100);
     },
     onError: () => {
-      toast.error(t("failed to send message"));
+      toast.error(t("failed_to_send_message"));
     },
   });
 
