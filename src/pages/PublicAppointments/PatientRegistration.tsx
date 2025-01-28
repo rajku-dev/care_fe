@@ -177,6 +177,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
       })(body),
     onSuccess: (data: AppointmentPatient) => {
       toast.success(t("patient_created_successfully"));
+      goBack();
       publish("patient:upsert", data);
       createAppointment({
         patient: data.id,
@@ -213,6 +214,12 @@ export function PatientRegistration(props: PatientRegistrationProps) {
     createPatient(formattedData);
   });
 
+  const goBack = () => {
+    navigate(
+      `/facility/${props.facilityId}/appointments/${staffId}/patient-select`,
+    );
+  };
+
   // const [showAutoFilledPincode, setShowAutoFilledPincode] = useState(false);
 
   return (
@@ -222,11 +229,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
           variant="outline"
           className="border border-secondary-400"
           type="button"
-          onClick={() =>
-            navigate(
-              `/facility/${props.facilityId}/appointments/${staffId}/patient-select`,
-            )
-          }
+          onClick={() => goBack()}
         >
           <span className="text-sm underline">{t("back")}</span>
         </Button>
