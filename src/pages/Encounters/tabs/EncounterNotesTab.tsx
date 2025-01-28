@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -62,7 +63,7 @@ import { Thread } from "@/types/notes/threads";
 const MESSAGES_LIMIT = 20;
 
 // Thread templates for quick selection
-const threadTemplates = [
+let threadTemplates = [
   "Treatment Plan",
   "Medication Notes",
   "Care Coordination",
@@ -70,7 +71,7 @@ const threadTemplates = [
   "Patient History",
   "Referral Notes",
   "Lab Results Discussion",
-] as const;
+];
 
 // Info tooltip component for help text
 const InfoTooltip = ({ content }: { content: string }) => (
@@ -257,9 +258,10 @@ const NewThreadDialog = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isCreating}>
-            {t("cancel")}
-          </Button>
+          <DialogClose asChild disabled={isCreating}>
+            <Button variant="outline">{t("cancel")}</Button>
+          </DialogClose>
+
           <Button
             onClick={() => onCreate(title)}
             disabled={!title.trim() || isCreating}
@@ -331,8 +333,12 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
 
   // Auto-select first thread
   useEffect(() => {
-    if (threadsData?.results.length && !selectedThread) {
-      setSelectedThread(threadsData.results[0].id);
+    if (threadsData?.results.length) {
+      if (!selectedThread) setSelectedThread(threadsData.results[0].id);
+      const threadTitles = threadsData.results.map((thread) => thread.title);
+      threadTemplates = threadTemplates.filter(
+        (template) => !threadTitles.includes(template),
+      );
     }
   }, [threadsData, selectedThread]);
 
@@ -398,7 +404,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
       }, 100);
     },
     onError: () => {
-      toast.error(t("Failed to send message"));
+      toast.error(t("failed to send message"));
     },
   });
 
@@ -421,7 +427,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
       if (
         threadsData?.results.some((thread) => thread.title === title.trim())
       ) {
-        toast.error("Thread with this title already exists.");
+        toast.error(t("thread_already_exists"));
         return;
       }
       createThreadMutation.mutate({
