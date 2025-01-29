@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link } from "raviger";
 import { useTranslation } from "react-i18next";
 
@@ -48,6 +48,8 @@ export default function OrganizationFacilities({
       },
     }),
     enabled: !!id,
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
   });
 
   if (!id) {

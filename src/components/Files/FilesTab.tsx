@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -108,6 +108,9 @@ export const FilesTab = (props: FilesTabProps) => {
         //file_category: qParams.file_category,
       },
     }),
+    enabled: !!type,
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60 * 5,
   });
 
   const fileManager = useFileManager({

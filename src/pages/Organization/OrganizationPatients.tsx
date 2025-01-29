@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link } from "raviger";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -83,6 +83,8 @@ export default function OrganizationPatients({ id, navOrganizationId }: Props) {
       },
     }),
     enabled: !!id && !!organization,
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
   });
 
   if (!id) {

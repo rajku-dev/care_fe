@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -49,6 +49,8 @@ export function FacilityDetailsPage({ id }: Props) {
       pathParams: { facility_id: id },
       silent: true,
     }),
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
   });
 
   if (docError) {

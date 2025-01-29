@@ -1,5 +1,5 @@
 import careConfig from "@careConfig";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link } from "raviger";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -59,6 +59,8 @@ export function FacilitiesPage() {
       },
     }),
     enabled: !!qParams.organization,
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
   });
 
   return (

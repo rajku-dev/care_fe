@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -43,6 +43,8 @@ export default function FacilityUsers(props: { facilityId: string }) {
       },
     }),
     enabled: !!facilityId,
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60,
   });
 
   if (userListLoading || !userListData) {

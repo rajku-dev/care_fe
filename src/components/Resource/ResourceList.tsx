@@ -1,3 +1,4 @@
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link } from "raviger";
 import { useTranslation } from "react-i18next";
 
@@ -18,8 +19,7 @@ import ListFilter from "@/components/Resource/ResourceFilter";
 import useFilters from "@/hooks/useFilters";
 
 import routes from "@/Utils/request/api";
-import request from "@/Utils/request/request";
-import useTanStackQueryInstead from "@/Utils/request/useQuery";
+import query from "@/Utils/request/query";
 import { useView } from "@/Utils/useView";
 import { formatDateTime } from "@/Utils/utils";
 import { ResourceRequest } from "@/types/resourceRequest/resourceRequest";
@@ -39,16 +39,29 @@ export default function ListView() {
 
   const appliedFilters = formatFilter(qParams);
 
-  const { loading, data, refetch } = useTanStackQueryInstead(
-    routes.listResourceRequests,
-    {
-      query: formatFilter({
+  const {
+    data: resourcesList,
+    isLoading: loading,
+    refetch: refetchResources,
+  } = useQuery({
+    queryKey: ["resourceRequests", qParams],
+    queryFn: query.debounced(routes.listResourceRequests, {
+      queryParams: formatFilter({
         ...qParams,
         limit: resultsPerPage,
         offset: (qParams.page ? qParams.page - 1 : 0) * resultsPerPage,
       }),
-    },
-  );
+    }),
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60 * 2,
+  });
+
+  const { data: csvFile } = useQuery({
+    queryKey: ["downloadResourcesCsv", appliedFilters],
+    queryFn: query(routes.downloadResourceRequests, {
+      queryParams: { ...appliedFilters, csv: true },
+    }),
+  });
 
   const showResourceCardList = (data: ResourceRequest[]) => {
     if (data && !data.length) {
@@ -197,12 +210,7 @@ export default function ListView() {
         <ExportButton
           variant="secondary"
           className="ml-4 bg-transparent shadow-none text-black rounded-full"
-          action={async () => {
-            const { data } = await request(routes.downloadResourceRequests, {
-              query: { ...appliedFilters, csv: true },
-            });
-            return data ?? null;
-          }}
+          action={async () => csvFile ?? null}
           filenamePrefix="resource_requests"
         />
       }
@@ -241,7 +249,7 @@ export default function ListView() {
             <div className="-mb-4 mr-2 mt-4 flex justify-end">
               <button
                 className="text-xs hover:text-blue-800"
-                onClick={() => refetch()}
+                onClick={() => refetchResources()}
               >
                 <CareIcon
                   icon="l-refresh"
@@ -259,7 +267,7 @@ export default function ListView() {
                 {t("LOG_UPDATE_FIELD_LABEL__patient_category")}
               </div>
               <div className="col-span-1 hidden text-left uppercase sm:hidden md:hidden lg:block">
-                {t("consent__status")}
+                {t("consent_status")}
               </div>
               <div className="col-span-1 hidden text-left uppercase sm:hidden md:hidden lg:block">
                 {t("facilities")}
@@ -268,9 +276,9 @@ export default function ListView() {
                 {t("LOG_UPDATE_FIELD_LABEL__action")}
               </div>
             </div>
-            <div>{showResourceCardList(data?.results || [])}</div>
+            <div>{showResourceCardList(resourcesList?.results || [])}</div>
             <div>
-              <Pagination totalCount={data?.count || 0} />
+              <Pagination totalCount={resourcesList?.count || 0} />
             </div>
           </div>
         )}

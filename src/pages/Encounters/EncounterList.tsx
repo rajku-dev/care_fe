@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Link } from "raviger";
 import { useCallback } from "react";
@@ -169,6 +169,8 @@ export function EncounterList({
       },
     }),
     enabled: !propEncounters && !encounter_id,
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
   });
 
   const { data: queryEncounter } = useQuery<Encounter>({
