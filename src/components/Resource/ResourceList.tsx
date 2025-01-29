@@ -267,7 +267,7 @@ export default function ListView() {
                 {t("LOG_UPDATE_FIELD_LABEL__patient_category")}
               </div>
               <div className="col-span-1 hidden text-left uppercase sm:hidden md:hidden lg:block">
-                {t("consent_status")}
+                {t("consent__status")}
               </div>
               <div className="col-span-1 hidden text-left uppercase sm:hidden md:hidden lg:block">
                 {t("facilities")}

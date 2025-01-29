@@ -577,7 +577,7 @@
   "confirm_transfer_complete": "Confirm Transfer Complete!",
   "confirm_unavailability": "Confirm Unavailability",
   "confirmed": "Confirmed",
-  "consent_status": "Consent Status",
+  "consent__status": "Consent Status",
   "consult": "Consult",
   "consultation_history": "Consultation History",
   "consultation_missing_warning": "You have not created a consultation for the patient in",
