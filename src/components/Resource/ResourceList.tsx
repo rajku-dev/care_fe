@@ -44,7 +44,7 @@ export default function ListView() {
     isLoading: loading,
     refetch: refetchResources,
   } = useQuery({
-    queryKey: ["resourceRequests", qParams],
+    queryKey: [routes.listResourceRequests.path, qParams],
     queryFn: query.debounced(routes.listResourceRequests, {
       queryParams: formatFilter({
         ...qParams,
@@ -57,7 +57,10 @@ export default function ListView() {
   });
 
   const { data: csvFile } = useQuery({
-    queryKey: ["downloadResourcesCsv", appliedFilters],
+    queryKey: [
+      routes.downloadResourceRequests.path,
+      { ...appliedFilters, csv: true },
+    ],
     queryFn: query(routes.downloadResourceRequests, {
       queryParams: { ...appliedFilters, csv: true },
     }),
