@@ -4,20 +4,18 @@ import { useTranslation } from "react-i18next";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import FacilityOrganizationIndex from "@/pages/FacilityOrganization/FacilityOrganizationIndex";
-import FacilityOrganizationUsers from "@/pages/FacilityOrganization/FacilityOrganizationUsers";
-import FacilityOrganizationView from "@/pages/FacilityOrganization/FacilityOrganizationView";
-import LocationList from "@/pages/Location/LocationList";
-import LocationView from "@/pages/Location/LocationView";
-
 import { GeneralSettings } from "./general/general";
+import LocationList from "./locations/LocationList";
+import LocationView from "./locations/LocationView";
+import FacilityOrganizationIndex from "./organizations/FacilityOrganizationIndex";
+import FacilityOrganizationUsers from "./organizations/FacilityOrganizationUsers";
+import FacilityOrganizationView from "./organizations/FacilityOrganizationView";
 
 interface SettingsLayoutProps {
   facilityId: string;
 }
 
 const getRoutes = (facilityId: string) => ({
-  "/": () => <GeneralSettings facilityId={facilityId} />,
   "/general": () => <GeneralSettings facilityId={facilityId} />,
   "/departments": () => <FacilityOrganizationIndex facilityId={facilityId} />,
   "/departments/:id": ({ id }: { id: string }) => (
@@ -73,7 +71,7 @@ export function SettingsLayout({ facilityId }: SettingsLayoutProps) {
             <Link key={tab.value} href={tab.href}>
               <TabsTrigger
                 value={tab.value}
-                className="border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none"
+                className="border-b-2 border-transparent px-4 py-2 text-gray-600 hover:text-gray-900 data-[state=active]:border-primary-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none"
               >
                 {tab.label}
               </TabsTrigger>
