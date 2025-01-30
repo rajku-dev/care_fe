@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useMemo, useRef } from "react";
 
 import request from "@/Utils/request/request";
@@ -39,6 +39,7 @@ export default function useTanStackQueryInstead<TData, TBody = unknown>(
     },
     enabled: options?.prefetch ?? true,
     refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
   });
 
   return {

@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 import { Avatar } from "@/components/Common/Avatar";
-import CircularProgress from "@/components/Common/CircularProgress";
 
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
@@ -65,9 +64,6 @@ const CommentSection = (props: { id: string }) => {
               <PaginatedList.WhenEmpty className="flex w-full justify-center border-b border-secondary-200 bg-white p-5 text-center text-2xl font-bold text-secondary-500">
                 <span>{t("no_comments_available")}</span>
               </PaginatedList.WhenEmpty>
-              <PaginatedList.WhenLoading>
-                <CircularProgress className="h-12 w-12" />
-              </PaginatedList.WhenLoading>
               <PaginatedList.Items<CommentModel>>
                 {(item) => <Comment {...item} />}
               </PaginatedList.Items>

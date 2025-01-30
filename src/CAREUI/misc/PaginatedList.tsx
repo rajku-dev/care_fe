@@ -154,7 +154,7 @@ interface ItemsProps<TItem> {
 const Items = <TItem extends object>(props: ItemsProps<TItem>) => {
   const { loading, items } = useContextualized<TItem>();
 
-  if (loading || items.length === 0) {
+  if (items.length === 0) {
     return null;
   }
 
@@ -182,16 +182,8 @@ interface PaginatorProps {
   hideIfSinglePage?: boolean;
 }
 
-const Paginator = <TItem extends object>({
-  className,
-  hideIfSinglePage,
-}: PaginatorProps) => {
+const Paginator = ({ className, hideIfSinglePage }: PaginatorProps) => {
   const { data, perPage, currentPage, setPage } = useContextualized<object>();
-  const { loading } = useContextualized<TItem>();
-
-  if (loading) {
-    return null;
-  }
 
   if (hideIfSinglePage && (data?.count ?? 0) <= perPage) {
     return null;
