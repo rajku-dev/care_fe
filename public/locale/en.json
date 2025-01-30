@@ -855,6 +855,7 @@
   "encounter_notes__failed_send_message": "Failed to send message",
   "encounter_notes__new": "New",
   "encounter_notes__no_discussions": "No discussions yet",
+  "encounter_notes__no_unused_threads": "Please enter a custom title for thread",
   "encounter_notes__select_create_thread": "Select or create a thread to start messaging",
   "encounter_notes__start_conversation": "Start the Conversation",
   "encounter_notes__start_new_discussion": "Start New Discussion",
