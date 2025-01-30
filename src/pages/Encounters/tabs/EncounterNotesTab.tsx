@@ -63,7 +63,8 @@ import { Thread } from "@/types/notes/threads";
 const MESSAGES_LIMIT = 20;
 
 // Thread templates for quick selection
-let threadTemplates = [
+
+const threadTemplates = [
   "Treatment Plan",
   "Medication Notes",
   "Care Coordination",
@@ -71,7 +72,7 @@ let threadTemplates = [
   "Patient History",
   "Referral Notes",
   "Lab Results Discussion",
-];
+] as const;
 
 // Info tooltip component for help text
 const InfoTooltip = ({ content }: { content: string }) => (
@@ -204,11 +205,13 @@ const NewThreadDialog = ({
   onClose,
   onCreate,
   isCreating,
+  threadsUnused,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onCreate: (title: string) => void;
   isCreating: boolean;
+  threadsUnused: string[];
 }) => {
   const { t } = useTranslation();
   const [title, setTitle] = useState("");
@@ -230,13 +233,15 @@ const NewThreadDialog = ({
             <InfoTooltip content={t("encounter_notes__create_discussion")} />
           </DialogTitle>
           <DialogDescription className="text-sm text-left">
-            {t("encounter_notes__choose_template")}
+            {threadsUnused.length === 0
+              ? t("encounter_notes__no_unused_threads")
+              : t("encounter_notes__choose_template")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
-            {threadTemplates.map((template) => (
+            {threadsUnused.map((template) => (
               <Badge
                 key={template}
                 variant="primary"
@@ -331,17 +336,6 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
     }),
   });
 
-  // Auto-select first thread
-  useEffect(() => {
-    if (threadsData?.results.length) {
-      if (!selectedThread) setSelectedThread(threadsData.results[0].id);
-      const threadTitles = threadsData.results.map((thread) => thread.title);
-      threadTemplates = threadTemplates.filter(
-        (template) => !threadTitles.includes(template),
-      );
-    }
-  }, [threadsData, selectedThread]);
-
   // Fetch messages with infinite scroll
   const {
     data: messagesData,
@@ -407,6 +401,20 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
       toast.error(t("failed_to_send_message"));
     },
   });
+
+  const [threads, setThreads] = useState<string[]>([...threadTemplates]);
+
+  // Auto-select first thread
+
+  useEffect(() => {
+    if (threadsData?.results.length) {
+      if (!selectedThread) setSelectedThread(threadsData.results[0].id);
+      const threadTitles = threadsData.results.map((thread) => thread.title);
+      setThreads(
+        threads.filter((template) => !threadTitles.includes(template)),
+      );
+    }
+  }, [threadsData, selectedThread]);
 
   // Handle infinite scroll
   useEffect(() => {
@@ -703,6 +711,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
         onClose={() => setShowNewThreadDialog(false)}
         onCreate={handleCreateThread}
         isCreating={createThreadMutation.isPending}
+        threadsUnused={threads}
       />
     </div>
   );
