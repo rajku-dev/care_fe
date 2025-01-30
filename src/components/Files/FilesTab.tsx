@@ -110,7 +110,7 @@ export const FilesTab = (props: FilesTabProps) => {
     }),
     enabled: !!type,
     placeholderData: keepPreviousData,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60,
   });
 
   const fileManager = useFileManager({
