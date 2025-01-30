@@ -36,7 +36,11 @@ export default function OrganizationFacilities({
   const { qParams, Pagination, advancedFilter, resultsPerPage, updateQuery } =
     useFilters({ limit: 15, cacheBlacklist: ["name"] });
 
-  const { data: facilities, isFetching } = useQuery({
+  const {
+    data: facilities,
+    isFetching,
+    isLoading,
+  } = useQuery({
     queryKey: ["organizationFacilities", id, qParams],
     queryFn: query.debounced(routes.facility.list, {
       queryParams: {
@@ -92,7 +96,7 @@ export default function OrganizationFacilities({
           className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
           data-cy="facility-cards"
         >
-          {isFetching ? (
+          {isLoading ? (
             <CardGridSkeleton count={6} />
           ) : facilities?.results?.length === 0 ? (
             <Card className="col-span-full">

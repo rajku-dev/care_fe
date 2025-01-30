@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -32,7 +32,11 @@ export default function OrganizationView({ id, navOrganizationId }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const limit = 12; // 3x4 grid
 
-  const { data: children, isFetching } = useQuery({
+  const {
+    data: children,
+    isFetching,
+    isLoading,
+  } = useQuery({
     queryKey: ["organization", id, "children", page, limit, searchQuery],
     queryFn: query.debounced(organizationApi.list, {
       queryParams: {
@@ -42,6 +46,8 @@ export default function OrganizationView({ id, navOrganizationId }: Props) {
         name: searchQuery || undefined,
       },
     }),
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60,
   });
 
   // Hack for the sidebar to work
@@ -74,7 +80,7 @@ export default function OrganizationView({ id, navOrganizationId }: Props) {
           </div>
         </div>
 
-        {isFetching ? (
+        {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <CardGridSkeleton count={6} />
           </div>

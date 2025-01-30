@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -37,7 +37,11 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
   const openAddUserSheet = qParams.sheet === "add";
   const openLinkUserSheet = qParams.sheet === "link";
 
-  const { data: users, isFetching: isFetchingUsers } = useQuery({
+  const {
+    data: users,
+    isFetching: isFetchingUsers,
+    isLoading,
+  } = useQuery({
     queryKey: ["organizationUsers", id, qParams.search, qParams.page],
     queryFn: query.debounced(organizationApi.listUsers, {
       pathParams: { id },
@@ -48,6 +52,8 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
       },
     }),
     enabled: !!id,
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60,
   });
 
   if (!id) {
@@ -101,7 +107,7 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
             data-cy="search-user"
           />
         </div>
-        {isFetchingUsers ? (
+        {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <CardGridSkeleton count={6} />
           </div>
