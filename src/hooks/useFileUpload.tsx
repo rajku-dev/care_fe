@@ -40,11 +40,10 @@ export type FileUploadOptions = {
     }
 );
 
-export interface FileInputProps
-  extends Omit<
-    DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>,
-    "id" | "title" | "type" | "accept" | "onChange"
-  > {}
+export type FileInputProps = Omit<
+  DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>,
+  "id" | "title" | "type" | "accept" | "onChange"
+> & {};
 
 export type FileUploadReturn = {
   progress: null | number;
