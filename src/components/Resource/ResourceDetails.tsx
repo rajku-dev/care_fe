@@ -37,7 +37,7 @@ function PatientCard({ patient }: { patient: PatientModel }) {
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
             <p className="text-sm font-medium">{t("name")}</p>
-            <p className="text-sm text-muted-foreground">{patient.name}</p>
+            <p className="text-sm text-gray-500">{patient.name}</p>
           </div>
 
           <div className="space-y-1">
@@ -60,12 +60,12 @@ function PatientCard({ patient }: { patient: PatientModel }) {
                 </a>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">--</p>
+              <p className="text-sm text-gray-500">--</p>
             )}
           </div>
           <div className="space-y-1 md:col-span-2">
             <p className="text-sm font-medium">{t("address")}</p>
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+            <p className="text-sm text-gray-500 whitespace-pre-wrap">
               {[patient.address].filter(Boolean).join(", ") || "--"}
             </p>
           </div>
@@ -92,7 +92,7 @@ function FacilityCard({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
             <p className="text-sm font-medium">{t("name")}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-500">
               {facilityData?.name || "--"}
             </p>
           </div>
@@ -102,13 +102,19 @@ function FacilityCard({
   );
 }
 
-export default function ResourceDetails(props: { id: string }) {
+export default function ResourceDetails({
+  id,
+  facilityId,
+}: {
+  id: string;
+  facilityId: string;
+}) {
   const { t } = useTranslation();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["resource_request", props.id],
+    queryKey: ["resource_request", id],
     queryFn: query(routes.getResourceDetails, {
-      pathParams: { id: props.id },
+      pathParams: { id },
     }),
   });
 
@@ -119,15 +125,17 @@ export default function ResourceDetails(props: { id: string }) {
   return (
     <Page
       title="Request Details"
-      crumbsReplacements={{ [props.id]: { name: data.title } }}
-      backUrl="/resource/board"
+      crumbsReplacements={{ [id]: { name: data.title } }}
+      backUrl={`/facility/${facilityId}/resource`}
     >
       <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-6">
         {/* Action Buttons */}
         <div className="flex items-center justify-between">
           <div className="flex flex-wrap gap-2 w-full">
             <Button
-              onClick={() => navigate(`/resource/${props.id}/print`)}
+              onClick={() =>
+                navigate(`/facility/${facilityId}/resource/${id}/print`)
+              }
               className="w-full sm:w-auto"
             >
               <CareIcon icon="l-file-alt" className="mr-2 h-4 w-4" />
@@ -136,7 +144,9 @@ export default function ResourceDetails(props: { id: string }) {
             <Button
               variant="outline"
               className="w-full sm:w-auto"
-              onClick={() => navigate(`/resource/${data.id}/update`)}
+              onClick={() =>
+                navigate(`/facility/${facilityId}/resource/${id}/update`)
+              }
             >
               <CareIcon icon="l-edit" className="mr-2 h-4 w-4" />
               {t("update_status")}
@@ -158,11 +168,13 @@ export default function ResourceDetails(props: { id: string }) {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1">
                 <p className="text-sm font-medium">{t("status")}</p>
-                <Badge>{data.status}</Badge>
+                <Badge>
+                  {t(`resource_status__${data.status.toLowerCase()}`)}
+                </Badge>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium">{t("category")}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-500">
                   {RESOURCE_CATEGORY_CHOICES.find(
                     (item) => item.id === data.category,
                   )?.text || "--"}
@@ -170,7 +182,7 @@ export default function ResourceDetails(props: { id: string }) {
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium">{t("contact_person")}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-500">
                   {data.referring_facility_contact_name || "--"}
                 </p>
               </div>
@@ -194,7 +206,7 @@ export default function ResourceDetails(props: { id: string }) {
                     </a>
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">--</p>
+                  <p className="text-sm text-gray-500">--</p>
                 )}
               </div>
             </div>
@@ -203,7 +215,7 @@ export default function ResourceDetails(props: { id: string }) {
 
             <div className="space-y-2">
               <p className="text-sm font-medium">{t("reason")}</p>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+              <p className="text-sm text-gray-500 whitespace-pre-wrap">
                 {data.reason || "--"}
               </p>
             </div>
@@ -237,20 +249,20 @@ export default function ResourceDetails(props: { id: string }) {
               {data.created_by && (
                 <div className="space-y-1">
                   <p className="text-sm font-medium">{t("created_by")}</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-500">
                     {formatName(data.created_by)}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-gray-500">
                     {formatDateTime(data.created_date)}
                   </p>
                 </div>
               )}
               <div className="space-y-1">
                 <p className="text-sm font-medium">{t("last_modified_by")}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-500">
                   {formatName(data.updated_by)}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-500">
                   {formatDateTime(data.modified_date)}
                 </p>
               </div>
@@ -264,7 +276,7 @@ export default function ResourceDetails(props: { id: string }) {
             <CardTitle className="text-lg">{t("comments")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <CommentSection id={props.id} />
+            <CommentSection id={id} />
           </CardContent>
         </Card>
       </div>
