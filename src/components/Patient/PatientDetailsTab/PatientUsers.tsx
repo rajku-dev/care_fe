@@ -241,7 +241,7 @@ export const PatientUsers = (props: PatientProps) => {
   const ManageUsers = () => {
     if (!users?.results?.length) {
       return (
-        <div className="h-full text-center space-y-2 mt-2 rounded-lg bg-white px-7 py-12 border border-secondary-300 text-lg text-secondary-600">
+        <div className="h-full space-y-2 mt-2 text-center rounded-lg bg-white px-7 py-12 border border-secondary-300 text-lg text-secondary-600">
           {t("no_user_assigned")}
         </div>
       );
@@ -261,7 +261,7 @@ export const PatientUsers = (props: PatientProps) => {
                   imageUrl={user.profile_picture_url}
                 />
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 truncate sm:max-w-xl lg:max-w-20">
+                  <h3 className="text-sm font-medium text-gray-900 truncate w-full max-w-32 sm:max-w-96 md:max-w-24 lg:max-w-28">
                     <Tooltip>
                       <TooltipTrigger>{formatDisplayName(user)}</TooltipTrigger>
                       <TooltipContent>
@@ -269,7 +269,7 @@ export const PatientUsers = (props: PatientProps) => {
                       </TooltipContent>
                     </Tooltip>
                   </h3>
-                  <p className="text-sm text-gray-500 truncate sm:max-w-xl lg:max-w-20">
+                  <p className="text-sm text-gray-500 truncate sm:max-w-96 md:max-w-24 lg:max-w-20">
                     <Tooltip>
                       <TooltipTrigger>{user.username}</TooltipTrigger>
                       <TooltipContent>
