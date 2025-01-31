@@ -34,6 +34,9 @@ export default function FacilityOrganizationIndex({
     queryKey: ["facilityOrganization", "list", facilityId],
     queryFn: query(routes.facilityOrganization.list, {
       pathParams: { facilityId },
+      queryParams: {
+        parent: "",
+      },
     }),
     enabled: !!facilityId,
   });
@@ -52,7 +55,12 @@ export default function FacilityOrganizationIndex({
 
   if (!data?.results?.length) {
     return (
-      <Page title={t("organizations")}>
+      <Page
+        title={t("organizations")}
+        breadcrumbs={false}
+        hideBack={true}
+        hideTitleOnPage={true}
+      >
         <div className="flex justify-center md:justify-end mt-2 mb-4">
           <CreateFacilityOrganizationSheet facilityId={facilityId} />
         </div>
@@ -79,7 +87,12 @@ export default function FacilityOrganizationIndex({
   }
 
   return (
-    <Page title={t("facility_organizations")} hideBack={true}>
+    <Page
+      title={t("departments")}
+      hideBack={true}
+      hideTitleOnPage={true}
+      breadcrumbs={false}
+    >
       <div className="flex justify-center md:justify-end mt-2 mb-4">
         <CreateFacilityOrganizationSheet facilityId={facilityId} />
       </div>
@@ -98,7 +111,7 @@ export default function FacilityOrganizationIndex({
             <CardFooter>
               <Button variant="outline" asChild className="w-full">
                 <Link
-                  href={`/facility/${facilityId}/organization/${org.id}`}
+                  href={`/departments/${org.id}`}
                   className="flex items-center justify-center gap-2"
                 >
                   {t("view_details")}
