@@ -160,13 +160,13 @@ export const FilesTab = (props: FilesTabProps) => {
     if (
       fileUpload.files.length > 0 &&
       fileUpload.files[0] !== undefined &&
-      fileUpload.submitClicked == true
+      !fileUpload.previewing
     ) {
       setOpenUploadDialog(true);
     } else {
       setOpenUploadDialog(false);
     }
-  }, [fileUpload.files, fileUpload.submitClicked]);
+  }, [fileUpload.files, fileUpload.previewing]);
 
   useEffect(() => {
     if (!openUploadDialog) {

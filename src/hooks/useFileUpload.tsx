@@ -61,7 +61,7 @@ export type FileUploadReturn = {
   removeFile: (index: number) => void;
   clearFiles: () => void;
   uploading: boolean;
-  submitClicked?: boolean;
+  previewing?: boolean;
 };
 
 // Array of image extensions
@@ -93,7 +93,7 @@ export default function useFileUpload(
   const [cameraModalOpen, setCameraModalOpen] = useState(false);
   const [audioModalOpen, setAudioModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [submitClicked, setSubmitClicked] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
 
   const [files, setFiles] = useState<File[]>([]);
   const queryClient = useQueryClient();
@@ -287,7 +287,6 @@ export default function useFileUpload(
     setFiles(errors);
     setUploadFileNames(errors?.map((f) => f.name) ?? []);
     setError(t("file_error__network"));
-    setSubmitClicked(false);
     setCameraModalOpen(false);
   };
 
@@ -295,7 +294,6 @@ export default function useFileUpload(
     setFiles([]);
     setError(null);
     setUploadFileNames([]);
-    setSubmitClicked(false);
   };
 
   const Dialogues = (
@@ -307,9 +305,7 @@ export default function useFileUpload(
           setFiles((prev) => [...prev, file]);
         }}
         onResetCapture={clearFiles}
-        onSubmit={() => {
-          setSubmitClicked(true);
-        }}
+        togglePreview={() => setPreviewing((prev) => !prev)}
       />
       <AudioCaptureDialog
         show={audioModalOpen}
@@ -364,6 +360,6 @@ export default function useFileUpload(
     },
     clearFiles,
     uploading,
-    submitClicked,
+    previewing,
   };
 }

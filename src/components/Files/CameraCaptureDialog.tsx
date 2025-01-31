@@ -16,11 +16,11 @@ export interface CameraCaptureDialogProps {
   onHide: () => void;
   onCapture: (file: File, fileName: string) => void;
   onResetCapture: () => void;
-  onSubmit?: () => void;
+  togglePreview?: () => void;
 }
 
 export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
-  const { show, onHide, onCapture, onResetCapture, onSubmit } = props;
+  const { show, onHide, onCapture, onResetCapture, togglePreview } = props;
   const isLaptopScreen = useBreakpoints({ lg: true, default: false });
 
   const [cameraFacingMode, setCameraFacingMode] = useState(
@@ -150,6 +150,7 @@ export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
                   variant="primary"
                   onClick={() => {
                     captureImage();
+                    togglePreview && togglePreview();
                   }}
                   className="m-2"
                 >
@@ -175,7 +176,6 @@ export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
                   onClick={() => {
                     setPreviewImage(null);
                     onHide();
-                    onSubmit && onSubmit();
                   }}
                   className="m-2"
                 >
@@ -217,6 +217,7 @@ export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
                     variant="primary"
                     onClick={() => {
                       captureImage();
+                      togglePreview && togglePreview();
                     }}
                   >
                     <CareIcon icon="l-capture" className="text-lg" />
@@ -241,7 +242,7 @@ export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
                     onClick={() => {
                       onHide();
                       setPreviewImage(null);
-                      onSubmit && onSubmit();
+                      togglePreview && togglePreview();
                     }}
                   >
                     {t("submit")}
