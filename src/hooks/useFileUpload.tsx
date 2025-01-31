@@ -305,7 +305,7 @@ export default function useFileUpload(
           setFiles((prev) => [...prev, file]);
         }}
         onResetCapture={clearFiles}
-        togglePreview={() => setPreviewing((prev) => !prev)}
+        setPreview={setPreviewing}
       />
       <AudioCaptureDialog
         show={audioModalOpen}

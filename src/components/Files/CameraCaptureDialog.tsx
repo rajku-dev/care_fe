@@ -16,11 +16,11 @@ export interface CameraCaptureDialogProps {
   onHide: () => void;
   onCapture: (file: File, fileName: string) => void;
   onResetCapture: () => void;
-  togglePreview?: () => void;
+  setPreview?: (isPreview: boolean) => void;
 }
 
 export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
-  const { show, onHide, onCapture, onResetCapture, togglePreview } = props;
+  const { show, onHide, onCapture, onResetCapture, setPreview } = props;
   const isLaptopScreen = useBreakpoints({ lg: true, default: false });
 
   const [cameraFacingMode, setCameraFacingMode] = useState(
@@ -150,7 +150,7 @@ export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
                   variant="primary"
                   onClick={() => {
                     captureImage();
-                    togglePreview && togglePreview();
+                    setPreview && setPreview(true);
                   }}
                   className="m-2"
                 >
@@ -166,6 +166,7 @@ export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
                   onClick={() => {
                     setPreviewImage(null);
                     onResetCapture();
+                    setPreview && setPreview(false);
                   }}
                   className="m-2"
                 >
@@ -176,6 +177,7 @@ export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
                   onClick={() => {
                     setPreviewImage(null);
                     onHide();
+                    setPreview && setPreview(true);
                   }}
                   className="m-2"
                 >
@@ -217,7 +219,7 @@ export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
                     variant="primary"
                     onClick={() => {
                       captureImage();
-                      togglePreview && togglePreview();
+                      setPreview && setPreview(true);
                     }}
                   >
                     <CareIcon icon="l-capture" className="text-lg" />
@@ -233,6 +235,7 @@ export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
                     onClick={() => {
                       setPreviewImage(null);
                       onResetCapture();
+                      setPreview && setPreview(false);
                     }}
                   >
                     {t("retake")}
@@ -242,7 +245,7 @@ export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
                     onClick={() => {
                       onHide();
                       setPreviewImage(null);
-                      togglePreview && togglePreview();
+                      setPreview && setPreview(false);
                     }}
                   >
                     {t("submit")}
@@ -258,6 +261,7 @@ export default function CameraCaptureDialog(props: CameraCaptureDialogProps) {
               setPreviewImage(null);
               onResetCapture();
               onHide();
+              setPreview && setPreview(false);
             }}
           >
             {`${t("close")} ${t("camera")}`}
