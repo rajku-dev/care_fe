@@ -251,7 +251,7 @@ export const PatientUsers = (props: PatientProps) => {
         {users?.results.map((user) => (
           <div
             key={user.id}
-            className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+            className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm relative"
           >
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-4">
@@ -261,8 +261,13 @@ export const PatientUsers = (props: PatientProps) => {
                   imageUrl={user.profile_picture_url}
                 />
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900">
-                    {formatDisplayName(user)}
+                  <h3 className="text-sm font-medium text-gray-900 truncate sm:max-w-xl lg:max-w-20">
+                    <Tooltip>
+                      <TooltipTrigger>{formatDisplayName(user)}</TooltipTrigger>
+                      <TooltipContent>
+                        <p>{formatDisplayName(user)}</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </h3>
                   <p className="text-sm text-gray-500 truncate sm:max-w-xl lg:max-w-20">
                     <Tooltip>
@@ -277,7 +282,10 @@ export const PatientUsers = (props: PatientProps) => {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="ghost" size="icon">
-                    <CareIcon icon="l-trash" className="h-4 w-4" />
+                    <CareIcon
+                      icon="l-trash"
+                      className="h-4 w-4 absolute top-2 right-2"
+                    />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
