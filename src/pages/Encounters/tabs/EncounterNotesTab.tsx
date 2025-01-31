@@ -171,19 +171,22 @@ const MessageItem = ({ message }: { message: Message }) => {
           </span>
           <div
             className={cn(
-              "pt-3 px-3 pb-1 rounded-lg break-words",
+              "pl-2 pr-1 pt-1 rounded-lg break-words border border-primary-200 relative",
               isCurrentUser
                 ? "bg-primary-100 text-white rounded-br-none"
                 : "bg-gray-100 rounded-bl-none",
             )}
           >
             {message.message && (
-              <div className="mt-2">
+              <div className="mt-0">
                 <Markdown content={message.message} className="text-sm mb-2" />
-                <span className="text-xs text-gray-500 flex justify-end">
+                <span className="text-[11px] text-gray-500 flex justify-end items-end">
                   <Tooltip>
                     <TooltipTrigger>
-                      {relativeTime(message.created_date)}
+                      {relativeTime(message.created_date)
+                        .split(" ")
+                        .slice(0, -1)
+                        .join(" ")}
                     </TooltipTrigger>
                     <TooltipContent>
                       {new Date(message.created_date).toLocaleString()}
