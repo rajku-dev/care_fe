@@ -282,7 +282,7 @@ export default function QuestionnaireResponsesList({
       pathParams={{
         patientId: patientId,
       }}
-      query={{
+      queryParams={{
         ...(encounter && { encounter: encounter.id }),
       }}
     >

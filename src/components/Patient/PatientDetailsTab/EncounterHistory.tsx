@@ -21,7 +21,7 @@ const EncounterHistory = (props: PatientProps) => {
   return (
     <PaginatedList
       route={routes.encounter.list}
-      query={{ patient: patientId }}
+      queryParams={{ patient: patientId }}
       perPage={5}
     >
       {() => (
