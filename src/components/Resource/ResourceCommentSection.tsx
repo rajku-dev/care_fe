@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { t } from "i18next";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,14 +12,15 @@ import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
 import useFilters from "@/hooks/useFilters";
 
 import routes from "@/Utils/request/api";
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import request from "@/Utils/request/request";
 import { formatName, relativeTime } from "@/Utils/utils";
 import { CommentModel } from "@/types/resourceRequest/resourceRequest";
 
 const CommentSection = (props: { id: string }) => {
   const { id } = props;
   const [commentBox, setCommentBox] = useState("");
+  const queryClient = useQueryClient();
 
   const { qParams, Pagination, resultsPerPage } = useFilters({
     limit: 15,
@@ -30,7 +31,6 @@ const CommentSection = (props: { id: string }) => {
     data: resourceComments,
     isFetching: commentsFetching,
     isLoading: commentsLoading,
-    refetch: refetchComments,
   } = useQuery({
     queryKey: ["resourceComments", id, qParams],
     queryFn: query(routes.getResourceComments, {
@@ -42,7 +42,17 @@ const CommentSection = (props: { id: string }) => {
     }),
   });
 
-  const onSubmitComment = async () => {
+  const { mutate: addComment } = useMutation({
+    mutationFn: mutate(routes.addResourceComments, {
+      pathParams: { id },
+    }),
+    onSuccess: () => {
+      toast.success(t("comment_added_successfully"));
+      queryClient.invalidateQueries({ queryKey: ["resourceComments"] });
+    },
+  });
+
+  const submitComment = () => {
     const payload = {
       comment: commentBox,
     };
@@ -50,13 +60,7 @@ const CommentSection = (props: { id: string }) => {
       toast.error(t("comment_min_length"));
       return;
     }
-    const { res } = await request(routes.addResourceComments, {
-      pathParams: { id: props.id },
-      body: payload,
-    });
-    if (res?.ok) {
-      toast.success(t("comment_added_successfully"));
-    }
+    addComment(payload);
     setCommentBox("");
   };
 
@@ -71,13 +75,7 @@ const CommentSection = (props: { id: string }) => {
         />
 
         <div className="flex w-full justify-end mt-2">
-          <Button
-            variant="primary"
-            onClick={async () => {
-              await onSubmitComment();
-              refetchComments();
-            }}
-          >
+          <Button variant="primary" onClick={submitComment}>
             {t("post_your_comment")}
           </Button>
         </div>
