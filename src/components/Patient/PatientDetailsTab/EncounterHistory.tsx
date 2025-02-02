@@ -30,7 +30,7 @@ const EncounterHistory = (props: PatientProps) => {
     isFetching: encountersFetching,
     isLoading: encountersLoading,
   } = useQuery({
-    queryKey: ["encountersHistory", patientId, qParams],
+    queryKey: [routes.encounter.list.path, patientId, qParams],
     queryFn: query.debounced(routes.encounter.list, {
       queryParams: {
         patient: patientId,
