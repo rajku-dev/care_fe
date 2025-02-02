@@ -284,9 +284,9 @@ export default function QuestionnaireResponsesList({
   });
 
   const {
-    data: responseData,
-    isFetching: isFetchingResponses,
-    isLoading,
+    data: questionnarieResponses,
+    isFetching: questionnaireFetching,
+    isLoading: questionnaireLoading,
   } = useQuery({
     queryKey: [
       routes.getQuestionnaireResponses.path,
@@ -307,13 +307,14 @@ export default function QuestionnaireResponsesList({
   return (
     <div className="mt-4 gap-4">
       <div className="max-w-full">
-        {isLoading ? (
+        {questionnaireLoading ? (
           <div className="grid gap-5">
             <CardListSkeleton count={3} />
           </div>
         ) : (
           <div>
-            {!isFetchingResponses && responseData?.results?.length === 0 ? (
+            {!questionnaireFetching &&
+            questionnarieResponses?.results?.length === 0 ? (
               <Card className="p-6">
                 <div className="text-lg font-medium text-gray-500">
                   {t("no_questionnaire_responses")}
@@ -321,13 +322,15 @@ export default function QuestionnaireResponsesList({
               </Card>
             ) : (
               <ul className="grid gap-4">
-                {responseData?.results?.map((item: QuestionnaireResponse) => (
-                  <li key={item.id} className="w-full">
-                    <ResponseCard key={item.id} item={item} />
-                  </li>
-                ))}
+                {questionnarieResponses?.results?.map(
+                  (item: QuestionnaireResponse) => (
+                    <li key={item.id} className="w-full">
+                      <ResponseCard key={item.id} item={item} />
+                    </li>
+                  ),
+                )}
                 <div className="flex w-full items-center justify-center mt-4">
-                  <Pagination totalCount={responseData?.count || 0} />
+                  <Pagination totalCount={questionnarieResponses?.count || 0} />
                 </div>
               </ul>
             )}

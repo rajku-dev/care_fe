@@ -1,15 +1,18 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link, navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
-import PaginatedList from "@/CAREUI/misc/PaginatedList";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
 
+import useFilters from "@/hooks/useFilters";
+
 import routes from "@/Utils/request/api";
+import query from "@/Utils/request/query";
 import { formatDateTime, properCase } from "@/Utils/utils";
 import { QuestionnaireResponse } from "@/types/questionnaire/questionnaireResponse";
 
@@ -18,6 +21,26 @@ import { PatientProps } from ".";
 export const Updates = (props: PatientProps) => {
   const { facilityId, patientId } = props;
   const { t } = useTranslation();
+
+  const { qParams, Pagination, resultsPerPage } = useFilters({
+    limit: 7,
+    cacheBlacklist: ["patientUpdates"],
+  });
+
+  const {
+    data: patientUpdatesData,
+    isFetching: patientUpdatesFetching,
+    isLoading: patientUpdatesLoading,
+  } = useQuery({
+    queryKey: [routes.getQuestionnaireResponses.path, patientId, qParams],
+    queryFn: query.debounced(routes.getQuestionnaireResponses, {
+      queryParams: {
+        limit: 7,
+        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
+      },
+      pathParams: { patientId },
+    }),
+  });
 
   return (
     <div className="mt-4 px-3 md:px-0">
@@ -32,78 +55,74 @@ export const Updates = (props: PatientProps) => {
           </Link>
         </Button>
       </div>
-
-      <PaginatedList
-        route={routes.getQuestionnaireResponses}
-        pathParams={{ patientId }}
-      >
-        {() => (
-          <div className="flex w-full flex-col gap-4">
-            <div className="flex max-h-[85vh] flex-col gap-4 overflow-y-auto overflow-x-hidden">
-              <PaginatedList.WhenEmpty>
+      <div className="flex w-full flex-col gap-4">
+        <div className="flex flex-col gap-4">
+          {patientUpdatesLoading ? (
+            <div className="grid gap-4">
+              <CardListSkeleton count={7} />
+            </div>
+          ) : (
+            <div>
+              {!patientUpdatesFetching &&
+              patientUpdatesData?.results?.length === 0 ? (
                 <Card className="p-6">
                   <div className="text-lg font-medium text-gray-500">
                     {t("no_update_available")}
                   </div>
                 </Card>
-              </PaginatedList.WhenEmpty>
-
-              <PaginatedList.WhenLoading>
-                <div className="grid gap-4">
-                  <CardListSkeleton count={4} />
-                </div>
-              </PaginatedList.WhenLoading>
-
-              <PaginatedList.Items<QuestionnaireResponse> className="grid gap-4">
-                {(item) => (
-                  <Card
-                    key={item.id}
-                    className="flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
-                  >
-                    <div className="flex items-start gap-4">
-                      <CareIcon
-                        icon="l-file-alt"
-                        className="mt-1 h-5 w-5 text-gray-500"
-                      />
-                      <div>
-                        <h3 className="text-lg font-medium">
-                          {item.questionnaire?.title ||
-                            structuredResponsesPreview(
-                              item.structured_responses,
-                            )}
-                        </h3>
-                        <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
-                          <CareIcon icon="l-calender" className="h-4 w-4" />
-                          <span>{formatDateTime(item.created_date)}</span>
+              ) : (
+                <ul className="grid gap-4">
+                  {patientUpdatesData?.results?.map((update) => (
+                    <li key={update.id} className="w-full">
+                      <Card
+                        key={update.id}
+                        className="flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
+                      >
+                        <div className="flex items-start gap-4">
+                          <CareIcon
+                            icon="l-file-alt"
+                            className="mt-1 h-5 w-5 text-gray-500"
+                          />
+                          <div>
+                            <h3 className="text-lg font-medium">
+                              {update.questionnaire?.title ||
+                                structuredResponsesPreview(
+                                  update.structured_responses,
+                                )}
+                            </h3>
+                            <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
+                              <CareIcon icon="l-calender" className="h-4 w-4" />
+                              <span>{formatDateTime(update.created_date)}</span>
+                            </div>
+                            <div className="mt-1 text-sm text-gray-500">
+                              by {update.created_by?.first_name || ""}{" "}
+                              {update.created_by?.last_name || ""}
+                              {` (${update.created_by?.user_type})`}
+                            </div>
+                          </div>
                         </div>
-                        <div className="mt-1 text-sm text-gray-500">
-                          by {item.created_by?.first_name || ""}{" "}
-                          {item.created_by?.last_name || ""}
-                          {` (${item.created_by?.user_type})`}
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        navigate(
-                          `/facility/${facilityId}/patient/${patientId}/encounter/${item.encounter}/questionnaire_response/${item.id}`,
-                        );
-                      }}
-                    >
-                      {t("view")}
-                    </Button>
-                  </Card>
-                )}
-              </PaginatedList.Items>
-
-              <div className="flex w-full items-center justify-center">
-                <PaginatedList.Paginator hideIfSinglePage />
-              </div>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            navigate(
+                              `/facility/${facilityId}/patient/${patientId}/encounter/${update.encounter}/questionnaire_response/${update.id}`,
+                            );
+                          }}
+                        >
+                          {t("view")}
+                        </Button>
+                      </Card>
+                    </li>
+                  ))}
+                  <div className="flex w-full items-center justify-center">
+                    <Pagination totalCount={patientUpdatesData?.count || 0} />
+                  </div>
+                </ul>
+              )}
             </div>
-          </div>
-        )}
-      </PaginatedList>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
