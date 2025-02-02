@@ -21,7 +21,7 @@ const EncounterHistory = (props: PatientProps) => {
   const { t } = useTranslation();
 
   const { qParams, Pagination, resultsPerPage } = useFilters({
-    limit: 15,
+    limit: 5,
     cacheBlacklist: ["encounterHistory"],
   });
 
