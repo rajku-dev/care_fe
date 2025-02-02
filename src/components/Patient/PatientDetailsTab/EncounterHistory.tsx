@@ -46,7 +46,7 @@ const EncounterHistory = (props: PatientProps) => {
         {encountersLoading ? (
           <div>
             <div className="grid gap-5">
-              <CardListSkeleton count={5} />
+              <CardListSkeleton count={resultsPerPage} />
             </div>
           </div>
         ) : (

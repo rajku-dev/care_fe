@@ -59,7 +59,7 @@ export const Updates = (props: PatientProps) => {
         <div className="flex flex-col gap-4">
           {patientUpdatesLoading ? (
             <div className="grid gap-4">
-              <CardListSkeleton count={7} />
+              <CardListSkeleton count={resultsPerPage} />
             </div>
           ) : (
             <div>

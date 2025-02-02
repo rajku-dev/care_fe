@@ -86,7 +86,7 @@ const CommentSection = (props: { id: string }) => {
           {commentsLoading ? (
             <div>
               <div className="grid gap-5">
-                <CardListSkeleton count={10} />
+                <CardListSkeleton count={resultsPerPage} />
               </div>
             </div>
           ) : (

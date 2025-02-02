@@ -309,7 +309,7 @@ export default function QuestionnaireResponsesList({
       <div className="max-w-full">
         {questionnaireLoading ? (
           <div className="grid gap-5">
-            <CardListSkeleton count={3} />
+            <CardListSkeleton count={resultsPerPage} />
           </div>
         ) : (
           <div>
