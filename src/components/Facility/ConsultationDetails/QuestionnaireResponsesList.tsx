@@ -1,7 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { t } from "i18next";
 import { useTranslation } from "react-i18next";
-
-import PaginatedList from "@/CAREUI/misc/PaginatedList";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -9,7 +8,10 @@ import { Separator } from "@/components/ui/separator";
 
 import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
 
+import useFilters from "@/hooks/useFilters";
+
 import routes from "@/Utils/request/api";
+import query from "@/Utils/request/query";
 import { formatDateTime, properCase } from "@/Utils/utils";
 import { AllergyIntoleranceRequest } from "@/types/emr/allergyIntolerance/allergyIntolerance";
 import { DiagnosisRequest } from "@/types/emr/diagnosis/diagnosis";
@@ -276,43 +278,57 @@ export default function QuestionnaireResponsesList({
 }: Props) {
   const { t } = useTranslation();
 
+  const { qParams, Pagination, resultsPerPage } = useFilters({
+    limit: 15,
+    cacheBlacklist: ["questionnaire"],
+  });
+
+  const {
+    data: responseData,
+    isFetching: isFetchingResponses,
+    isLoading,
+  } = useQuery({
+    queryKey: ["questionnaireResponses", patientId, qParams, encounter?.id],
+    queryFn: query.debounced(routes.getQuestionnaireResponses, {
+      pathParams: { patientId },
+      queryParams: {
+        encounter: encounter?.id,
+        limit: resultsPerPage,
+        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
+      },
+    }),
+  });
+
   return (
-    <PaginatedList
-      route={routes.getQuestionnaireResponses}
-      pathParams={{
-        patientId: patientId,
-      }}
-      queryParams={{
-        ...(encounter && { encounter: encounter.id }),
-      }}
-    >
-      {() => (
-        <div className="mt-4 flex w-full flex-col gap-4">
+    <div className="mt-4 gap-4">
+      <div className="max-w-full">
+        {isLoading ? (
+          <div className="grid gap-5">
+            <CardListSkeleton count={3} />
+          </div>
+        ) : (
           <div>
-            <PaginatedList.WhenEmpty>
+            {!isFetchingResponses && responseData?.results?.length === 0 ? (
               <Card className="p-6">
                 <div className="text-lg font-medium text-gray-500">
                   {t("no_questionnaire_responses")}
                 </div>
               </Card>
-            </PaginatedList.WhenEmpty>
-
-            <PaginatedList.WhenLoading>
-              <div className="grid gap-5">
-                <CardListSkeleton count={3} />
-              </div>
-            </PaginatedList.WhenLoading>
-
-            <PaginatedList.Items<QuestionnaireResponse> className="grid gap-4">
-              {(item) => <ResponseCard key={item.id} item={item} />}
-            </PaginatedList.Items>
-
-            <div className="flex w-full items-center justify-center mt-4">
-              <PaginatedList.Paginator hideIfSinglePage />
-            </div>
+            ) : (
+              <ul className="grid gap-4">
+                {responseData?.results?.map((item: QuestionnaireResponse) => (
+                  <li key={item.id} className="w-full">
+                    <ResponseCard key={item.id} item={item} />
+                  </li>
+                ))}
+                <div className="flex w-full items-center justify-center mt-4">
+                  <Pagination totalCount={responseData?.count || 0} />
+                </div>
+              </ul>
+            )}
           </div>
-        </div>
-      )}
-    </PaginatedList>
+        )}
+      </div>
+    </div>
   );
 }
