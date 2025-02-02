@@ -35,7 +35,7 @@ export const Updates = (props: PatientProps) => {
     queryKey: [routes.getQuestionnaireResponses.path, patientId, qParams],
     queryFn: query.debounced(routes.getQuestionnaireResponses, {
       queryParams: {
-        limit: 7,
+        limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
       },
       pathParams: { patientId },

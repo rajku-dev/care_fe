@@ -35,7 +35,7 @@ const CommentSection = (props: { id: string }) => {
     queryKey: [routes.getResourceComments.path, id, qParams],
     queryFn: query.debounced(routes.getResourceComments, {
       queryParams: {
-        limit: 15,
+        limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
       },
       pathParams: { id },

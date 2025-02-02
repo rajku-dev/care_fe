@@ -34,7 +34,7 @@ const EncounterHistory = (props: PatientProps) => {
     queryFn: query.debounced(routes.encounter.list, {
       queryParams: {
         patient: patientId,
-        limit: 5,
+        limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
       },
     }),
