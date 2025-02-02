@@ -288,13 +288,8 @@ export default function QuestionnaireResponsesList({
     isFetching: questionnaireFetching,
     isLoading: questionnaireLoading,
   } = useQuery({
-    queryKey: [
-      routes.getQuestionnaireResponses.path,
-      patientId,
-      qParams,
-      encounter?.id,
-    ],
-    queryFn: query.debounced(routes.getQuestionnaireResponses, {
+    queryKey: ["questionnatireResponses", patientId, qParams],
+    queryFn: query(routes.getQuestionnaireResponses, {
       pathParams: { patientId },
       queryParams: {
         encounter: encounter?.id,

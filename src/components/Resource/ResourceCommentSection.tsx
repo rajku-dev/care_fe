@@ -32,8 +32,8 @@ const CommentSection = (props: { id: string }) => {
     isLoading: commentsLoading,
     refetch: refetchComments,
   } = useQuery({
-    queryKey: [routes.getResourceComments.path, id, qParams],
-    queryFn: query.debounced(routes.getResourceComments, {
+    queryKey: ["resourceComments", id, qParams],
+    queryFn: query(routes.getResourceComments, {
       queryParams: {
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,

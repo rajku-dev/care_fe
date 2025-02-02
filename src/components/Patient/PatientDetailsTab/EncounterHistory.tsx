@@ -30,8 +30,8 @@ const EncounterHistory = (props: PatientProps) => {
     isFetching: encountersFetching,
     isLoading: encountersLoading,
   } = useQuery({
-    queryKey: [routes.encounter.list.path, patientId, qParams],
-    queryFn: query.debounced(routes.encounter.list, {
+    queryKey: ["encounterHistory", patientId, qParams],
+    queryFn: query(routes.encounter.list, {
       queryParams: {
         patient: patientId,
         limit: resultsPerPage,

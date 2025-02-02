@@ -32,8 +32,8 @@ export const Updates = (props: PatientProps) => {
     isFetching: patientUpdatesFetching,
     isLoading: patientUpdatesLoading,
   } = useQuery({
-    queryKey: [routes.getQuestionnaireResponses.path, patientId, qParams],
-    queryFn: query.debounced(routes.getQuestionnaireResponses, {
+    queryKey: ["patientUpdates", patientId, qParams],
+    queryFn: query(routes.getQuestionnaireResponses, {
       queryParams: {
         limit: resultsPerPage,
         offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
