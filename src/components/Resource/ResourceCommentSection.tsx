@@ -24,7 +24,6 @@ const CommentSection = (props: { id: string }) => {
 
   const { qParams, Pagination, resultsPerPage } = useFilters({
     limit: 15,
-    cacheBlacklist: ["resourceComments"],
   });
 
   const {
@@ -53,14 +52,13 @@ const CommentSection = (props: { id: string }) => {
   });
 
   const submitComment = () => {
-    const payload = {
-      comment: commentBox,
-    };
     if (!/\S+/.test(commentBox)) {
       toast.error(t("comment_min_length"));
       return;
     }
-    addComment(payload);
+    addComment({
+      comment: commentBox,
+    });
     setCommentBox("");
   };
 

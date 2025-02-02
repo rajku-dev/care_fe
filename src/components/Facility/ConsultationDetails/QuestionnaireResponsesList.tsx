@@ -280,7 +280,6 @@ export default function QuestionnaireResponsesList({
 
   const { qParams, Pagination, resultsPerPage } = useFilters({
     limit: 15,
-    cacheBlacklist: ["questionnaire"],
   });
 
   const {

@@ -24,7 +24,6 @@ export const Updates = (props: PatientProps) => {
 
   const { qParams, Pagination, resultsPerPage } = useFilters({
     limit: 7,
-    cacheBlacklist: ["patientUpdates"],
   });
 
   const {
