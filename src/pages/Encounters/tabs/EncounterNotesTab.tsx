@@ -416,6 +416,10 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
     }
   }, [threadsData, selectedThread]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView();
+  }, []);
+
   // Handle infinite scroll
   useEffect(() => {
     if (inView && hasNextPage) {
@@ -424,9 +428,18 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
   }, [inView, hasNextPage, fetchNextPage]);
 
   // Scroll to bottom on initial load and thread change
+
+  const [nextPageFetching, setNextPageFetching] = useState(true);
+
   useEffect(() => {
-    if (messagesData && !messagesLoading && !isFetchingNextPage) {
+    if (
+      messagesData &&
+      !messagesLoading &&
+      !isFetchingNextPage &&
+      nextPageFetching
+    ) {
       messagesEndRef.current?.scrollIntoView();
+      setNextPageFetching(false);
     }
   }, [selectedThread, messagesData, messagesLoading, isFetchingNextPage]);
 
