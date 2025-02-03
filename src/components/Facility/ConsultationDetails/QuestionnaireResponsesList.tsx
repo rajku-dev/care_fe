@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { t } from "i18next";
+import { useQueryParams } from "raviger";
 import { useTranslation } from "react-i18next";
+
+import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import PaginationComponent from "@/components/Common/Pagination";
 import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
-
-import useFilters from "@/hooks/useFilters";
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
@@ -277,23 +279,16 @@ export default function QuestionnaireResponsesList({
   patientId,
 }: Props) {
   const { t } = useTranslation();
+  const [qParams, setQueryParams] = useQueryParams();
 
-  const { qParams, Pagination, resultsPerPage } = useFilters({
-    limit: 15,
-  });
-
-  const {
-    data: questionnarieResponses,
-    isFetching: questionnaireFetching,
-    isLoading: questionnaireLoading,
-  } = useQuery({
+  const { data: questionnarieResponses, isLoading } = useQuery({
     queryKey: ["questionnaireResponses", patientId, qParams],
     queryFn: query(routes.getQuestionnaireResponses, {
       pathParams: { patientId },
       queryParams: {
         encounter: encounter?.id,
-        limit: resultsPerPage,
-        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
+        limit: 15,
+        offset: ((qParams.page ?? 1) - 1) * 15,
       },
     }),
   });
@@ -301,14 +296,13 @@ export default function QuestionnaireResponsesList({
   return (
     <div className="mt-4 gap-4">
       <div className="max-w-full">
-        {questionnaireLoading ? (
+        {isLoading ? (
           <div className="grid gap-5">
-            <CardListSkeleton count={resultsPerPage} />
+            <CardListSkeleton count={15} />
           </div>
         ) : (
           <div>
-            {!questionnaireFetching &&
-            questionnarieResponses?.results?.length === 0 ? (
+            {questionnarieResponses?.results?.length === 0 ? (
               <Card className="p-6">
                 <div className="text-lg font-medium text-gray-500">
                   {t("no_questionnaire_responses")}
@@ -324,7 +318,21 @@ export default function QuestionnaireResponsesList({
                   ),
                 )}
                 <div className="flex w-full items-center justify-center mt-4">
-                  <Pagination totalCount={questionnarieResponses?.count || 0} />
+                  <div
+                    className={cn(
+                      "flex w-full justify-center",
+                      (questionnarieResponses?.count ?? 0) > 15
+                        ? "visible"
+                        : "invisible",
+                    )}
+                  >
+                    <PaginationComponent
+                      cPage={qParams.page}
+                      defaultPerPage={15}
+                      data={{ totalCount: questionnarieResponses?.count ?? 0 }}
+                      onChange={(page) => setQueryParams({ page })}
+                    />
+                  </div>
                 </div>
               </ul>
             )}

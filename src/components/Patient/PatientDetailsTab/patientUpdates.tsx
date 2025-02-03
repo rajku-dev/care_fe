@@ -1,15 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, navigate } from "raviger";
+import { Link, navigate, useQueryParams } from "raviger";
 import { useTranslation } from "react-i18next";
+
+import { cn } from "@/lib/utils";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
+import PaginationComponent from "@/components/Common/Pagination";
 import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
-
-import useFilters from "@/hooks/useFilters";
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
@@ -22,9 +23,7 @@ export const Updates = (props: PatientProps) => {
   const { facilityId, patientId } = props;
   const { t } = useTranslation();
 
-  const { qParams, Pagination, resultsPerPage } = useFilters({
-    limit: 7,
-  });
+  const [qParams, setQueryParams] = useQueryParams();
 
   const {
     data: patientUpdatesData,
@@ -34,8 +33,8 @@ export const Updates = (props: PatientProps) => {
     queryKey: ["patientUpdates", patientId, qParams],
     queryFn: query(routes.getQuestionnaireResponses, {
       queryParams: {
-        limit: resultsPerPage,
-        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
+        limit: 7,
+        offset: ((qParams.page ?? 1) - 1) * 7,
       },
       pathParams: { patientId },
     }),
@@ -58,7 +57,7 @@ export const Updates = (props: PatientProps) => {
         <div className="flex flex-col gap-4">
           {patientUpdatesLoading ? (
             <div className="grid gap-4">
-              <CardListSkeleton count={resultsPerPage} />
+              <CardListSkeleton count={7} />
             </div>
           ) : (
             <div>
@@ -114,7 +113,21 @@ export const Updates = (props: PatientProps) => {
                     </li>
                   ))}
                   <div className="flex w-full items-center justify-center">
-                    <Pagination totalCount={patientUpdatesData?.count || 0} />
+                    <div
+                      className={cn(
+                        "flex w-full justify-center",
+                        (patientUpdatesData?.count ?? 0) > 7
+                          ? "visible"
+                          : "invisible",
+                      )}
+                    >
+                      <PaginationComponent
+                        cPage={qParams.page}
+                        defaultPerPage={7}
+                        data={{ totalCount: patientUpdatesData?.count ?? 0 }}
+                        onChange={(page) => setQueryParams({ page })}
+                      />
+                    </div>
                   </div>
                 </ul>
               )}

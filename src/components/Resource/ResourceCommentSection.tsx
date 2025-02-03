@@ -1,15 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { t } from "i18next";
+import { useQueryParams } from "raviger";
 import { useState } from "react";
 import { toast } from "sonner";
+
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 import { Avatar } from "@/components/Common/Avatar";
+import PaginationComponent from "@/components/Common/Pagination";
 import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
-
-import useFilters from "@/hooks/useFilters";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
@@ -22,20 +24,14 @@ const CommentSection = (props: { id: string }) => {
   const [commentBox, setCommentBox] = useState("");
   const queryClient = useQueryClient();
 
-  const { qParams, Pagination, resultsPerPage } = useFilters({
-    limit: 15,
-  });
+  const [qParams, setQueryParams] = useQueryParams();
 
-  const {
-    data: resourceComments,
-    isFetching: commentsFetching,
-    isLoading: commentsLoading,
-  } = useQuery({
+  const { data: resourceComments, isLoading } = useQuery({
     queryKey: ["resourceComments", id, qParams],
     queryFn: query(routes.getResourceComments, {
       queryParams: {
-        limit: resultsPerPage,
-        offset: ((qParams.page ?? 1) - 1) * resultsPerPage,
+        limit: 15,
+        offset: ((qParams.page ?? 1) - 1) * 15,
       },
       pathParams: { id },
     }),
@@ -79,15 +75,15 @@ const CommentSection = (props: { id: string }) => {
         </div>
 
         <div className="w-full">
-          {commentsLoading ? (
+          {isLoading ? (
             <div>
               <div className="grid gap-5">
-                <CardListSkeleton count={resultsPerPage} />
+                <CardListSkeleton count={15} />
               </div>
             </div>
           ) : (
             <div>
-              {!commentsFetching && resourceComments?.results?.length === 0 ? (
+              {resourceComments?.results?.length === 0 ? (
                 <div className="p-flex w-full justify-center border-b border-secondary-200 bg-white p-5 text-center text-2xl font-bold text-secondary-500">
                   <span>{t("no_comments_available")}</span>
                 </div>
@@ -99,7 +95,21 @@ const CommentSection = (props: { id: string }) => {
                     </li>
                   ))}
                   <div className="flex w-full items-center justify-center">
-                    <Pagination totalCount={resourceComments?.count || 0} />
+                    <div
+                      className={cn(
+                        "flex w-full justify-center",
+                        (resourceComments?.count ?? 0) > 15
+                          ? "visible"
+                          : "invisible",
+                      )}
+                    >
+                      <PaginationComponent
+                        cPage={qParams.page}
+                        defaultPerPage={15}
+                        data={{ totalCount: resourceComments?.count ?? 0 }}
+                        onChange={(page) => setQueryParams({ page })}
+                      />
+                    </div>
                   </div>
                 </ul>
               )}
