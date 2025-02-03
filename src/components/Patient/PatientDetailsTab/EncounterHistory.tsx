@@ -21,7 +21,7 @@ const EncounterHistory = (props: PatientProps) => {
 
   const { t } = useTranslation();
 
-  const [qParams, setQueryParams] = useQueryParams();
+  const [qParams, setQueryParams] = useQueryParams<{ page?: number }>();
 
   const { data: encounterData, isLoading } = useQuery({
     queryKey: ["encounterHistory", patientId, qParams],
@@ -83,7 +83,7 @@ const EncounterHistory = (props: PatientProps) => {
                     )}
                   >
                     <PaginationComponent
-                      cPage={qParams.page}
+                      cPage={qParams.page ?? 1}
                       defaultPerPage={5}
                       data={{ totalCount: encounterData?.count ?? 0 }}
                       onChange={(page) => setQueryParams({ page })}

@@ -23,7 +23,7 @@ export const Updates = (props: PatientProps) => {
   const { facilityId, patientId } = props;
   const { t } = useTranslation();
 
-  const [qParams, setQueryParams] = useQueryParams();
+  const [qParams, setQueryParams] = useQueryParams<{ page?: number }>();
 
   const { data: patientUpdatesData, isLoading } = useQuery({
     queryKey: ["patientUpdates", patientId, qParams],
@@ -117,7 +117,7 @@ export const Updates = (props: PatientProps) => {
                       )}
                     >
                       <PaginationComponent
-                        cPage={qParams.page}
+                        cPage={qParams.page ?? 1}
                         defaultPerPage={7}
                         data={{ totalCount: patientUpdatesData?.count ?? 0 }}
                         onChange={(page) => setQueryParams({ page })}

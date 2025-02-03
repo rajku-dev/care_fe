@@ -279,7 +279,7 @@ export default function QuestionnaireResponsesList({
   patientId,
 }: Props) {
   const { t } = useTranslation();
-  const [qParams, setQueryParams] = useQueryParams();
+  const [qParams, setQueryParams] = useQueryParams<{ page?: number }>();
 
   const { data: questionnarieResponses, isLoading } = useQuery({
     queryKey: ["questionnaireResponses", patientId, qParams],
@@ -327,7 +327,7 @@ export default function QuestionnaireResponsesList({
                     )}
                   >
                     <PaginationComponent
-                      cPage={qParams.page}
+                      cPage={qParams.page ?? 1}
                       defaultPerPage={15}
                       data={{ totalCount: questionnarieResponses?.count ?? 0 }}
                       onChange={(page) => setQueryParams({ page })}

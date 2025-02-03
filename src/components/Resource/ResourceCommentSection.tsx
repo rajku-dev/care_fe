@@ -24,7 +24,7 @@ const CommentSection = (props: { id: string }) => {
   const [commentBox, setCommentBox] = useState("");
   const queryClient = useQueryClient();
 
-  const [qParams, setQueryParams] = useQueryParams();
+  const [qParams, setQueryParams] = useQueryParams<{ page?: number }>();
 
   const { data: resourceComments, isLoading } = useQuery({
     queryKey: ["resourceComments", id, qParams],
@@ -43,7 +43,7 @@ const CommentSection = (props: { id: string }) => {
     }),
     onSuccess: () => {
       toast.success(t("comment_added_successfully"));
-      queryClient.invalidateQueries({ queryKey: ["resourceComments"] });
+      queryClient.invalidateQueries({ queryKey: ["resourceComments", id] });
     },
   });
 
@@ -104,7 +104,7 @@ const CommentSection = (props: { id: string }) => {
                       )}
                     >
                       <PaginationComponent
-                        cPage={qParams.page}
+                        cPage={qParams.page ?? 1}
                         defaultPerPage={15}
                         data={{ totalCount: resourceComments?.count ?? 0 }}
                         onChange={(page) => setQueryParams({ page })}
