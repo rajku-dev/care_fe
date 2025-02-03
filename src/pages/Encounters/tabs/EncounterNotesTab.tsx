@@ -183,10 +183,7 @@ const MessageItem = ({ message }: { message: Message }) => {
                 <span className="text-[11px] text-gray-500 flex justify-end items-end">
                   <Tooltip>
                     <TooltipTrigger>
-                      {relativeTime(message.created_date)
-                        .split(" ")
-                        .slice(0, -1)
-                        .join(" ")}
+                      {relativeTime(message.created_date)}
                     </TooltipTrigger>
                     <TooltipContent>
                       {new Date(message.created_date).toLocaleString()}
