@@ -25,11 +25,7 @@ export const Updates = (props: PatientProps) => {
 
   const [qParams, setQueryParams] = useQueryParams();
 
-  const {
-    data: patientUpdatesData,
-    isFetching: patientUpdatesFetching,
-    isLoading: patientUpdatesLoading,
-  } = useQuery({
+  const { data: patientUpdatesData, isLoading } = useQuery({
     queryKey: ["patientUpdates", patientId, qParams],
     queryFn: query(routes.getQuestionnaireResponses, {
       queryParams: {
@@ -55,14 +51,13 @@ export const Updates = (props: PatientProps) => {
       </div>
       <div className="flex w-full flex-col gap-4">
         <div className="flex flex-col gap-4">
-          {patientUpdatesLoading ? (
+          {isLoading ? (
             <div className="grid gap-4">
               <CardListSkeleton count={7} />
             </div>
           ) : (
             <div>
-              {!patientUpdatesFetching &&
-              patientUpdatesData?.results?.length === 0 ? (
+              {patientUpdatesData?.results?.length === 0 ? (
                 <Card className="p-6">
                   <div className="text-lg font-medium text-gray-500">
                     {t("no_update_available")}
