@@ -13,6 +13,8 @@ import { Avatar } from "@/components/Common/Avatar";
 import PaginationComponent from "@/components/Common/Pagination";
 import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
 
+import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
+
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
@@ -30,8 +32,8 @@ const CommentSection = (props: { id: string }) => {
     queryKey: ["resourceComments", id, qParams],
     queryFn: query(routes.getResourceComments, {
       queryParams: {
-        limit: 15,
-        offset: ((qParams.page ?? 1) - 1) * 15,
+        limit: RESULTS_PER_PAGE_LIMIT,
+        offset: ((qParams.page ?? 1) - 1) * RESULTS_PER_PAGE_LIMIT,
       },
       pathParams: { id },
     }),
@@ -78,7 +80,7 @@ const CommentSection = (props: { id: string }) => {
           {isLoading ? (
             <div>
               <div className="grid gap-5">
-                <CardListSkeleton count={15} />
+                <CardListSkeleton count={RESULTS_PER_PAGE_LIMIT} />
               </div>
             </div>
           ) : (
@@ -98,14 +100,14 @@ const CommentSection = (props: { id: string }) => {
                     <div
                       className={cn(
                         "flex w-full justify-center",
-                        (resourceComments?.count ?? 0) > 15
+                        (resourceComments?.count ?? 0) > RESULTS_PER_PAGE_LIMIT
                           ? "visible"
                           : "invisible",
                       )}
                     >
                       <PaginationComponent
                         cPage={qParams.page ?? 1}
-                        defaultPerPage={15}
+                        defaultPerPage={RESULTS_PER_PAGE_LIMIT}
                         data={{ totalCount: resourceComments?.count ?? 0 }}
                         onChange={(page) => setQueryParams({ page })}
                       />

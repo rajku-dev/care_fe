@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import PaginationComponent from "@/components/Common/Pagination";
 import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
 
+import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
+
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatDateTime, properCase } from "@/Utils/utils";
@@ -287,8 +289,8 @@ export default function QuestionnaireResponsesList({
       pathParams: { patientId },
       queryParams: {
         encounter: encounter?.id,
-        limit: 15,
-        offset: ((qParams.page ?? 1) - 1) * 15,
+        limit: RESULTS_PER_PAGE_LIMIT,
+        offset: ((qParams.page ?? 1) - 1) * RESULTS_PER_PAGE_LIMIT,
       },
     }),
   });
@@ -298,7 +300,7 @@ export default function QuestionnaireResponsesList({
       <div className="max-w-full">
         {isLoading ? (
           <div className="grid gap-5">
-            <CardListSkeleton count={15} />
+            <CardListSkeleton count={RESULTS_PER_PAGE_LIMIT} />
           </div>
         ) : (
           <div>
@@ -321,14 +323,15 @@ export default function QuestionnaireResponsesList({
                   <div
                     className={cn(
                       "flex w-full justify-center",
-                      (questionnarieResponses?.count ?? 0) > 15
+                      (questionnarieResponses?.count ?? 0) >
+                        RESULTS_PER_PAGE_LIMIT
                         ? "visible"
                         : "invisible",
                     )}
                   >
                     <PaginationComponent
                       cPage={qParams.page ?? 1}
-                      defaultPerPage={15}
+                      defaultPerPage={RESULTS_PER_PAGE_LIMIT}
                       data={{ totalCount: questionnarieResponses?.count ?? 0 }}
                       onChange={(page) => setQueryParams({ page })}
                     />

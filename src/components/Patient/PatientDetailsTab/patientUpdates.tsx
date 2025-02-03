@@ -12,6 +12,8 @@ import { Card } from "@/components/ui/card";
 import PaginationComponent from "@/components/Common/Pagination";
 import { CardListSkeleton } from "@/components/Common/SkeletonLoading";
 
+import { RESULTS_PER_PAGE_LIMIT } from "@/common/constants";
+
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatDateTime, properCase } from "@/Utils/utils";
@@ -29,8 +31,8 @@ export const Updates = (props: PatientProps) => {
     queryKey: ["patientUpdates", patientId, qParams],
     queryFn: query(routes.getQuestionnaireResponses, {
       queryParams: {
-        limit: 7,
-        offset: ((qParams.page ?? 1) - 1) * 7,
+        limit: RESULTS_PER_PAGE_LIMIT,
+        offset: ((qParams.page ?? 1) - 1) * RESULTS_PER_PAGE_LIMIT,
       },
       pathParams: { patientId },
     }),
@@ -53,7 +55,7 @@ export const Updates = (props: PatientProps) => {
         <div className="flex flex-col gap-4">
           {isLoading ? (
             <div className="grid gap-4">
-              <CardListSkeleton count={7} />
+              <CardListSkeleton count={RESULTS_PER_PAGE_LIMIT} />
             </div>
           ) : (
             <div>
@@ -111,14 +113,15 @@ export const Updates = (props: PatientProps) => {
                     <div
                       className={cn(
                         "flex w-full justify-center",
-                        (patientUpdatesData?.count ?? 0) > 7
+                        (patientUpdatesData?.count ?? 0) >
+                          RESULTS_PER_PAGE_LIMIT
                           ? "visible"
                           : "invisible",
                       )}
                     >
                       <PaginationComponent
                         cPage={qParams.page ?? 1}
-                        defaultPerPage={7}
+                        defaultPerPage={RESULTS_PER_PAGE_LIMIT}
                         data={{ totalCount: patientUpdatesData?.count ?? 0 }}
                         onChange={(page) => setQueryParams({ page })}
                       />
