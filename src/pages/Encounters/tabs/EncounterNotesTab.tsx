@@ -393,9 +393,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["messages", selectedThread] });
       setNewMessage("");
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+      setNextPageFetching(true);
     },
     onError: () => {
       toast.error(t("failed_to_send_message"));
@@ -416,9 +414,10 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
     }
   }, [threadsData, selectedThread]);
 
+  // hack to scroll to bottom on initial load
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView();
-  }, []);
+  }, [messagesLoading]);
 
   // Handle infinite scroll
   useEffect(() => {
@@ -431,6 +430,8 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
 
   const [nextPageFetching, setNextPageFetching] = useState(true);
 
+  // Scroll to bottom when new message is added to the thread
+  // and prevent scolling on fetching old messages
   useEffect(() => {
     if (
       messagesData &&
