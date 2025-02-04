@@ -391,9 +391,6 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
       setNewMessage("");
       setNextPageFetching(true);
     },
-    onError: () => {
-      toast.error(t("failed_to_send_message"));
-    },
   });
 
   const [threads, setThreads] = useState<string[]>([...threadTemplates]);
