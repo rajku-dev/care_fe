@@ -594,10 +594,12 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
-                      Participants:{" "}
+                      {t("participants")}:{" "}
                       {new Set(messages.map((m) => m.created_by.id)).size}
                     </p>
-                    <p>Messages: {messages.length}</p>
+                    <p>
+                      {t("messages")}: {messages.length}
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
