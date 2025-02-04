@@ -5,7 +5,6 @@ export interface Message {
   message: string; // Markdown
   message_history: Record<string, unknown>;
   created_by: UserBase;
-  created_date: Date;
   updated_by: UserBase;
   created_date: string;
   modified_date: string;
