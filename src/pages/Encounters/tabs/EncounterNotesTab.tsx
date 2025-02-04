@@ -415,23 +415,24 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
   }, [threadsData, selectedThread]);
 
   // hack to scroll to bottom on initial load
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView();
   }, [messagesLoading]);
 
   // Handle infinite scroll
+
   useEffect(() => {
     if (inView && hasNextPage) {
       fetchNextPage();
     }
   }, [inView, hasNextPage, fetchNextPage]);
 
-  // Scroll to bottom on initial load and thread change
-
   const [nextPageFetching, setNextPageFetching] = useState(true);
 
-  // Scroll to bottom when new message is added to the thread
-  // and prevent scolling on fetching old messages
+  // Auto-scroll to the bottom when a new message is added,
+  // but avoid scrolling while loading older messages.
+
   useEffect(() => {
     if (
       messagesData &&
