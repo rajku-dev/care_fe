@@ -56,7 +56,7 @@ import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
-import { formatDateTime, relativeTime } from "@/Utils/utils";
+import { formatDateTime } from "@/Utils/utils";
 import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
 import { Message } from "@/types/notes/messages";
 import { Thread } from "@/types/notes/threads";
@@ -179,7 +179,7 @@ const MessageItem = ({ message }: { message: Message }) => {
           </p>
           <div
             className={cn(
-              "pl-2 pr-1 pt-1 rounded-lg break-words border border-primary-200 relative",
+              "p-3 rounded-lg break-word",
               isCurrentUser
                 ? "bg-white text-black rounded-tr-none border border-gray-200"
                 : "bg-gray-100 rounded-tl-none border border-gray-200",
@@ -188,16 +188,6 @@ const MessageItem = ({ message }: { message: Message }) => {
             {message.message && (
               <div className="mt-0">
                 <Markdown content={message.message} className="text-sm mb-2" />
-                <span className="text-[11px] text-gray-500 flex justify-end items-end">
-                  <Tooltip>
-                    <TooltipTrigger>
-                      {relativeTime(message.created_date)}
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {new Date(message.created_date).toLocaleString()}
-                    </TooltipContent>
-                  </Tooltip>
-                </span>
               </div>
             )}
           </div>
