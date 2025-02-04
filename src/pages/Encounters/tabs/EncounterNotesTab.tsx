@@ -186,9 +186,7 @@ const MessageItem = ({ message }: { message: Message }) => {
             )}
           >
             {message.message && (
-              <div className="mt-0">
-                <Markdown content={message.message} className="text-sm mb-2" />
-              </div>
+              <Markdown content={message.message} className="text-sm mb-2" />
             )}
           </div>
         </div>
