@@ -261,17 +261,21 @@ export const PatientUsers = (props: PatientProps) => {
                   imageUrl={user.profile_picture_url}
                 />
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 truncate w-full max-w-32 sm:max-w-96 md:max-w-24 lg:max-w-28">
+                  <h3>
                     <Tooltip>
-                      <TooltipTrigger>{formatDisplayName(user)}</TooltipTrigger>
+                      <TooltipTrigger className="text-sm font-medium text-gray-900 truncate max-w-32 sm:max-w-96 md:max-w-32 lg:max-w-28">
+                        {formatDisplayName(user)}
+                      </TooltipTrigger>
                       <TooltipContent>
                         <p>{formatDisplayName(user)}</p>
                       </TooltipContent>
                     </Tooltip>
                   </h3>
-                  <p className="text-sm text-gray-500 truncate sm:max-w-96 md:max-w-32 lg:max-w-32">
+                  <p>
                     <Tooltip>
-                      <TooltipTrigger>{user.username}</TooltipTrigger>
+                      <TooltipTrigger className="text-sm text-gray-500 truncate sm:max-w-96 md:max-w-32 lg:max-w-32">
+                        {user.username}
+                      </TooltipTrigger>
                       <TooltipContent>
                         <p>{user.username}</p>
                       </TooltipContent>
