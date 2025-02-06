@@ -646,7 +646,10 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                           </div>
                         </div>
                       ) : (
-                        <div className="h-14 flex items-center justify-center" />
+                        <div
+                          className="h-14 flex items-center justify-center"
+                          ref={ref}
+                        />
                       )}
                     </div>
                   </ScrollArea>
