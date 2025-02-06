@@ -571,8 +571,8 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
       {/* Main Content */}
       <div className="flex-1 min-w-0">
         <div className="flex flex-col h-full pb-[60px] lg:pb-0">
-          {/* Mobile Header */}
-          <div className="lg:hidden p-4 border-b bg-background sticky top-0 z-10">
+          {/* Header */}
+          <div className="p-4 border-b bg-background sticky top-0 z-10">
             {selectedThread ? (
               <div className="flex items-center gap-3">
                 <h2 className="text-base font-medium truncate flex-1">
@@ -609,7 +609,6 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
               </div>
             )}
           </div>
-
           {selectedThread ? (
             <>
               {messagesLoading ? (
