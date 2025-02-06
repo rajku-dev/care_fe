@@ -264,7 +264,7 @@ export const PatientUsers = (props: PatientProps) => {
                 <div>
                   <h3>
                     <Tooltip>
-                      <TooltipTrigger className="text-sm font-medium text-gray-900 truncate max-w-32 sm:max-w-96 md:max-w-32 lg:max-w-28">
+                      <TooltipTrigger className="text-sm font-medium text-gray-900 truncate max-w-32 sm:max-w-96 md:max-w-32 lg:max-w-28 xl:max-w-40">
                         {formatDisplayName(user)}
                       </TooltipTrigger>
                       <TooltipContent>
@@ -274,7 +274,7 @@ export const PatientUsers = (props: PatientProps) => {
                   </h3>
                   <p>
                     <Tooltip>
-                      <TooltipTrigger className="text-sm text-gray-500 truncate sm:max-w-96 md:max-w-32 lg:max-w-32">
+                      <TooltipTrigger className="text-sm text-gray-500 truncate sm:max-w-96 md:max-w-32 lg:max-w-32 xl:max-w-40">
                         {user.username}
                       </TooltipTrigger>
                       <TooltipContent>
