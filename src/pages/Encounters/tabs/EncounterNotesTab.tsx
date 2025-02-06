@@ -466,7 +466,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
   }
 
   const messages = messagesData?.pages.flatMap((page) => page.results) ?? [];
-  const totalMessages = messagesData?.pages?.[0]?.count ?? 0;
+  const totalMessages = messagesData?.pages[0]?.count ?? 0;
 
   return (
     <div className="flex h-[calc(100vh-12rem)]">
