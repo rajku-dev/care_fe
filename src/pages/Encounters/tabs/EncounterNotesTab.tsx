@@ -466,6 +466,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
   }
 
   const messages = messagesData?.pages.flatMap((page) => page.results) ?? [];
+  const totalMessages = messagesData?.pages?.[0]?.count ?? 0;
 
   return (
     <div className="flex h-[calc(100vh-12rem)]">
@@ -590,7 +591,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                         {new Set(messages.map((m) => m.created_by.id)).size}
                       </span>
                       <MessageSquare className="h-4 w-4 ml-3" />
-                      <span>{messages.length}</span>
+                      <span>{totalMessages}</span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
