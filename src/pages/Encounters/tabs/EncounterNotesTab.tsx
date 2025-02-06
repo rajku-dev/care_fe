@@ -322,6 +322,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { ref, inView } = useInView();
+  const [commentAdded, setCommentAdded] = useState(false);
 
   // Fetch threads
   const { data: threadsData, isLoading: threadsLoading } = useQuery({
@@ -336,6 +337,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
   const {
     data: messagesData,
     isLoading: messagesLoading,
+    isFetching: isFetchingMessages,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
@@ -389,9 +391,18 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["messages", selectedThread] });
       setNewMessage("");
-      setNextPageFetching(true);
+      setCommentAdded(true);
     },
   });
+
+  // handle scrolling to last message when new message is added
+
+  useEffect(() => {
+    if (commentAdded && !isFetchingMessages) {
+      messagesEndRef.current?.scrollIntoView();
+      setCommentAdded(false);
+    }
+  }, [commentAdded, isFetchingMessages]);
 
   const [threads, setThreads] = useState<string[]>([...threadTemplates]);
 
@@ -419,24 +430,14 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
     if (inView && hasNextPage) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage, fetchNextPage]);
-
-  const [nextPageFetching, setNextPageFetching] = useState(true);
-
-  // Auto-scroll to the bottom when a new message is added,
-  // but avoid scrolling while loading older messages.
-
-  useEffect(() => {
-    if (
-      messagesData &&
-      !messagesLoading &&
-      !isFetchingNextPage &&
-      nextPageFetching
-    ) {
-      messagesEndRef.current?.scrollIntoView();
-      setNextPageFetching(false);
-    }
-  }, [selectedThread, messagesData, messagesLoading, isFetchingNextPage]);
+  }, [
+    inView,
+    hasNextPage,
+    fetchNextPage,
+    messagesData,
+    isFetchingNextPage,
+    messagesLoading,
+  ]);
 
   const handleCreateThread = (title: string) => {
     if (title.trim()) {
@@ -614,7 +615,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
               {messagesLoading ? (
                 <div className="flex-1 p-4">
                   <div className="space-y-4">
-                    <CardListSkeleton count={3} />
+                    <CardListSkeleton count={4} />
                   </div>
                 </div>
               ) : (
@@ -638,17 +639,17 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                           <MessageItem key={message.id} message={message} />
                         ))
                       )}
-                      {isFetchingNextPage && (
+                      {isFetchingNextPage ? (
                         <div className="py-2">
                           <div className="space-y-4">
                             <CardListSkeleton count={3} />
                           </div>
                         </div>
+                      ) : (
+                        <div className="h-14 flex items-center justify-center" />
                       )}
-                      <div ref={ref} />
                     </div>
                   </ScrollArea>
-
                   {/* Message Input */}
                   <div className="border-t bg-background p-4 sticky bottom-0">
                     <form onSubmit={handleSendMessage}>
