@@ -600,7 +600,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                       {new Set(messages.map((m) => m.created_by.id)).size}
                     </p>
                     <p>
-                      {t("messages")}: {messages.length}
+                      {t("messages")}: {totalMessages}
                     </p>
                   </TooltipContent>
                 </Tooltip>
