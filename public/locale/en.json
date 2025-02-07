@@ -2043,7 +2043,7 @@
   "state": "State",
   "state_reason_for_archiving": "State reason for archiving <strong>{{name}}</strong> file?",
   "status": "Status",
-  "status_placeholder": "Select diagnosis status ",
+  "status_placeholder": "Select diagnosis status",
   "stop": "Stop",
   "stop_recording": "Stop Recording",
   "stopped": "Stopped",
