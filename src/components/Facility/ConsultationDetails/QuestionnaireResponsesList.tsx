@@ -223,14 +223,14 @@ function ResponseCard({ item }: { item: QuestionnaireResponse }) {
             </div>
             <span>
               <Trans
-                i18nKey="at"
+                i18nKey="at_time"
                 values={{ time: formatDateTime(item.created_date) }}
                 components={{ strong: <strong /> }}
               />
             </span>
             <span>
               <Trans
-                i18nKey="by"
+                i18nKey="by_name"
                 values={{
                   by: `${item.created_by?.first_name || ""} ${item.created_by?.last_name || ""}${
                     item.created_by?.user_type

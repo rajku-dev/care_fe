@@ -312,7 +312,7 @@ const DiagnosisItem: React.FC<DiagnosisItemProps> = ({
                 <SelectValue
                   placeholder={
                     <span className="text-gray-500">
-                      {t("status_placeholder")}
+                      {t("diagnosis_status_placeholder")}
                     </span>
                   }
                 />
