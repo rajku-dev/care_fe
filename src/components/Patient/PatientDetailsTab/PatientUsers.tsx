@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { t } from "i18next";
 import { useState } from "react";
+import { Trans } from "react-i18next";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -301,9 +302,15 @@ export const PatientUsers = (props: PatientProps) => {
                   <AlertDialogHeader>
                     <AlertDialogTitle>{t("remove_user")}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      {t("are_you_sure_want_to_remove", {
-                        name: formatDisplayName(user),
-                      })}
+                      <Trans
+                        i18nKey="are_you_sure_want_to_remove"
+                        values={{ name: formatDisplayName(user) }}
+                        components={{
+                          strong: (
+                            <strong className="inline-block align-middle truncate max-w-32 sm:max-w-96 md:max-w-32 lg:max-w-28 xl:max-w-36" />
+                          ),
+                        }}
+                      />
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
