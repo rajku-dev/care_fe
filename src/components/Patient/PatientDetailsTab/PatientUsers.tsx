@@ -3,6 +3,8 @@ import { t } from "i18next";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import {
@@ -16,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -262,7 +264,7 @@ export const PatientUsers = (props: PatientProps) => {
                   imageUrl={user.profile_picture_url}
                 />
                 <div>
-                  <h3>
+                  <h3 className="inline-flex">
                     <Tooltip>
                       <TooltipTrigger className="text-sm font-medium text-gray-900 truncate max-w-32 sm:max-w-96 md:max-w-32 lg:max-w-28 xl:max-w-40">
                         {formatDisplayName(user)}
@@ -290,11 +292,9 @@ export const PatientUsers = (props: PatientProps) => {
                     variant="ghost"
                     size="icon"
                     data-cy="patient-user-remove-button"
+                    className="absolute top-0 right-0"
                   >
-                    <CareIcon
-                      icon="l-trash"
-                      className="h-4 w-4 absolute top-2 right-2"
-                    />
+                    <CareIcon icon="l-trash" />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -311,7 +311,7 @@ export const PatientUsers = (props: PatientProps) => {
                     <AlertDialogAction
                       data-cy="patient-user-remove-confirm-button"
                       onClick={() => removeUser(user.id)}
-                      className="bg-red-500 text-white hover:bg-red-600"
+                      className={cn(buttonVariants({ variant: "destructive" }))}
                     >
                       {t("remove")}
                     </AlertDialogAction>
