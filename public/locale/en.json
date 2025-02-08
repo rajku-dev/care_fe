@@ -1293,7 +1293,7 @@
   "medical_worker": "Medical Worker",
   "medication": "Medication",
   "medication_administration_saved": "Medicine Administration saved",
-  "medication_already_marked_as_error": "Medication already marked as error",
+  "medication_already_marked_as_error": "Medication already marked as entered in error",
   "medication_taken_between": "Medication Taken Between",
   "medicine": "Medicine",
   "medicine_administration": "Medicine Administration",
