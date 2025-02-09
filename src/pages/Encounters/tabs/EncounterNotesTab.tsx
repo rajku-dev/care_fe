@@ -637,7 +637,10 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                         </div>
                       ) : (
                         messages.map((message, index) => (
-                          <div ref={index === messages.length / 2 ? ref : null}>
+                          <div
+                            key={message.id}
+                            ref={index === messages.length / 2 ? ref : null}
+                          >
                             <MessageItem key={message.id} message={message} />
                           </div>
                         ))
