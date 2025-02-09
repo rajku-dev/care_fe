@@ -636,8 +636,10 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                           </p>
                         </div>
                       ) : (
-                        messages.map((message) => (
-                          <MessageItem key={message.id} message={message} />
+                        messages.map((message, index) => (
+                          <div ref={index === messages.length / 2 ? ref : null}>
+                            <MessageItem key={message.id} message={message} />
+                          </div>
                         ))
                       )}
                       {isFetchingNextPage ? (
@@ -646,9 +648,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                             <CardListSkeleton count={3} />
                           </div>
                         </div>
-                      ) : (
-                        <div ref={ref} />
-                      )}
+                      ) : null}
                     </div>
                   </ScrollArea>
                   {/* Message Input */}
