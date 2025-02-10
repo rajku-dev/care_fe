@@ -22,7 +22,7 @@ interface Props {
   open: boolean;
   imageUrl?: string;
   handleUpload: (file: File, onError: () => void) => Promise<void>;
-  handleDelete: (onError: () => void) => Promise<void>;
+  handleDelete: (onSuccess: () => void, onError: () => void) => Promise<void>;
   onClose?: () => void;
   hint?: React.ReactNode;
 }
@@ -139,9 +139,14 @@ const AvatarEditModal = ({
 
   const deleteAvatar = async () => {
     setIsProcessing(true);
-    await handleDelete(() => {
-      setIsProcessing(false);
-    });
+    await handleDelete(
+      () => {
+        setIsProcessing(false);
+        setPreview(undefined);
+        setPreviewImage(null);
+      },
+      () => setIsProcessing(false),
+    );
   };
 
   const dragProps = useDragAndDrop();

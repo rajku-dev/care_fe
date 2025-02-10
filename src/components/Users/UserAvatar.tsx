@@ -27,7 +27,7 @@ export default function UserAvatar({ username }: { username: string }) {
   const authUser = useAuthUser();
   const queryClient = useQueryClient();
 
-  const { mutate: mutateAvatarDelete } = useMutation({
+  const { mutateAsync: mutateAvatarDelete } = useMutation({
     mutationFn: mutate(routes.deleteProfilePicture, {
       pathParams: { username },
     }),
@@ -82,13 +82,18 @@ export default function UserAvatar({ username }: { username: string }) {
     );
   };
 
-  const handleAvatarDelete = async (onError: () => void) => {
+  const handleAvatarDelete = async (
+    onSuccess: () => void,
+    onError: () => void,
+  ) => {
     try {
-      mutateAvatarDelete();
-    } catch {
+      await mutateAvatarDelete();
+      onSuccess();
+    } catch (error) {
       onError();
     }
   };
+
   return (
     <>
       <AvatarEditModal
