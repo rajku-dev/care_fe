@@ -307,7 +307,7 @@ export const PatientUsers = (props: PatientProps) => {
                         values={{ name: formatDisplayName(user) }}
                         components={{
                           strong: (
-                            <strong className="inline-block align-middle truncate max-w-32 sm:max-w-96 md:max-w-32 lg:max-w-28 xl:max-w-36" />
+                            <strong className="inline-block align-bottom truncate max-w-32 sm:max-w-96 md:max-w-32 lg:max-w-28 xl:max-w-36" />
                           ),
                         }}
                       />
