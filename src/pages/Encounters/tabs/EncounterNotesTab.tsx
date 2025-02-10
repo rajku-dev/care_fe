@@ -429,6 +429,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
   useEffect(() => {
     if (inView && hasNextPage) {
       fetchNextPage();
+      messagesEndRef.current?.scrollIntoView();
     }
   }, [
     inView,
@@ -637,12 +638,7 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                         </div>
                       ) : (
                         messages.map((message, index) => (
-                          <div
-                            key={message.id}
-                            ref={index === messages.length / 2 ? ref : null}
-                          >
-                            <MessageItem key={message.id} message={message} />
-                          </div>
+                          <MessageItem key={message.id} message={message} />
                         ))
                       )}
                       {isFetchingNextPage ? (
@@ -651,7 +647,9 @@ export const EncounterNotesTab = ({ encounter }: EncounterTabProps) => {
                             <CardListSkeleton count={3} />
                           </div>
                         </div>
-                      ) : null}
+                      ) : (
+                        <div ref={ref} />
+                      )}
                     </div>
                   </ScrollArea>
                   {/* Message Input */}
