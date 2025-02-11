@@ -136,7 +136,7 @@ export const FacilityHome = ({ facilityId }: Props) => {
     formData.append("cover_image", file);
     const url = `${careConfig.apiUrl}/api/v1/facility/${facilityId}/cover_image/`;
 
-    uploadFile(
+    await uploadFile(
       url,
       formData,
       "POST",
