@@ -35,11 +35,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { TooltipComponent } from "@/components/ui/tooltip";
 
 import { Avatar } from "@/components/Common/Avatar";
 import UserSelector from "@/components/Common/UserSelector";
@@ -266,24 +262,18 @@ export const PatientUsers = (props: PatientProps) => {
                 />
                 <div>
                   <h3 className="inline-flex">
-                    <Tooltip>
-                      <TooltipTrigger className="text-sm font-medium text-gray-900 truncate max-w-32 sm:max-w-96 md:max-w-32 lg:max-w-28 xl:max-w-36">
+                    <TooltipComponent content={formatDisplayName(user)}>
+                      <p className="text-sm font-medium text-gray-900 truncate max-w-32 sm:max-w-96 md:max-w-32 lg:max-w-28 xl:max-w-36">
                         {formatDisplayName(user)}
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{formatDisplayName(user)}</p>
-                      </TooltipContent>
-                    </Tooltip>
+                      </p>
+                    </TooltipComponent>
                   </h3>
                   <p>
-                    <Tooltip>
-                      <TooltipTrigger className="text-sm text-gray-500 truncate sm:max-w-96 md:max-w-32 lg:max-w-32 xl:max-w-36">
+                    <TooltipComponent content={user.username}>
+                      <p className="text-sm text-gray-500 truncate sm:max-w-96 md:max-w-32 lg:max-w-32 xl:max-w-36">
                         {user.username}
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{user.username}</p>
-                      </TooltipContent>
-                    </Tooltip>
+                      </p>
+                    </TooltipComponent>
                   </p>
                 </div>
               </div>
