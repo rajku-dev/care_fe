@@ -159,9 +159,13 @@ export const FacilityHome = ({ facilityId }: Props) => {
       },
     );
   };
-  const handleCoverImageDelete = async (onError: () => void) => {
+  const handleCoverImageDelete = async (
+    onSuccess: () => void,
+    onError: () => void,
+  ) => {
     try {
       await deleteAvatar();
+      onSuccess();
     } catch {
       onError();
     }
