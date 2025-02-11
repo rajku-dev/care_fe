@@ -137,9 +137,11 @@ function AddUserSheet({ patientId }: AddUserSheetProps) {
                     className="h-12 w-12"
                   />
                   <div className="flex flex-col flex-1">
-                    <span className="font-medium text-lg">
-                      {formatDisplayName(selectedUser)}
-                    </span>
+                    <TooltipComponent content={formatDisplayName(selectedUser)}>
+                      <p className="font-medium text-gray-900 truncate max-w-56 sm:max-w-48 md:max-w-64 lg:max-w-64 xl:max-w-36">
+                        {formatDisplayName(selectedUser)}
+                      </p>
+                    </TooltipComponent>
                     <span className="text-sm text-gray-500">
                       {selectedUser.email}
                     </span>
