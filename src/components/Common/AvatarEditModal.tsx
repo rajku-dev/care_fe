@@ -134,6 +134,7 @@ const AvatarEditModal = ({
     } finally {
       setIsCaptureImgBeingUploaded(false);
       setIsProcessing(false);
+      setSelectedFile(undefined);
     }
   };
 
@@ -194,11 +195,11 @@ const AvatarEditModal = ({
         <div className="flex max-h-screen min-h-96 w-full flex-col overflow-auto">
           {!isCameraOpen ? (
             <>
-              {preview || imageUrl ? (
+              {imageUrl || preview ? (
                 <>
                   <div className="flex flex-1 items-center justify-center rounded-lg">
                     <img
-                      src={preview || imageUrl}
+                      src={imageUrl || preview}
                       alt="cover-photo"
                       className="h-full w-full object-cover"
                     />
