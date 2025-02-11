@@ -89,7 +89,7 @@ export default function UserAvatar({ username }: { username: string }) {
     try {
       await mutateAvatarDelete();
       onSuccess();
-    } catch (error) {
+    } catch {
       onError();
     }
   };
