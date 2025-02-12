@@ -70,7 +70,7 @@ export default function UserSelector({
                 name={formatName(selected)}
                 className="size-6 rounded-full"
               />
-              <TooltipComponent content={formatName(selected)}>
+              <TooltipComponent content={formatName(selected)} side="bottom">
                 <p className="font-medium text-gray-900 truncate max-w-56 sm:max-w-48 md:max-w-64 lg:max-w-64 xl:max-w-36">
                   {formatName(selected)}
                 </p>
