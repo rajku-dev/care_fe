@@ -561,6 +561,8 @@ export default function PatientRegistration(
                           />
                         </FormControl>
 
+                        <FormMessage />
+
                         {/* <FormMessage /> */}
                         {form.getValues("age") && (
                           <div className="text-sm font-bold">
