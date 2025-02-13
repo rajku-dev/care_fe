@@ -194,7 +194,6 @@ const AvatarEditModal = ({
   );
 
   const hintMessage = hint || defaultHint;
-  console.log(preview, imageUrl);
 
   return (
     <DialogModal
