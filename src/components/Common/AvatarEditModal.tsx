@@ -136,7 +136,6 @@ const AvatarEditModal = ({
         selectedFile,
         () => {
           setPreview(undefined);
-          onClose?.();
         },
         () => {
           setPreview(undefined);
