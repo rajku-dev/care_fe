@@ -131,7 +131,11 @@ export const FacilityHome = ({ facilityId }: Props) => {
     },
   });
 
-  const handleCoverImageUpload = async (file: File, onError: () => void) => {
+  const handleCoverImageUpload = async (
+    file: File,
+    onSuccess: () => void,
+    onError: () => void,
+  ) => {
     const formData = new FormData();
     formData.append("cover_image", file);
     const url = `${careConfig.apiUrl}/api/v1/facility/${facilityId}/cover_image/`;
@@ -149,6 +153,7 @@ export const FacilityHome = ({ facilityId }: Props) => {
           });
           toast.success(t("cover_image_updated"));
           setEditCoverImage(false);
+          onSuccess();
         } else {
           onError();
         }

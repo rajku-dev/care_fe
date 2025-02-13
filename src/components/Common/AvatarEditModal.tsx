@@ -21,7 +21,11 @@ interface Props {
   title: string;
   open: boolean;
   imageUrl?: string;
-  handleUpload: (file: File, onError: () => void) => Promise<void>;
+  handleUpload: (
+    file: File,
+    onSuccess: () => void,
+    onError: () => void,
+  ) => Promise<void>;
   handleDelete: (onSuccess: () => void, onError: () => void) => Promise<void>;
   onClose?: () => void;
   hint?: React.ReactNode;
@@ -124,14 +128,20 @@ const AvatarEditModal = ({
 
       setIsProcessing(true);
       setIsCaptureImgBeingUploaded(true);
-      await handleUpload(selectedFile, () => {
-        setSelectedFile(undefined);
-        setPreview(undefined);
-        setPreviewImage(null);
-        setIsCaptureImgBeingUploaded(false);
-        setIsProcessing(false);
-      });
+      await handleUpload(
+        selectedFile,
+        () => {
+          setPreview(undefined), onClose?.();
+        },
+        () => {
+          setPreview(undefined);
+          setPreviewImage(null);
+          setIsCaptureImgBeingUploaded(false);
+          setIsProcessing(false);
+        },
+      );
     } finally {
+      setPreview(undefined);
       setIsCaptureImgBeingUploaded(false);
       setIsProcessing(false);
       setSelectedFile(undefined);
@@ -183,6 +193,7 @@ const AvatarEditModal = ({
   );
 
   const hintMessage = hint || defaultHint;
+  console.log(preview, imageUrl);
 
   return (
     <DialogModal
@@ -195,11 +206,11 @@ const AvatarEditModal = ({
         <div className="flex max-h-screen min-h-96 w-full flex-col overflow-auto">
           {!isCameraOpen ? (
             <>
-              {imageUrl || preview ? (
+              {preview || imageUrl ? (
                 <>
                   <div className="flex flex-1 items-center justify-center rounded-lg">
                     <img
-                      src={imageUrl || preview}
+                      src={preview || imageUrl}
                       alt="cover-photo"
                       className="h-full w-full object-cover"
                     />

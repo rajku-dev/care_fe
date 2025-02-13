@@ -52,7 +52,11 @@ export default function UserAvatar({ username }: { username: string }) {
     return <Loading />;
   }
 
-  const handleAvatarUpload = async (file: File, onError: () => void) => {
+  const handleAvatarUpload = async (
+    file: File,
+    onSuccess: () => void,
+    onError: () => void,
+  ) => {
     const formData = new FormData();
     formData.append("profile_picture", file);
     const url = `${careConfig.apiUrl}/api/v1/users/${userData.username}/profile_picture/`;
@@ -64,6 +68,7 @@ export default function UserAvatar({ username }: { username: string }) {
       { Authorization: getAuthorizationHeader() },
       async (xhr: XMLHttpRequest) => {
         if (xhr.status === 200) {
+          setEditAvatar(false);
           await sleep(1000);
           queryClient.invalidateQueries({
             queryKey: ["getUserDetails", username],
@@ -72,7 +77,6 @@ export default function UserAvatar({ username }: { username: string }) {
             queryClient.invalidateQueries({ queryKey: ["currentUser"] });
           }
           toast.success(t("avatar_updated_success"));
-          setEditAvatar(false);
         }
       },
       null,
