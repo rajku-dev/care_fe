@@ -131,7 +131,8 @@ const AvatarEditModal = ({
       await handleUpload(
         selectedFile,
         () => {
-          setPreview(undefined), onClose?.();
+          setPreview(undefined);
+          onClose?.();
         },
         () => {
           setPreview(undefined);
