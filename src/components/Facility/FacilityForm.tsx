@@ -38,7 +38,7 @@ import { validatePincode } from "@/common/validation";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import getValidationSchema from "@/Utils/validators";
+import validators from "@/Utils/validators";
 import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
 import { BaseFacility } from "@/types/facility/facility";
 import { Organization } from "@/types/organization/organization";
@@ -57,7 +57,6 @@ export default function FacilityForm({
   const queryClient = useQueryClient();
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [selectedLevels, setSelectedLevels] = useState<Organization[]>([]);
-  const validators = getValidationSchema();
 
   const facilityFormSchema = z.object({
     facility_type: z.string().min(1, t("facility_type_required")),
@@ -67,9 +66,9 @@ export default function FacilityForm({
     pincode: z.string().refine(validatePincode, t("invalid_pincode")),
     geo_organization: z.string().min(1, t("field_required")),
     address: z.string().min(1, t("address_is_required")),
-    phone_number: validators.phoneNumber.required,
-    latitude: validators.coordinates.latitude.optional(),
-    longitude: validators.coordinates.longitude.optional(),
+    phone_number: validators().phoneNumber.required,
+    latitude: validators().coordinates.latitude.optional(),
+    longitude: validators().coordinates.longitude.optional(),
     is_public: z.boolean().default(false),
   });
 

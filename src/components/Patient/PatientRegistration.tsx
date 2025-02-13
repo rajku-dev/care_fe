@@ -56,7 +56,7 @@ import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { dateQueryString } from "@/Utils/utils";
-import getValidationSchema from "@/Utils/validators";
+import validators from "@/Utils/validators";
 import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
 import { PatientModel } from "@/types/emr/patient";
 import { Organization } from "@/types/organization/organization";
@@ -82,16 +82,14 @@ export default function PatientRegistration(
     useState(!!patientId);
   const [selectedLevels, setSelectedLevels] = useState<Organization[]>([]);
 
-  const validators = getValidationSchema();
-
   const formSchema = useMemo(
     () =>
       z
         .object({
           name: z.string().nonempty(t("name_is_required")),
-          phone_number: validators.phoneNumber.required,
+          phone_number: validators().phoneNumber.required,
           same_phone_number: z.boolean(),
-          emergency_phone_number: validators.phoneNumber.required,
+          emergency_phone_number: validators().phoneNumber.required,
           gender: z.enum(GENDERS, { required_error: t("gender_is_required") }),
           blood_group: z.enum(BLOOD_GROUPS, {
             required_error: t("blood_group_is_required"),

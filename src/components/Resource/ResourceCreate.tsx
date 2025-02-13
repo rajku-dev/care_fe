@@ -46,7 +46,7 @@ import { RESOURCE_CATEGORY_CHOICES } from "@/common/constants";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import getValidationSchema from "@/Utils/validators";
+import validators from "@/Utils/validators";
 import facilityApi from "@/types/facility/facilityApi";
 import { ResourceRequest } from "@/types/resourceRequest/resourceRequest";
 
@@ -61,7 +61,6 @@ export default function ResourceCreate(props: ResourceProps) {
   const { t } = useTranslation();
   const [{ related_patient }] = useQueryParams();
   const authUser = useAuthUser();
-  const validators = getValidationSchema();
 
   const resourceFormSchema = z.object({
     category: z.string().min(1, { message: t("field_required") }),
@@ -77,7 +76,7 @@ export default function ResourceCreate(props: ResourceProps) {
     referring_facility_contact_name: z
       .string()
       .min(1, { message: t("field_required") }),
-    referring_facility_contact_number: validators.phoneNumber.required,
+    referring_facility_contact_number: validators().phoneNumber.required,
     priority: z.number().default(1),
   });
 
