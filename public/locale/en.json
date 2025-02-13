@@ -1077,7 +1077,6 @@
   "generated_summary_caution": "This is a computer generated summary using the information captured in the CARE system.",
   "generating": "Generating",
   "generating_discharge_summary": "Generating discharge summary",
-  "geo_org_required": "Please select full location details",
   "geo_organization_is_required": "Geo organization is required when nationality is India",
   "geo_organization_required": "Geo organization is required",
   "geolocation_is_not_supported_by_this_browser": "Geolocation is not supported by this browser",

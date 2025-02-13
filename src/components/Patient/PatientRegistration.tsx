@@ -122,7 +122,7 @@ export default function PatientRegistration(
           nationality: z.string().nonempty(t("nationality_is_required")),
           geo_organization: z
             .string()
-            .uuid({ message: t("geo_org_required") })
+            .uuid({ message: t("geo_organization_is_required") })
             .optional(),
         })
         .refine(
