@@ -38,7 +38,7 @@ import { GENDERS } from "@/common/constants";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import validators from "@/Utils/validators";
+import getValidationSchema from "@/Utils/validators";
 import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
 import { Organization } from "@/types/organization/organization";
 import organizationApi from "@/types/organization/organizationApi";
@@ -60,6 +60,7 @@ export default function UserForm({
   const isEditMode = !!existingUsername;
   const queryClient = useQueryClient();
   const [selectedLevels, setSelectedLevels] = useState<Organization[]>([]);
+  const validators = getValidationSchema();
 
   const userFormSchema = z
     .object({

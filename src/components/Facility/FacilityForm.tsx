@@ -38,7 +38,7 @@ import { validatePincode } from "@/common/validation";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import validators from "@/Utils/validators";
+import getValidationSchema from "@/Utils/validators";
 import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
 import { BaseFacility } from "@/types/facility/facility";
 import { Organization } from "@/types/organization/organization";
@@ -57,6 +57,7 @@ export default function FacilityForm({
   const queryClient = useQueryClient();
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [selectedLevels, setSelectedLevels] = useState<Organization[]>([]);
+  const validators = getValidationSchema();
 
   const facilityFormSchema = z.object({
     facility_type: z.string().min(1, t("facility_type_required")),

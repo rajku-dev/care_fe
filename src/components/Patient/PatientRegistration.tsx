@@ -56,7 +56,7 @@ import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { dateQueryString } from "@/Utils/utils";
-import validators from "@/Utils/validators";
+import getValidationSchema from "@/Utils/validators";
 import GovtOrganizationSelector from "@/pages/Organization/components/GovtOrganizationSelector";
 import { PatientModel } from "@/types/emr/patient";
 import { Organization } from "@/types/organization/organization";
@@ -81,6 +81,8 @@ export default function PatientRegistration(
   const [suppressDuplicateWarning, setSuppressDuplicateWarning] =
     useState(!!patientId);
   const [selectedLevels, setSelectedLevels] = useState<Organization[]>([]);
+
+  const validators = getValidationSchema();
 
   const formSchema = useMemo(
     () =>
@@ -552,19 +554,25 @@ export default function PatientRegistration(
                                 "age",
                                 e.target.value
                                   ? Number(e.target.value)
-                                  : (undefined as unknown as number), // intentionally setting to undefined, when the value is empty to avoid 0 in the input field
+                                  : (null as unknown as number), // intentionally setting to undefined, when the value is empty to avoid 0 in the input field
                               )
                             }
                             data-cy="age-input"
                           />
                         </FormControl>
 
-                        <FormMessage />
+                        {/* <FormMessage /> */}
                         {form.getValues("age") && (
-                          <div className="text-violet-600 text-sm font-bold">
-                            {t("year_of_birth")}:{" "}
-                            {new Date().getFullYear() -
-                              Number(form.getValues("age"))}
+                          <div className="text-sm font-bold">
+                            {Number(form.getValues("age")) <= 0 ? (
+                              <span className="text-red-600">Invalid age</span>
+                            ) : (
+                              <span className="text-violet-600">
+                                {t("year_of_birth")}:{" "}
+                                {new Date().getFullYear() -
+                                  Number(form.getValues("age"))}
+                              </span>
+                            )}
                           </div>
                         )}
                       </FormItem>
