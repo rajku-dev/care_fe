@@ -13,7 +13,7 @@ export default () => ({
 
     required: z
       .string()
-      .min(1, { message: t("phone_number_is_required") })
+      .min(1, { message: t("phone_number_must_be_10_digits") })
       .refine((val) => isValidPhoneNumber(val), {
         message: t("phone_number_validation_error"),
       }),

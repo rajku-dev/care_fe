@@ -1616,7 +1616,6 @@
   "phone_no": "Phone no.",
   "phone_number": "Phone Number",
   "phone_number_at_current_facility": "Phone Number of Contact person at current Facility",
-  "phone_number_is_required": "Please provide a phone number",
   "phone_number_min_error": "Phone number must be at least 10 characters long",
   "phone_number_must_be_10_digits": "Phone number must be a 10-digit mobile number",
   "phone_number_not_found": "Phone number not found",
