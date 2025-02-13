@@ -147,12 +147,12 @@ export const FacilityHome = ({ facilityId }: Props) => {
       { Authorization: getAuthorizationHeader() },
       async (xhr: XMLHttpRequest) => {
         if (xhr.status === 200) {
+          setEditCoverImage(false);
           await sleep(1000);
           queryClient.invalidateQueries({
             queryKey: ["facility", facilityId],
           });
           toast.success(t("cover_image_updated"));
-          setEditCoverImage(false);
           onSuccess();
         } else {
           onError();
