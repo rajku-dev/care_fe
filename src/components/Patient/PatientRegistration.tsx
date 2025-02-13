@@ -122,7 +122,10 @@ export default function PatientRegistration(
             .min(100000, t("pincode_must_be_6_digits"))
             .max(999999, t("pincode_must_be_6_digits")),
           nationality: z.string().nonempty(t("nationality_is_required")),
-          geo_organization: z.string().uuid().optional(),
+          geo_organization: z
+            .string()
+            .uuid({ message: "Please select full location details" })
+            .optional(),
         })
         .refine(
           (data) => (data.age_or_dob === "dob" ? !!data.date_of_birth : true),
@@ -554,7 +557,7 @@ export default function PatientRegistration(
                                 "age",
                                 e.target.value
                                   ? Number(e.target.value)
-                                  : (null as unknown as number), // intentionally setting to undefined, when the value is empty to avoid 0 in the input field
+                                  : (null as unknown as number),
                               )
                             }
                             data-cy="age-input"
@@ -562,8 +565,6 @@ export default function PatientRegistration(
                         </FormControl>
 
                         <FormMessage />
-
-                        {/* <FormMessage /> */}
                         {form.getValues("age") && (
                           <div className="text-sm font-bold">
                             {Number(form.getValues("age")) <= 0 ? (
