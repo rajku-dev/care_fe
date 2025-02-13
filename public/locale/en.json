@@ -1077,6 +1077,7 @@
   "generated_summary_caution": "This is a computer generated summary using the information captured in the CARE system.",
   "generating": "Generating",
   "generating_discharge_summary": "Generating discharge summary",
+  "geo_org_required": "Please select full location details",
   "geo_organization_is_required": "Geo organization is required when nationality is India",
   "geo_organization_required": "Geo organization is required",
   "geolocation_is_not_supported_by_this_browser": "Geolocation is not supported by this browser",
@@ -2372,6 +2373,5 @@
   "yet_to_be_decided": "Yet to be decided",
   "you_need_at_least_a_location_to_create_an_assest": "You need at least a location to create an assest.",
   "zoom_in": "Zoom In",
-  "zoom_out": "Zoom Out",
-  "geo_org_required": "Please select full location details"
+  "zoom_out": "Zoom Out"
 }
