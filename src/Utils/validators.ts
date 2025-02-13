@@ -13,21 +13,21 @@ export default () => ({
 
     required: z
       .string()
-      .min(1, { message: t("phone_number_is_required") }) 
+      .min(1, { message: t("phone_number_is_required") })
       .refine((val) => isValidPhoneNumber(val), {
-        message: t("phone_number_validation_error"), 
+        message: t("phone_number_validation_error"),
       }),
   },
 
   coordinates: {
     latitude: z
       .number()
-      .min(-90, { message: t("invalid_latitude") })
-      .max(90, { message: t("invalid_latitude") }),
-      
+      .min(-90, t("invalid_latitude"))
+      .max(90, t("invalid_latitude")),
+
     longitude: z
       .number()
-      .min(-180, { message: t("invalid_longitude") })
-      .max(180, { message: t("invalid_longitude") }),
+      .min(-180, t("invalid_longitude"))
+      .max(180, t("invalid_longitude")),
   },
 });
